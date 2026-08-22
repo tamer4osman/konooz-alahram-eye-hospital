@@ -1,6 +1,6 @@
-<div align="center">
-
 # 🏥 Konooz Al-Ahram Eye Hospital — Website
+
+<div align="center">
 
 **A bilingual (Arabic-first / RTL) marketing site and patient portal for Konooz Al-Ahram
 Eye & Surgery Hospital in Benghazi, Libya — built with Next.js 15, React 19, and Tailwind CSS 4.**
@@ -9,7 +9,7 @@ Eye & Surgery Hospital in Benghazi, Libya — built with Next.js 15, React 19, a
 [![React](https://img.shields.io/badge/React-19-61DAFB?logo=react&logoColor=black)](https://react.dev)
 [![TypeScript](https://img.shields.io/badge/TypeScript-strict-3178C6?logo=typescript)](https://www.typescriptlang.org)
 [![Tailwind CSS](https://img.shields.io/badge/Tailwind-v4-06B6D4?logo=tailwindcss)](https://tailwindcss.com)
-[![Lint & Type Check](https://img.shields.io/badge/lint%20%2B%20tsc-passing-brightgreen)](#-development)
+[![Lint and Type Check](https://img.shields.io/badge/lint%20%2B%20tsc-passing-brightgreen)](#-tech-stack)
 
 </div>
 
@@ -23,17 +23,17 @@ Eye & Surgery Hospital in Benghazi, Libya — built with Next.js 15, React 19, a
 
 ## ✨ Features
 
-| | Feature | Details |
-|---|---|---|
-| 🌍 | **Bilingual & RTL-first** | Arabic default with instant English toggle; language persists across visits (`localStorage` + `?lang=` deep links) with zero RTL/LTR flash |
-| 🦯 | **Accessibility toolbar** | Font scaling, high contrast, reading ruler, and screen-reader-friendly overview |
-| 📅 | **Quick booking** | Triage-informed booking form that hands off to WhatsApp with a pre-filled draft |
-| 👤 | **Patient portal** | Device-local medical profile: appointments, prescriptions view, notification preferences, newsletter topics |
-| ⏱️ | **Queue guidance** | Honest visit-journey guide (live tracking marked *coming soon* until hospital-system integration) |
-| 💰 | **Cost estimator** | Surgical cost & insurance co-pay calculator |
-| 🔬 | **Vision self-screening** | Interactive acuity check and Amsler grid |
-| 🧑‍⚕️ | **Operations dashboard** | Internal staff hub for personnel, rooms, equipment, surgeries, and billing |
-| ⚡ | **Performance** | 165 kB first load JS; dashboard and all five modals are lazy-loaded chunks fetched on first open |
+| Icon | Feature | Details |
+| --- | --- | --- |
+| 🌍 | Bilingual & RTL-first | Arabic default with instant English toggle; language persists across visits (`localStorage` + `?lang=` deep links) with zero RTL/LTR flash |
+| 🦯 | Accessibility toolbar | Font scaling, high contrast, reading ruler, and screen-reader-friendly overview |
+| 📅 | Quick booking | Triage-informed booking form that hands off to WhatsApp with a pre-filled draft |
+| 👤 | Patient portal | Device-local medical profile: appointments, prescriptions view, notification preferences, newsletter topics |
+| ⏱️ | Queue guidance | Honest visit-journey guide (live tracking marked *coming soon* until hospital-system integration) |
+| 💰 | Cost estimator | Surgical cost & insurance co-pay calculator |
+| 🔬 | Vision self-screening | Interactive acuity check and Amsler grid |
+| 🧑‍⚕️ | Operations dashboard | Internal staff hub for personnel, rooms, equipment, surgeries, and billing |
+| ⚡ | Performance | 165 kB first load JS; dashboard and all five modals are lazy-loaded chunks fetched on first open |
 
 ## 🔐 Data & Privacy Model
 
@@ -84,13 +84,13 @@ npm run start   # serve the production build
 Copy `.env.example` → `.env.local`. All variables are optional in development.
 
 | Variable | Description | Default |
-|---|---|---|
+| --- | --- | --- |
 | `NEXT_PUBLIC_SITE_URL` | Canonical origin used for SEO metadata & sitemap | `https://konozealahram-eye.ly` |
 
 ## 🧱 Tech Stack
 
 | Layer | Choice | Why |
-|---|---|---|
+| --- | --- | --- |
 | Framework | Next.js 15 (App Router) | Static prerendering, file-based metadata, `next/dynamic` code splitting |
 | UI runtime | React 19 | Concurrent rendering, modern hooks patterns |
 | Styling | Tailwind CSS v4 | Utility-first, design-token driven theming |
@@ -116,8 +116,8 @@ flowchart TD
     MODALS --> MP[ui/Modal primitive<br/>Escape · focus trap · scroll lock]
 
     subgraph Data["data/ — bilingual AR/EN content"]
-        HD[hospitalData] 
-        PD[patientPortalData] 
+        HD[hospitalData]
+        PD[patientPortalData]
         DD[dashboardData]
     end
 
@@ -137,7 +137,7 @@ Key decisions:
 
 ## 📂 Project Structure
 
-```
+```text
 ├── app/                  # App Router: layout, page, robots, sitemap, manifest
 │   └── layout.tsx        # Pre-paint language script + bilingual metadata
 ├── components/

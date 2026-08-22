@@ -1,0 +1,14 @@
+{
+  // Project-level markdownlint policy for README/docs.
+  // Inline HTML is intentional: <div>/<sub> provide the centered hero/footer
+  // layout that GitHub Flavored Markdown cannot express natively.
+  "default": true,
+  "MD013": false,
+  "MD033": {
+    "allowed_elements": ["div", "sub", "br"]
+  },
+  "MD040": true,
+  "MD060": {
+    "style": "padded"
+  }
+}
