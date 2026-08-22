@@ -1,0 +1,16 @@
+node_modules/
+.next/
+coverage/
+.DS_Store
+*.log
+.env*
+!.env.example
+
+# build artifact
+tsconfig.tsbuildinfo
+
+# agent/tooling workspace
+.zcode/
+
+# legacy scaffold images superseded by public/images
+src/
