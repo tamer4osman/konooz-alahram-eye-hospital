@@ -29,19 +29,19 @@ export default function FloatingWidgets() {
   };
 
   return (
-    <div className="fixed bottom-5 left-5 rtl:left-auto rtl:right-5 z-40 flex flex-col items-end gap-3 pointer-events-none">
+    <div className="fixed z-40 bottom-4 inset-x-3 flex flex-col items-center pointer-events-none lg:inset-x-auto lg:bottom-6 lg:start-6 lg:items-stretch lg:gap-0">
       
       {/* Emergency Call Quick Menu */}
       {callMenuOpen && (
-        <div className="pointer-events-auto bg-white rounded-2xl shadow-2xl border border-slate-200 p-4 w-72 space-y-3 animate-fadeIn mb-2">
-          <div className="flex items-center justify-between border-b border-slate-100 pb-2">
-            <h4 className="text-xs font-extrabold text-[#0C2340] flex items-center gap-1.5">
-              <Phone className="w-3.5 h-3.5 text-teal-600" />
+        <div className="pointer-events-auto bg-white rounded-xl shadow-2xl ring-1 ring-pine-900/10 p-4 w-72 max-w-full space-y-3 animate-fadeIn mb-2">
+          <div className="flex items-center justify-between border-b border-pine-900/10 pb-2">
+            <h4 className="text-xs font-extrabold text-pine-900 flex items-center gap-1.5">
+              <Phone className="w-3.5 h-3.5 text-pine-700" />
               <span>{t('اتصال سريع بالمستشفى (بنغازي)', 'Direct Hospital Lines')}</span>
             </h4>
             <button
               onClick={() => setCallMenuOpen(false)}
-              className="p-1 text-slate-400 hover:text-slate-600 rounded"
+              className="p-1 text-ink-400 hover:text-ink-700 rounded"
               aria-label="Close call menu"
             >
               <X className="w-4 h-4" />
@@ -53,10 +53,10 @@ export default function FloatingWidgets() {
               <a
                 key={idx}
                 href={`tel:${p.number}`}
-                className="p-2 bg-slate-50 hover:bg-teal-50 border border-slate-100 rounded-xl flex items-center justify-between text-xs transition-colors"
+                className="p-2 bg-bone-50 hover:bg-pine-50 ring-1 ring-pine-900/10 rounded-lg flex items-center justify-between text-xs transition-colors"
               >
-                <span className="font-semibold text-slate-700">{lang === 'ar' ? p.labelAr : p.labelEn}</span>
-                <span className="font-mono font-bold text-teal-800" dir="ltr">{p.display}</span>
+                <span className="font-semibold text-ink-700">{lang === 'ar' ? p.labelAr : p.labelEn}</span>
+                <span className="tnum font-bold text-pine-800" dir="ltr">{p.display}</span>
               </a>
             ))}
           </div>
@@ -66,23 +66,23 @@ export default function FloatingWidgets() {
               setCallMenuOpen(false);
               openBookingModal();
             }}
-            className="w-full py-2 bg-[#0C2340] text-white text-xs font-bold rounded-xl flex items-center justify-center gap-1.5 cursor-pointer"
+            className="w-full py-2 bg-pine-900 hover:bg-pine-700 text-bone-50 text-xs font-bold rounded-lg flex items-center justify-center gap-1.5 cursor-pointer"
           >
-            <Calendar className="w-3.5 h-3.5 text-teal-300" />
+            <Calendar className="w-3.5 h-3.5 text-brass-300" />
             <span>{t('حجز فوري ومباشر', 'Instant Direct Booking')}</span>
           </button>
         </div>
       )}
 
       {/* Floating Action Buttons Group */}
-      <div className="flex flex-col gap-2.5 pointer-events-auto items-center">
+      <div className="flex items-center gap-2 pointer-events-auto rounded-full bg-white/90 backdrop-blur-md ring-1 ring-pine-900/15 shadow-xl px-2 py-1.5 lg:bg-transparent lg:p-0 lg:ring-0 lg:shadow-none lg:flex-col-reverse lg:gap-2.5">
         
         {/* Back to Top */}
         {showBackToTop && (
           <button
             id="btn-back-to-top"
             onClick={scrollToTop}
-            className="w-11 h-11 rounded-full bg-white/95 text-slate-800 hover:bg-slate-100 shadow-lg border border-slate-200 flex items-center justify-center transition-all transform hover:-translate-y-1"
+            className="w-10 h-10 rounded-full bg-bone-100 hover:bg-bone-200 text-ink-700 flex items-center justify-center transition-colors shrink-0 lg:w-11 lg:h-11 lg:bg-white/95 lg:hover:bg-bone-200 lg:shadow-lg lg:ring-1 lg:ring-pine-900/15 lg:hover:-translate-y-1"
             title={t('العودة لأعلى الصفحة', 'Back to top')}
             aria-label="Back to top"
           >
@@ -94,23 +94,23 @@ export default function FloatingWidgets() {
         <button
           id="btn-floating-patient-portal"
           onClick={() => openPatientPortal('profile')}
-          className="w-12 h-12 rounded-full bg-teal-600 hover:bg-teal-700 text-white shadow-xl border-2 border-teal-300 flex items-center justify-center transition-all transform hover:scale-105 relative cursor-pointer"
+          className="w-10 h-10 rounded-full bg-pine-800 hover:bg-pine-700 text-bone-50 shadow-md ring-1 ring-brass-400/60 shrink-0 lg:w-12 lg:h-12 lg:ring-2 lg:shadow-xl flex items-center justify-center transition-all transform hover:scale-105 relative cursor-pointer"
           title={t('بوابة المريض والملف الطبي وتنبيهات الواتساب', 'Patient Medical Profile & WhatsApp Alerts')}
           aria-label="Patient Portal"
         >
           <User className="w-5 h-5 text-white" />
-          <span className="absolute -top-1 -right-1 rtl:-right-auto rtl:-left-1 w-3.5 h-3.5 rounded-full bg-emerald-400 border-2 border-white shadow-xs" />
+          <span className="absolute -top-1 -right-1 rtl:-right-auto rtl:-left-1 w-3.5 h-3.5 rounded-full bg-brass-400 ring-2 ring-white" aria-hidden="true" />
         </button>
 
         {/* Quick Call Speed-Dial Toggle */}
         <button
           id="btn-floating-call"
           onClick={() => setCallMenuOpen(!callMenuOpen)}
-          className="w-12 h-12 rounded-full bg-[#0C2340] text-white hover:bg-teal-900 shadow-xl border-2 border-amber-400 flex items-center justify-center transition-all transform hover:scale-105 cursor-pointer"
+          className="w-10 h-10 rounded-full bg-pine-900 text-bone-50 hover:bg-pine-700 shadow-sm shrink-0 lg:w-12 lg:h-12 lg:ring-2 lg:ring-brass-400 lg:shadow-xl flex items-center justify-center transition-all transform hover:scale-105 cursor-pointer"
           title={t('أرقام الاتصال بالطوارئ والاستقبال', 'Emergency & Reception Lines')}
           aria-label="Call Hospital"
         >
-          <Phone className="w-5 h-5 text-amber-300" />
+          <Phone className="w-5 h-5 text-brass-300" />
         </button>
 
         {/* WhatsApp Direct Pulsing Floating Button */}
@@ -123,15 +123,15 @@ export default function FloatingWidgets() {
           )}`}
           target="_blank"
           rel="noopener noreferrer"
-          className="group relative w-14 h-14 rounded-full bg-emerald-500 hover:bg-emerald-600 text-white shadow-2xl flex items-center justify-center transition-all transform hover:scale-110"
+          className="group relative w-12 h-12 rounded-full bg-[#25D366] hover:bg-[#20bd5a] text-white shadow-lg flex items-center justify-center transition-all shrink-0 lg:w-14 lg:h-14"
           title={t(`تواصل فوري عبر الواتساب: ${HOSPITAL_CONTACTS.primaryWhatsAppDisplay}`, `Direct WhatsApp Chat`)}
           aria-label="Chat on WhatsApp"
         >
           {/* Pulsing Ripple Rings */}
-          <span className="absolute inset-0 rounded-full bg-emerald-400 opacity-60 animate-ping pointer-events-none" />
-          <span className="absolute -top-1 -right-1 rtl:-right-auto rtl:-left-1 w-4 h-4 rounded-full bg-amber-400 border-2 border-white shadow-xs" />
+          <span className="absolute inset-0 rounded-full bg-[#25D366] opacity-40 animate-ping pointer-events-none" aria-hidden="true" />
+          <span className="absolute -top-1 -right-1 rtl:-right-auto rtl:-left-1 w-4 h-4 rounded-full bg-brass-400 ring-2 ring-white" aria-hidden="true" />
           
-          <MessageCircle className="w-7 h-7 relative z-10" />
+          <MessageCircle className="relative z-10 w-6 h-6 lg:w-7 lg:h-7" />
         </a>
 
       </div>

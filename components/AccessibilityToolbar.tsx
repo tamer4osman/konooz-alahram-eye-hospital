@@ -60,13 +60,13 @@ export default function AccessibilityToolbar() {
       aria-label="Vision Accessibility Controls"
     >
       {/* Font Size Adjusters */}
-      <div className="flex items-center bg-slate-800/80 backdrop-blur rounded-lg p-0.5 border border-slate-700/60 shadow-sm">
+      <div className="flex items-center bg-white/10 rounded-lg p-0.5 ring-1 ring-white/15">
         <button
           id="btn-font-decrease"
           onClick={decreaseFontSize}
           title={t('تصغير حجم الخط', 'Decrease font size')}
           disabled={fontSize === 'sm'}
-          className="px-1.5 py-1 text-slate-300 hover:text-white disabled:opacity-40 rounded transition-colors text-[11px] font-bold"
+          className="min-h-[26px] px-1.5 py-1 text-pine-200 hover:text-white disabled:opacity-40 rounded transition-colors text-[11px] font-bold"
           aria-label="Decrease text size"
         >
           A-
@@ -75,8 +75,8 @@ export default function AccessibilityToolbar() {
           id="btn-font-reset"
           onClick={resetFontSize}
           title={t('إعادة ضبط الخط', 'Reset font size')}
-          className={`px-1.5 py-1 text-[10px] font-medium rounded transition-colors ${
-            fontSize === 'base' ? 'text-teal-300 font-bold' : 'text-slate-400 hover:text-white'
+          className={`min-h-[26px] px-1.5 py-1 inline-flex items-center gap-0.5 text-[10px] font-medium rounded transition-colors ${
+            fontSize === 'base' ? 'text-brass-300 font-bold' : 'text-pine-300 hover:text-white'
           }`}
           aria-label="Reset text size"
         >
@@ -88,7 +88,7 @@ export default function AccessibilityToolbar() {
           onClick={increaseFontSize}
           title={t('تكبير حجم الخط', 'Increase font size')}
           disabled={fontSize === 'xl'}
-          className="px-1.5 py-1 text-slate-300 hover:text-white disabled:opacity-40 rounded transition-colors text-[11px] font-bold"
+          className="min-h-[26px] px-1.5 py-1 text-pine-200 hover:text-white disabled:opacity-40 rounded transition-colors text-[11px] font-bold"
           aria-label="Increase text size"
         >
           A+
@@ -99,15 +99,15 @@ export default function AccessibilityToolbar() {
       <button
         id="btn-high-contrast-toggle"
         onClick={toggleHighContrast}
-        className={`flex items-center gap-1 px-2 py-1 rounded-lg border text-[11px] font-medium transition-all ${
+        className={`min-h-[28px] flex items-center gap-1 px-2 py-1 rounded-lg border text-[11px] font-medium transition-all ${
           highContrast
-            ? 'bg-amber-400 text-black border-amber-300 font-bold ring-2 ring-amber-300/40'
-            : 'bg-slate-800/80 text-slate-300 border-slate-700/60 hover:text-white hover:border-slate-600'
+            ? 'bg-brass-400 text-pine-950 border-brass-300 font-bold ring-2 ring-brass-300/40'
+            : 'bg-white/10 text-pine-200 ring-1 ring-white/15 hover:text-white'
         }`}
         title={t('نمط التباين العالي لضعاف البصر', 'High contrast mode for low-vision patients')}
         aria-pressed={highContrast}
       >
-        <Eye className="w-3.5 h-3.5 text-amber-400" />
+        <Eye className="w-3.5 h-3.5" />
         <span className="hidden md:inline">{t('تباين عالي', 'Contrast')}</span>
       </button>
 
@@ -115,15 +115,15 @@ export default function AccessibilityToolbar() {
       <button
         id="btn-reading-ruler-toggle"
         onClick={toggleReadingRuler}
-        className={`hidden sm:flex items-center gap-1 px-2 py-1 rounded-lg border text-[11px] font-medium transition-all ${
+        className={`hidden sm:min-h-[28px] flex items-center gap-1 px-2 py-1 rounded-lg border text-[11px] font-medium transition-all ${
           readingRuler
-            ? 'bg-teal-500 text-white border-teal-400 ring-2 ring-teal-400/40'
-            : 'bg-slate-800/80 text-slate-300 border-slate-700/60 hover:text-white hover:border-slate-600'
+            ? 'bg-brass-400 text-pine-950 font-bold ring-2 ring-brass-300/40'
+            : 'bg-white/10 text-pine-200 ring-1 ring-white/15 hover:text-white'
         }`}
         title={t('مسطرة القراءة لتتبع الأسطر', 'Reading guide line for easier visual tracking')}
         aria-pressed={readingRuler}
       >
-        <AlignLeft className="w-3.5 h-3.5 text-teal-400" />
+        <AlignLeft className="w-3.5 h-3.5" />
         <span className="hidden lg:inline">{t('مسطرة القراءة', 'Reading Line')}</span>
       </button>
 
@@ -131,14 +131,14 @@ export default function AccessibilityToolbar() {
       <button
         id="btn-audio-speak"
         onClick={handleSpeakOverview}
-        className={`flex items-center gap-1 px-2 py-1 rounded-lg border text-[11px] font-medium transition-all ${
+        className={`min-h-[28px] flex items-center gap-1 px-2 py-1 rounded-lg border text-[11px] font-medium transition-all ${
           isSpeaking
-            ? 'bg-emerald-600 text-white border-emerald-400 animate-pulse'
-            : 'bg-slate-800/80 text-slate-300 border-slate-700/60 hover:text-white hover:border-slate-600'
+            ? 'bg-brass-400 text-pine-950 font-bold'
+            : 'bg-white/10 text-pine-200 ring-1 ring-white/15 hover:text-white'
         }`}
         title={t('استماع للبيانات الأساسية صوتياً', 'Listen to hospital info')}
       >
-        <Volume2 className="w-3.5 h-3.5 text-teal-300" />
+        <Volume2 className="w-3.5 h-3.5" />
         <span className="hidden xl:inline">{isSpeaking ? t('إيقاف الصوت', 'Stop') : t('قارئ صوتي', 'Audio')}</span>
       </button>
     </div>
