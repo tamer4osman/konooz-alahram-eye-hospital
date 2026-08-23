@@ -1,0 +1,23 @@
+---
+description: Bilingual AR/EN dataset patterns when editing content or UI that renders copy
+globs:
+  - "app/**/*.tsx"
+  - "components/**/*.tsx"
+  - "data/**/*.ts"
+  - "context/**/*.tsx"
+alwaysApply: false
+---
+
+# Bilingual Content Patterns
+
+Content datasets in `data/` follow this shape — extend, never bypass:
+
+```ts
+type Bilingual = { ar: string; en: string };
+```
+
+- Add new fields with both `ar` and `en` values; TypeScript will flag missing variants if you model them as `Bilingual`.
+- Components read strings via `useLanguage()` from `context/LanguageContext.tsx` — do not create a second i18n mechanism.
+- Language persists through localStorage plus `?lang=` deep links; keep both behaviors intact.
+- Numbers, dates, and phone numbers shown to patients should be formatted per active locale direction (RTL/LTR aware).
+- Any new section must work flipped: verify layout under both `dir="rtl"` (default) and `dir="ltr"`.

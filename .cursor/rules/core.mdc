@@ -1,0 +1,25 @@
+---
+description: Core project rules for Konooz Al-Ahram Eye Hospital (Next.js 15, React 19, TS strict, Tailwind v4)
+globs:
+alwaysApply: true
+---
+
+# Project Rules
+
+Stack: Next.js 15 App Router, React 19, TypeScript strict mode, Tailwind CSS v4, lucide-react icons. Arabic-first RTL site for an eye hospital in Benghazi.
+
+## Commands
+
+- Lint: `npx eslint .` — must end with **0 errors, 0 warnings**; per-file `npx eslint path/to/file.tsx`.
+- Typecheck: `npx tsc --noEmit` — 0 errors required.
+- Build: `npm run build` (runs lint + typecheck).
+- No test suite exists yet; lint + typecheck are the verification gate.
+
+## Hard rules
+
+- Every user-facing string needs AR and EN variants defined in `data/`; never hardcode copy inside components.
+- Use only logical Tailwind properties (`ms-*`, `me-*`, `ps-*`, `pe-*`, `text-start/end`) — never physical `ml/mr/pl/pr/left/right`.
+- All dialogs use shared `components/ui/Modal.tsx`; new modals render conditionally AND load via `next/dynamic`.
+- Patient data is device-local only (`context/PatientAuthContext.tsx`). Never add server calls or claim automatic delivery of anything.
+- jsx-a11y runs at error severity — zero violations allowed.
+- No `any` in domain types.

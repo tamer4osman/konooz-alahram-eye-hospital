@@ -1,0 +1,20 @@
+# Konooz Al-Ahram Eye Hospital
+
+> Official website and patient portal of Konooz Al-Ahram Eye & Surgery Hospital in Benghazi, Libya. A bilingual (Arabic-first, RTL) Next.js 15 site offering department information, surgical cost estimates, vision self-screening tools, appointment booking via WhatsApp handoff, and a device-local patient portal.
+
+Key facts:
+
+- Arabic is the default language; English is available via the header switcher or `?lang=en` deep links.
+- Patient profile data is stored **only in the visitor's browser** — nothing is transmitted to a server, and no feature described on this site sends data automatically.
+- Booking requests open a pre-filled WhatsApp draft that the user sends themselves.
+- Built with Next.js 15 (App Router), React 19, TypeScript strict mode, and Tailwind CSS v4.
+
+## Pages
+
+- [Home](https://konozealahram-eye.ly/): single-page bilingual site — departments, doctors, services, booking, patient portal, operations dashboard.
+
+## Machine-readable resources
+
+- [Sitemap](https://konozealahram-eye.ly/sitemap.xml): complete list of indexable URLs.
+- [Robots](https://konozealahram-eye.ly/robots.txt): crawl directives.
+- [Web app manifest](https://konozealahram-eye.ly/manifest.webmanifest): PWA metadata, icons, and theme colors.
