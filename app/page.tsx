@@ -55,7 +55,7 @@ function MainAppContent() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col bg-slate-50 text-slate-900 overflow-x-hidden selection:bg-teal-500 selection:text-white">
+    <div className="min-h-screen flex flex-col bg-bone-50 text-ink-900 overflow-x-clip selection:bg-pine-900 selection:text-bone-50">
       {/* Top Header & Sticky Navigation */}
       <Navbar />
 
