@@ -110,16 +110,16 @@ export default function SurgicalCostCalculatorModal({
     >
       
         {/* Header */}
-        <div className="flex items-center justify-between pb-4 mb-4 border-b border-slate-100">
+        <div className="flex items-center justify-between pb-4 mb-4 border-b border-bone-100">
           <div className="flex items-center gap-2.5">
-            <div className="w-9 h-9 rounded-xl bg-emerald-50 flex items-center justify-center text-emerald-600 border border-emerald-200">
+            <div className="w-9 h-9 rounded-xl bg-pine-50 flex items-center justify-center text-pine-700 border border-pine-200">
               <Calculator className="w-5 h-5" />
             </div>
             <div>
-              <h3 id="cost-calculator-title" className="text-base font-black text-[#0C2340]">
+              <h3 id="cost-calculator-title" className="text-base font-extrabold text-[#0B3D33]">
                 {t('حاسبة تكاليف العمليات والتغطية التأمينية', 'Surgical Cost & Insurance Co-Pay Estimator')}
               </h3>
-              <span className="text-[11px] text-slate-500 block">
+              <span className="text-[11px] text-ink-500 block">
                 {t('تقدير شفاف وشامل لأتعاب الجراح، جناح العمليات والعدسات (بالدينار الليبي)', 'Transparent pricing for surgeon fees, OR suites & IOLs (LYD)')}
               </span>
             </div>
@@ -127,7 +127,7 @@ export default function SurgicalCostCalculatorModal({
           <button
             onClick={onClose}
             aria-label={t('إغلاق', 'Close')}
-            className="p-1.5 rounded-full hover:bg-slate-100 text-slate-400 hover:text-slate-700 transition-colors cursor-pointer"
+            className="p-1.5 rounded-full hover:bg-bone-100 text-ink-400 hover:text-ink-700 transition-colors cursor-pointer"
           >
             <X className="w-5 h-5" />
           </button>
@@ -137,11 +137,11 @@ export default function SurgicalCostCalculatorModal({
           
           {/* Procedure Selector */}
           <div>
-            <label className="font-bold text-slate-700 block mb-1.5">{t('اختر العملية أو الإجراء المطلوب:', 'Select Ophthalmic Procedure:')}</label>
+            <label className="font-bold text-ink-700 block mb-1.5">{t('اختر العملية أو الإجراء المطلوب:', 'Select Ophthalmic Procedure:')}</label>
             <select
               value={selectedProcedure}
               onChange={(e) => setSelectedProcedure(e.target.value)}
-              className="w-full p-2.5 rounded-xl border border-slate-200 bg-slate-50 font-bold text-slate-900 focus:outline-none focus:border-teal-500"
+              className="w-full p-2.5 rounded-xl border border-pine-200 bg-bone-50 font-bold text-ink-900 focus:outline-none focus:border-pine-500"
             >
               {procedures.map((p) => (
                 <option key={p.id} value={p.id}>
@@ -152,14 +152,14 @@ export default function SurgicalCostCalculatorModal({
           </div>
 
           {/* Eye Selection Toggle */}
-          <div className="flex items-center gap-3 p-3 bg-slate-50 rounded-xl border border-slate-200">
-            <span className="font-bold text-slate-700">{t('نطاق الإجراء:', 'Scope:')}</span>
+          <div className="flex items-center gap-3 p-3 bg-bone-50 rounded-xl border border-pine-200">
+            <span className="font-bold text-ink-700">{t('نطاق الإجراء:', 'Scope:')}</span>
             <div className="flex gap-2">
               <button
                 type="button"
                 onClick={() => setIsBothEyes(false)}
                 className={`px-3 py-1.5 rounded-lg font-bold transition-all cursor-pointer ${
-                  !isBothEyes ? 'bg-[#0C2340] text-white shadow-xs' : 'bg-white text-slate-600 border border-slate-200'
+                  !isBothEyes ? 'bg-[#0B3D33] text-white shadow-xs' : 'bg-white text-ink-500 border border-pine-200'
                 }`}
               >
                 {t('عين واحدة فقط', 'Single Eye')}
@@ -168,7 +168,7 @@ export default function SurgicalCostCalculatorModal({
                 type="button"
                 onClick={() => setIsBothEyes(true)}
                 className={`px-3 py-1.5 rounded-lg font-bold transition-all cursor-pointer ${
-                  isBothEyes ? 'bg-[#0C2340] text-white shadow-xs' : 'bg-white text-slate-600 border border-slate-200'
+                  isBothEyes ? 'bg-[#0B3D33] text-white shadow-xs' : 'bg-white text-ink-500 border border-pine-200'
                 }`}
               >
                 {t('كلتا العينين (باقة مخفضة)', 'Both Eyes (Package)')}
@@ -179,11 +179,11 @@ export default function SurgicalCostCalculatorModal({
           {/* Lens Selection (if applicable) */}
           {activeProcedure.requiresLens && (
             <div>
-              <label className="font-bold text-slate-700 block mb-1.5">{t('نوع العدسة المطوية المزروعة:', 'Intraocular Lens Choice (IOL):')}</label>
+              <label className="font-bold text-ink-700 block mb-1.5">{t('نوع العدسة المطوية المزروعة:', 'Intraocular Lens Choice (IOL):')}</label>
               <select
                 value={selectedLens}
                 onChange={(e) => setSelectedLens(e.target.value)}
-                className="w-full p-2.5 rounded-xl border border-slate-200 bg-slate-50 font-semibold text-slate-900 focus:outline-none focus:border-teal-500"
+                className="w-full p-2.5 rounded-xl border border-pine-200 bg-bone-50 font-semibold text-ink-900 focus:outline-none focus:border-pine-500"
               >
                 {lenses.map((l) => (
                   <option key={l.id} value={l.id}>
@@ -196,11 +196,11 @@ export default function SurgicalCostCalculatorModal({
 
           {/* Insurance Selector */}
           <div>
-            <label className="font-bold text-slate-700 block mb-1.5">{t('جهة التأمين أو طريقة السداد:', 'Health Insurance / Payment Method:')}</label>
+            <label className="font-bold text-ink-700 block mb-1.5">{t('جهة التأمين أو طريقة السداد:', 'Health Insurance / Payment Method:')}</label>
             <select
               value={selectedInsurance}
               onChange={(e) => setSelectedInsurance(e.target.value)}
-              className="w-full p-2.5 rounded-xl border border-slate-200 bg-slate-50 font-bold text-emerald-900 focus:outline-none focus:border-teal-500"
+              className="w-full p-2.5 rounded-xl border border-pine-200 bg-bone-50 font-bold text-pine-900 focus:outline-none focus:border-pine-500"
             >
               {insurances.map((ins) => (
                 <option key={ins.id} value={ins.id}>
@@ -211,30 +211,30 @@ export default function SurgicalCostCalculatorModal({
           </div>
 
           {/* Calculation Breakdown Box */}
-          <div className="p-4 rounded-2xl bg-gradient-to-br from-slate-900 to-[#0C2340] text-white space-y-2.5 shadow-lg">
-            <div className="flex justify-between items-center text-xs text-slate-300 pb-2 border-b border-slate-700">
+          <div className="p-4 rounded-2xl bg-gradient-to-br from-ink-900 to-[#0B3D33] text-white space-y-2.5 shadow-lg">
+            <div className="flex justify-between items-center text-xs text-ink-300 pb-2 border-b border-ink-700">
               <span>{t('القيمة الإجمالية الشاملة للجراحة:', 'Gross Surgical Package:')}</span>
               <span className="font-mono font-bold text-white">{totalGross.toLocaleString()} LYD</span>
             </div>
 
             {insuranceCovered > 0 && (
-              <div className="flex justify-between items-center text-xs text-emerald-300">
+              <div className="flex justify-between items-center text-xs text-pine-300">
                 <span>{t('تغطية التأمين المعتمدة:', 'Insurance Approved Amount:')}</span>
                 <span className="font-mono font-bold">-{insuranceCovered.toLocaleString()} LYD</span>
               </div>
             )}
 
-            <div className="flex justify-between items-center pt-2 border-t border-slate-700">
-              <span className="font-black text-sm text-teal-200">{t('المبلغ النهائي المطلوب من المريض:', 'Estimated Patient Co-Pay:')}</span>
-              <span className="font-mono text-xl font-black text-white bg-teal-600/40 px-2.5 py-0.5 rounded-xl border border-teal-400/40">
+            <div className="flex justify-between items-center pt-2 border-t border-ink-700">
+              <span className="font-extrabold text-sm text-pine-200">{t('المبلغ النهائي المطلوب من المريض:', 'Estimated Patient Co-Pay:')}</span>
+              <span className="font-mono text-xl font-extrabold text-white bg-pine-700/40 px-2.5 py-0.5 rounded-xl border border-brass-400/40">
                 {patientPay.toLocaleString()} <small className="text-xs font-normal">LYD</small>
               </span>
             </div>
           </div>
 
           {/* Guarantee Note */}
-          <div className="flex items-start gap-2 p-3 bg-teal-50 rounded-xl border border-teal-200 text-teal-950 text-[11px]">
-            <CheckCircle2 className="w-4 h-4 text-teal-600 flex-shrink-0 mt-0.5" />
+          <div className="flex items-start gap-2 p-3 bg-pine-50 rounded-xl border border-pine-200 text-pine-950 text-[11px]">
+            <CheckCircle2 className="w-4 h-4 text-pine-700 flex-shrink-0 mt-0.5" />
             <p>
               {t(
                 'الأسعار تشمل جميع الفحوصات القبلية، التخدير، مستهلكات التعقيم والمتابعة الأولى مجاناً. نقبل جميع البطاقات المصرفية والصكوك المصدقة.',
@@ -251,7 +251,7 @@ export default function SurgicalCostCalculatorModal({
                 onClose();
                 if (onOpenBookingModal) onOpenBookingModal();
               }}
-              className="flex-1 py-2.5 bg-teal-600 hover:bg-teal-700 text-white font-black rounded-xl shadow-md transition-all flex items-center justify-center gap-1.5 cursor-pointer"
+              className="flex-1 py-2.5 bg-pine-700 hover:bg-pine-800 text-white font-extrabold rounded-xl shadow-md transition-all flex items-center justify-center gap-1.5 cursor-pointer"
             >
               <Zap className="w-4 h-4" />
               <span>{t('تأكيد وحجز موعد الكشف', 'Book Consultation Now')}</span>

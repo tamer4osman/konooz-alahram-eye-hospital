@@ -96,7 +96,7 @@ export default function Modal({
     // Escape (window listener above). role=presentation marks it as decorative.
     <div
       role="presentation"
-      className="fixed inset-0 z-50 overflow-y-auto bg-slate-950/75 backdrop-blur-xs flex items-start sm:items-center justify-center p-2 sm:p-4 md:p-6 animate-fadeIn"
+      className="fixed inset-0 z-50 overflow-y-auto bg-pine-950/80 backdrop-blur-xs flex items-start sm:items-center justify-center p-2 sm:p-4 md:p-6 animate-fadeIn"
       onClick={(e) => {
         if (closeOnBackdrop && e.target === e.currentTarget) onClose();
       }}
@@ -111,7 +111,7 @@ export default function Modal({
         aria-labelledby={labelledById}
         tabIndex={-1}
         onKeyDown={handleTabKey}
-        className={`relative bg-white rounded-2xl shadow-2xl border border-slate-200 outline-none ${panelClassName}`}
+        className={`relative bg-bone-50 rounded-2xl shadow-2xl ring-1 ring-pine-900/15 outline-none ${panelClassName}`}
       >
         {children}
       </div>
