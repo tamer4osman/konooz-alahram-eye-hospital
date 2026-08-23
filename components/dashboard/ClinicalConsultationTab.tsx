@@ -92,18 +92,18 @@ export default function ClinicalConsultationTab(_: ClinicalConsultationTabProps)
   return (
     <div className="space-y-6 animate-fadeIn">
       {/* Top Banner */}
-      <div className="bg-gradient-to-r from-teal-950 via-[#0C2340] to-slate-900 rounded-2xl p-5 sm:p-6 text-white border border-teal-500/30 shadow-xl flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div className="bg-gradient-to-r from-pine-950  to-ink-900 rounded-2xl p-5 sm:p-6 text-white border border-pine-500/30 shadow-xl flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <div className="flex items-center gap-2 mb-1">
-            <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-teal-500/20 text-teal-300 border border-teal-400/30 flex items-center gap-1">
+            <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-pine-500/20 text-brass-300 border border-brass-400/30 flex items-center gap-1">
               <Stethoscope className="w-3.5 h-3.5" />
               <span>{t('نظام الكشف السريري والملف الإلكتروني (Bahmni / OpenMRS)', 'Clinical Consultation & Ophthalmic EMR Pad')}</span>
             </span>
-            <span className="text-xs text-slate-400 font-mono">
+            <span className="text-xs text-ink-400 font-mono">
               ICD-10 Coded • e-Prescription
             </span>
           </div>
-          <h2 className="text-lg sm:text-xl font-black text-white tracking-tight">
+          <h2 className="text-lg sm:text-xl font-extrabold text-white tracking-tight">
             {t('سجل المعاينة الطبية، فحص قاع العين، والوصفات الإلكترونية', 'Ophthalmic Clinical Examination, Fundoscopy & e-Rx')}
           </h2>
         </div>
@@ -111,7 +111,7 @@ export default function ClinicalConsultationTab(_: ClinicalConsultationTabProps)
         <div className="flex items-center gap-3">
           <button
             onClick={() => setIsNewRecordModalOpen(true)}
-            className="px-4 py-2.5 bg-gradient-to-r from-teal-500 to-emerald-600 hover:from-teal-600 hover:to-emerald-700 text-white text-xs font-black rounded-xl shadow-lg shadow-teal-500/20 transition-all flex items-center gap-2 cursor-pointer"
+            className="px-4 py-2.5 bg-pine-800 hover:bg-pine-700 text-white text-xs font-extrabold rounded-xl shadow-lg shadow-pine-500/20 transition-all flex items-center gap-2 cursor-pointer"
           >
             <Plus className="w-4 h-4" />
             <span>{t('معاينة طبية جديدة', 'New Consultation Note')}</span>
@@ -123,27 +123,27 @@ export default function ClinicalConsultationTab(_: ClinicalConsultationTabProps)
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
         
         {/* Left Column: Patient EMR Queue (4 cols) */}
-        <div className="lg:col-span-4 bg-white rounded-2xl p-4 border border-slate-200 shadow-sm flex flex-col h-[760px]">
+        <div className="lg:col-span-4 bg-white rounded-2xl p-4 border border-pine-200 shadow-sm flex flex-col h-[760px]">
           <div className="mb-3 space-y-2">
             <div className="flex items-center justify-between">
-              <h3 className="text-xs font-black text-[#0C2340] uppercase tracking-wider flex items-center gap-1.5">
-                <FileText className="w-4 h-4 text-teal-600" />
+              <h3 className="text-xs font-extrabold text-pine-900 uppercase tracking-wider flex items-center gap-1.5">
+                <FileText className="w-4 h-4 text-pine-700" />
                 <span>{t('قائمة الكشوفات السريرية', 'Consultation Queue')}</span>
               </h3>
-              <span className="px-2 py-0.5 rounded-full text-[10px] font-mono font-bold bg-slate-100 text-slate-700">
+              <span className="px-2 py-0.5 rounded-full text-[10px] font-mono font-bold bg-bone-100 text-ink-700">
                 {filteredRecords.length} {t('مرضى', 'patients')}
               </span>
             </div>
 
             {/* Search Input */}
             <div className="relative">
-              <Search className="w-3.5 h-3.5 absolute top-3 left-3 rtl:left-auto rtl:right-3 text-slate-400" />
+              <Search className="w-3.5 h-3.5 absolute top-3 left-3 rtl:left-auto rtl:right-3 text-ink-400" />
               <input
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder={t('بحث بالاسم، رقم التذكرة، أو التشخيص...', 'Search patient, ticket, or ICD...')}
-                className="w-full text-xs pl-8 rtl:pl-3 rtl:pr-8 pr-3 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-teal-500"
+                className="w-full text-xs pl-8 rtl:pl-3 rtl:pr-8 pr-3 py-2 bg-bone-50 border border-pine-200 rounded-xl focus:outline-none focus:border-pine-500"
               />
             </div>
           </div>
@@ -160,21 +160,21 @@ export default function ClinicalConsultationTab(_: ClinicalConsultationTabProps)
                   onClick={() => setSelectedRecordId(rec.id)}
                   className={`p-3 rounded-xl border transition-all cursor-pointer text-start ${
                     isSelected
-                      ? 'bg-teal-50/80 border-teal-500 shadow-xs'
-                      : 'bg-slate-50/70 border-slate-200 hover:border-teal-300'
+                      ? 'bg-pine-50/80 border-pine-500 shadow-xs'
+                      : 'bg-bone-50/70 border-pine-200 hover:border-brass-300'
                   }`}
                 >
                   <div className="flex items-center justify-between mb-1">
-                    <span className="font-mono text-[10px] font-black px-1.5 py-0.5 rounded bg-[#0C2340] text-white">
+                    <span className="font-mono text-[10px] font-extrabold px-1.5 py-0.5 rounded bg-[#0B3D33] text-white">
                       {rec.ticketNumber}
                     </span>
                     <span
-                      className={`text-[9px] font-black px-2 py-0.5 rounded-full ${
+                      className={`text-[9px] font-extrabold px-2 py-0.5 rounded-full ${
                         rec.status === 'referred_to_surgery'
                           ? 'bg-rose-100 text-rose-800'
                           : rec.status === 'completed'
-                          ? 'bg-emerald-100 text-emerald-800'
-                          : 'bg-amber-100 text-amber-800'
+                          ? 'bg-pine-100 text-pine-800'
+                          : 'bg-brass-100 text-brass-600'
                       }`}
                     >
                       {rec.status === 'referred_to_surgery'
@@ -185,14 +185,14 @@ export default function ClinicalConsultationTab(_: ClinicalConsultationTabProps)
                     </span>
                   </div>
 
-                  <h4 className="text-xs font-bold text-slate-900 truncate">
+                  <h4 className="text-xs font-bold text-ink-900 truncate">
                     {lang === 'ar' ? rec.patientNameAr : rec.patientNameEn}
                   </h4>
 
-                  <div className="flex items-center gap-2 text-[10px] text-slate-500 mt-1">
+                  <div className="flex items-center gap-2 text-[10px] text-ink-500 mt-1">
                     <span>{rec.patientAge} {t('سنة', 'yrs')}</span>
                     <span>•</span>
-                    <span className="font-mono text-teal-800 font-bold">{rec.icdCode}</span>
+                    <span className="font-mono text-pine-800 font-bold">{rec.icdCode}</span>
                     <span>•</span>
                     <span className="truncate">{lang === 'ar' ? rec.diagnosisAr : rec.diagnosisEn}</span>
                   </div>
@@ -210,26 +210,26 @@ export default function ClinicalConsultationTab(_: ClinicalConsultationTabProps)
         </div>
 
         {/* Right Column: Full Ophthalmic Examination Sheet (8 cols) */}
-        <div className="lg:col-span-8 bg-white rounded-2xl p-5 sm:p-6 border border-slate-200 shadow-sm flex flex-col justify-between h-[760px] overflow-y-auto">
+        <div className="lg:col-span-8 bg-white rounded-2xl p-5 sm:p-6 border border-pine-200 shadow-sm flex flex-col justify-between h-[760px] overflow-y-auto">
           {activeRecord ? (
             <div className="space-y-5">
               
               {/* Patient Header Strip */}
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-slate-200 gap-3">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-pine-200 gap-3">
                 <div>
                   <div className="flex items-center gap-2">
-                    <span className="font-mono text-xs font-black px-2 py-0.5 rounded bg-teal-800 text-white">
+                    <span className="font-mono text-xs font-extrabold px-2 py-0.5 rounded bg-pine-800 text-white">
                       {activeRecord.ticketNumber}
                     </span>
-                    <h3 className="text-base font-black text-[#0C2340]">
+                    <h3 className="text-base font-extrabold text-pine-900">
                       {lang === 'ar' ? activeRecord.patientNameAr : activeRecord.patientNameEn}
                     </h3>
-                    <span className="text-xs text-slate-500">
+                    <span className="text-xs text-ink-500">
                       ({activeRecord.patientAge} {t('سنة', 'yrs')} • {activeRecord.patientGender === 'male' ? t('ذكر', 'Male') : t('أنثى', 'Female')})
                     </span>
                   </div>
-                  <div className="flex items-center gap-3 text-xs text-slate-500 mt-1">
-                    <span>{t('الطبيب المعاين:', 'Consultant:')} <strong className="text-slate-800">{lang === 'ar' ? activeRecord.doctorAr : activeRecord.doctorEn}</strong></span>
+                  <div className="flex items-center gap-3 text-xs text-ink-500 mt-1">
+                    <span>{t('الطبيب المعاين:', 'Consultant:')} <strong className="text-ink-700">{lang === 'ar' ? activeRecord.doctorAr : activeRecord.doctorEn}</strong></span>
                     <span>•</span>
                     <span>{activeRecord.clinicRoom}</span>
                     <span>•</span>
@@ -240,21 +240,21 @@ export default function ClinicalConsultationTab(_: ClinicalConsultationTabProps)
                 <div className="flex items-center gap-2">
                   <button
                     onClick={handlePrintNote}
-                    className="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-bold rounded-xl border border-slate-300 transition-colors flex items-center gap-1.5 cursor-pointer"
+                    className="px-3 py-1.5 bg-bone-100 hover:bg-pine-200 text-ink-700 text-xs font-bold rounded-xl border border-ink-300 transition-colors flex items-center gap-1.5 cursor-pointer"
                   >
-                    <Printer className="w-3.5 h-3.5 text-teal-700" />
+                    <Printer className="w-3.5 h-3.5 text-pine-800" />
                     <span>{isPrintSuccess ? t('تم تجهيز الطباعة ✓', 'Printed ✓') : t('طباعة الروشتة والتقرير', 'Print Note & e-Rx')}</span>
                   </button>
                 </div>
               </div>
 
               {/* Chief Complaint */}
-              <div className="p-3 bg-amber-50/70 border border-amber-200 rounded-xl text-xs">
-                <span className="font-bold text-amber-900 block mb-0.5 flex items-center gap-1">
-                  <Activity className="w-3.5 h-3.5 text-amber-700" />
+              <div className="p-3 bg-brass-50/70 border border-brass-600 rounded-xl text-xs">
+                <span className="font-bold text-brass-600 block mb-0.5 flex items-center gap-1">
+                  <Activity className="w-3.5 h-3.5 text-brass-600" />
                   <span>{t('الشكوى الرئيسية (Chief Complaint):', 'Chief Complaint:')}</span>
                 </span>
-                <p className="text-amber-950 font-medium">
+                <p className="text-pine-900 font-medium">
                   {lang === 'ar' ? activeRecord.chiefComplaintAr : activeRecord.chiefComplaintEn}
                 </p>
               </div>
@@ -263,71 +263,71 @@ export default function ClinicalConsultationTab(_: ClinicalConsultationTabProps)
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 
                 {/* Right Eye (OD - Oculus Dexter) */}
-                <div className="p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-2.5">
-                  <div className="flex items-center justify-between pb-2 border-b border-slate-200">
-                    <span className="font-black text-xs text-[#0C2340] flex items-center gap-1.5">
-                      <Eye className="w-4 h-4 text-teal-600" />
+                <div className="p-4 rounded-xl bg-bone-50 border border-pine-200 space-y-2.5">
+                  <div className="flex items-center justify-between pb-2 border-b border-pine-200">
+                    <span className="font-extrabold text-xs text-pine-900 flex items-center gap-1.5">
+                      <Eye className="w-4 h-4 text-pine-700" />
                       <span>{t('العين اليمنى (OD - Right Eye)', 'Right Eye (OD)')}</span>
                     </span>
-                    <span className="font-mono text-[10px] font-black px-1.5 py-0.5 rounded bg-teal-100 text-teal-900">
+                    <span className="font-mono text-[10px] font-extrabold px-1.5 py-0.5 rounded bg-pine-100 text-pine-900">
                       IOP: {activeRecord.iopOD_mmHg} mmHg
                     </span>
                   </div>
 
                   <div className="grid grid-cols-2 gap-2 text-xs">
-                    <div className="p-2 rounded bg-white border border-slate-100">
-                      <span className="text-[10px] text-slate-400 block">{t('النظر بدون نظارة', 'Unaided VA')}</span>
-                      <span className="font-mono font-bold text-slate-800">{activeRecord.visualAcuityOD_Unaided}</span>
+                    <div className="p-2 rounded bg-white border border-bone-100">
+                      <span className="text-[10px] text-ink-400 block">{t('النظر بدون نظارة', 'Unaided VA')}</span>
+                      <span className="font-mono font-bold text-ink-700">{activeRecord.visualAcuityOD_Unaided}</span>
                     </div>
-                    <div className="p-2 rounded bg-white border border-slate-100">
-                      <span className="text-[10px] text-slate-400 block">{t('أفضل تصحيح (BCVA)', 'Best Corrected')}</span>
-                      <span className="font-mono font-bold text-teal-700">{activeRecord.visualAcuityOD_BCVA}</span>
+                    <div className="p-2 rounded bg-white border border-bone-100">
+                      <span className="text-[10px] text-ink-400 block">{t('أفضل تصحيح (BCVA)', 'Best Corrected')}</span>
+                      <span className="font-mono font-bold text-pine-800">{activeRecord.visualAcuityOD_BCVA}</span>
                     </div>
                   </div>
 
                   <div className="text-xs space-y-1 pt-1">
                     <div>
-                      <span className="text-[10px] font-bold text-slate-500">{t('القرنية (Cornea):', 'Cornea:')} </span>
-                      <span className="text-slate-800">{lang === 'ar' ? activeRecord.corneaAr : activeRecord.corneaEn}</span>
+                      <span className="text-[10px] font-bold text-ink-500">{t('القرنية (Cornea):', 'Cornea:')} </span>
+                      <span className="text-ink-700">{lang === 'ar' ? activeRecord.corneaAr : activeRecord.corneaEn}</span>
                     </div>
                     <div>
-                      <span className="text-[10px] font-bold text-slate-500">{t('العدسة (Lens):', 'Lens:')} </span>
-                      <span className="text-slate-800">{lang === 'ar' ? activeRecord.lensStatusAr : activeRecord.lensStatusEn}</span>
+                      <span className="text-[10px] font-bold text-ink-500">{t('العدسة (Lens):', 'Lens:')} </span>
+                      <span className="text-ink-700">{lang === 'ar' ? activeRecord.lensStatusAr : activeRecord.lensStatusEn}</span>
                     </div>
                   </div>
                 </div>
 
                 {/* Left Eye (OS - Oculus Sinister) */}
-                <div className="p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-2.5">
-                  <div className="flex items-center justify-between pb-2 border-b border-slate-200">
-                    <span className="font-black text-xs text-[#0C2340] flex items-center gap-1.5">
-                      <Eye className="w-4 h-4 text-indigo-600" />
+                <div className="p-4 rounded-xl bg-bone-50 border border-pine-200 space-y-2.5">
+                  <div className="flex items-center justify-between pb-2 border-b border-pine-200">
+                    <span className="font-extrabold text-xs text-pine-900 flex items-center gap-1.5">
+                      <Eye className="w-4 h-4 text-pine-800" />
                       <span>{t('العين اليسرى (OS - Left Eye)', 'Left Eye (OS)')}</span>
                     </span>
-                    <span className="font-mono text-[10px] font-black px-1.5 py-0.5 rounded bg-indigo-100 text-indigo-900">
+                    <span className="font-mono text-[10px] font-extrabold px-1.5 py-0.5 rounded bg-pine-100 text-pine-900">
                       IOP: {activeRecord.iopOS_mmHg} mmHg
                     </span>
                   </div>
 
                   <div className="grid grid-cols-2 gap-2 text-xs">
-                    <div className="p-2 rounded bg-white border border-slate-100">
-                      <span className="text-[10px] text-slate-400 block">{t('النظر بدون نظارة', 'Unaided VA')}</span>
-                      <span className="font-mono font-bold text-slate-800">{activeRecord.visualAcuityOS_Unaided}</span>
+                    <div className="p-2 rounded bg-white border border-bone-100">
+                      <span className="text-[10px] text-ink-400 block">{t('النظر بدون نظارة', 'Unaided VA')}</span>
+                      <span className="font-mono font-bold text-ink-700">{activeRecord.visualAcuityOS_Unaided}</span>
                     </div>
-                    <div className="p-2 rounded bg-white border border-slate-100">
-                      <span className="text-[10px] text-slate-400 block">{t('أفضل تصحيح (BCVA)', 'Best Corrected')}</span>
-                      <span className="font-mono font-bold text-indigo-700">{activeRecord.visualAcuityOS_BCVA}</span>
+                    <div className="p-2 rounded bg-white border border-bone-100">
+                      <span className="text-[10px] text-ink-400 block">{t('أفضل تصحيح (BCVA)', 'Best Corrected')}</span>
+                      <span className="font-mono font-bold text-pine-700">{activeRecord.visualAcuityOS_BCVA}</span>
                     </div>
                   </div>
 
                   <div className="text-xs space-y-1 pt-1">
                     <div>
-                      <span className="text-[10px] font-bold text-slate-500">{t('الخزانة الأمامية (AC):', 'Ant. Chamber:')} </span>
-                      <span className="text-slate-800">{lang === 'ar' ? activeRecord.anteriorChamberAr : activeRecord.anteriorChamberEn}</span>
+                      <span className="text-[10px] font-bold text-ink-500">{t('الخزانة الأمامية (AC):', 'Ant. Chamber:')} </span>
+                      <span className="text-ink-700">{lang === 'ar' ? activeRecord.anteriorChamberAr : activeRecord.anteriorChamberEn}</span>
                     </div>
                     <div>
-                      <span className="text-[10px] font-bold text-slate-500">{t('الشبكية والماقولا (Fundus):', 'Fundus:')} </span>
-                      <span className="text-slate-800">{lang === 'ar' ? activeRecord.fundusMaculaAr : activeRecord.fundusMaculaEn}</span>
+                      <span className="text-[10px] font-bold text-ink-500">{t('الشبكية والماقولا (Fundus):', 'Fundus:')} </span>
+                      <span className="text-ink-700">{lang === 'ar' ? activeRecord.fundusMaculaAr : activeRecord.fundusMaculaEn}</span>
                     </div>
                   </div>
                 </div>
@@ -335,53 +335,53 @@ export default function ClinicalConsultationTab(_: ClinicalConsultationTabProps)
               </div>
 
               {/* Diagnosis & Surgical Plan */}
-              <div className="p-4 bg-teal-50/60 border border-teal-200 rounded-xl space-y-2">
+              <div className="p-4 bg-pine-50/60 border border-pine-200 rounded-xl space-y-2">
                 <div className="flex items-center justify-between">
-                  <span className="text-xs font-black text-teal-900 flex items-center gap-1.5">
-                    <ShieldCheck className="w-4 h-4 text-teal-700" />
+                  <span className="text-xs font-extrabold text-pine-900 flex items-center gap-1.5">
+                    <ShieldCheck className="w-4 h-4 text-pine-800" />
                     <span>{t('التشخيص المعتمد والترميز الدولي (ICD-10)', 'ICD-10 Coded Diagnosis')}</span>
                   </span>
-                  <span className="font-mono text-xs font-black px-2 py-0.5 rounded bg-teal-800 text-white">
+                  <span className="font-mono text-xs font-extrabold px-2 py-0.5 rounded bg-pine-800 text-white">
                     {activeRecord.icdCode}
                   </span>
                 </div>
-                <p className="text-sm font-bold text-[#0C2340]">
+                <p className="text-sm font-bold text-pine-900">
                   {lang === 'ar' ? activeRecord.diagnosisAr : activeRecord.diagnosisEn}
                 </p>
                 {activeRecord.surgicalPlan && (
-                  <div className="pt-2 border-t border-teal-200/80 text-xs">
-                    <span className="font-bold text-teal-900">{t('الخطة الجراحية المقررة: ', 'Surgical Plan: ')}</span>
-                    <span className="text-slate-800 font-semibold">{activeRecord.surgicalPlan}</span>
+                  <div className="pt-2 border-t border-pine-200/80 text-xs">
+                    <span className="font-bold text-pine-900">{t('الخطة الجراحية المقررة: ', 'Surgical Plan: ')}</span>
+                    <span className="text-ink-700 font-semibold">{activeRecord.surgicalPlan}</span>
                   </div>
                 )}
               </div>
 
               {/* e-Prescriptions & Drops Posology */}
               <div className="space-y-2">
-                <h4 className="text-xs font-black text-[#0C2340] uppercase tracking-wider flex items-center gap-1.5">
-                  <Zap className="w-4 h-4 text-amber-600" />
+                <h4 className="text-xs font-extrabold text-pine-900 uppercase tracking-wider flex items-center gap-1.5">
+                  <Zap className="w-4 h-4 text-brass-600" />
                   <span>{t('الوصفة الطبية الإلكترونية وبروتوكول القطرات (e-Prescription)', 'e-Prescription & Drops Schedule')}</span>
                 </h4>
 
                 <div className="space-y-2">
                   {activeRecord.prescriptions.map((rx) => (
-                    <div key={rx.id} className="p-3 rounded-xl bg-slate-50 border border-slate-200 text-xs flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                    <div key={rx.id} className="p-3 rounded-xl bg-bone-50 border border-pine-200 text-xs flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                       <div>
                         <div className="flex items-center gap-2">
-                          <span className="font-mono text-[10px] font-black px-1.5 py-0.5 rounded bg-amber-100 text-amber-900 uppercase">
+                          <span className="font-mono text-[10px] font-extrabold px-1.5 py-0.5 rounded bg-brass-100 text-brass-600 uppercase">
                             {rx.eye} ({rx.eye === 'OD' ? t('اليمنى', 'OD') : rx.eye === 'OS' ? t('اليسرى', 'OS') : t('كلتا العينين', 'Both')})
                           </span>
-                          <span className="font-bold text-slate-900">
+                          <span className="font-bold text-ink-900">
                             {lang === 'ar' ? rx.drugNameAr : rx.drugNameEn}
                           </span>
                         </div>
-                        <p className="text-[11px] text-slate-500 mt-1">
+                        <p className="text-[11px] text-ink-500 mt-1">
                           {rx.dosage} • {rx.frequency} • {rx.durationDays} {t('يوماً', 'days')}
                         </p>
                         {rx.taperingSchedule && (
                           <div className="mt-1.5 flex flex-wrap gap-1">
                             {rx.taperingSchedule.map((tap, idx) => (
-                              <span key={idx} className="text-[9px] px-1.5 py-0.5 rounded bg-teal-100 text-teal-900 font-bold">
+                              <span key={idx} className="text-[9px] px-1.5 py-0.5 rounded bg-pine-100 text-pine-900 font-bold">
                                 {tap}
                               </span>
                             ))}
@@ -394,16 +394,16 @@ export default function ClinicalConsultationTab(_: ClinicalConsultationTabProps)
               </div>
 
               {/* Follow-up advisory */}
-              <div className="flex items-center justify-between p-3 rounded-xl bg-slate-100 border border-slate-200 text-xs font-semibold text-slate-700">
+              <div className="flex items-center justify-between p-3 rounded-xl bg-bone-100 border border-pine-200 text-xs font-semibold text-ink-700">
                 <div className="flex items-center gap-2">
-                  <Calendar className="w-4 h-4 text-teal-600" />
-                  <span>{t('موعد المراجعة القادم: ', 'Next Review Milestone: ')} <strong className="text-teal-900">{activeRecord.nextFollowUpDate}</strong></span>
+                  <Calendar className="w-4 h-4 text-pine-700" />
+                  <span>{t('موعد المراجعة القادم: ', 'Next Review Milestone: ')} <strong className="text-pine-900">{activeRecord.nextFollowUpDate}</strong></span>
                 </div>
               </div>
 
             </div>
           ) : (
-            <div className="flex items-center justify-center h-full text-slate-400 text-xs">
+            <div className="flex items-center justify-center h-full text-ink-400 text-xs">
               {t('اختر مريضاً لعرض السجل الطبي', 'Select a patient to view EMR')}
             </div>
           )}
@@ -415,16 +415,16 @@ export default function ClinicalConsultationTab(_: ClinicalConsultationTabProps)
       {/* MODAL: NEW CLINICAL CONSULTATION NOTE */}
       {/* ========================================================================= */}
       {isNewRecordModalOpen && (
-        <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 overflow-y-auto">
-          <div className="bg-white rounded-3xl max-w-2xl w-full p-6 shadow-2xl border border-slate-200 relative animate-scaleUp">
-            <div className="flex items-center justify-between pb-4 mb-4 border-b border-slate-100">
-              <h3 className="text-base font-black text-[#0C2340] flex items-center gap-2">
-                <Stethoscope className="w-5 h-5 text-teal-600" />
+        <div className="fixed inset-0 z-50 bg-ink-900/60 backdrop-blur-xs flex items-center justify-center p-4 overflow-y-auto">
+          <div className="bg-white rounded-3xl max-w-2xl w-full p-6 shadow-2xl border border-pine-200 relative animate-scaleUp">
+            <div className="flex items-center justify-between pb-4 mb-4 border-b border-bone-100">
+              <h3 className="text-base font-extrabold text-pine-900 flex items-center gap-2">
+                <Stethoscope className="w-5 h-5 text-pine-700" />
                 <span>{t('تسجيل كشف سريري جديد (OpenMRS Consultation Sheet)', 'New Clinical Consultation Form')}</span>
               </h3>
               <button
                 onClick={() => setIsNewRecordModalOpen(false)}
-                className="p-1.5 rounded-full hover:bg-slate-100 text-slate-400 hover:text-slate-700 transition-colors"
+                className="p-1.5 rounded-full hover:bg-bone-100 text-ink-400 hover:text-ink-700 transition-colors"
               >
                 ✕
               </button>
@@ -433,31 +433,31 @@ export default function ClinicalConsultationTab(_: ClinicalConsultationTabProps)
             <form onSubmit={handleCreateConsultation} className="space-y-4">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
                 <div>
-                  <label className="font-bold text-slate-700 block mb-1">{t('اسم المريض (عربي) *', 'Patient Name (Arabic) *')}</label>
+                  <label className="font-bold text-ink-700 block mb-1">{t('اسم المريض (عربي) *', 'Patient Name (Arabic) *')}</label>
                   <input
                     type="text"
                     required
                     value={newConsultation.patientNameAr || ''}
                     onChange={(e) => setNewConsultation({ ...newConsultation, patientNameAr: e.target.value })}
                     placeholder="مثال: عبد السلام الفرجاني"
-                    className="w-full p-2.5 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white focus:outline-none focus:border-teal-500"
+                    className="w-full p-2.5 rounded-xl border border-pine-200 bg-bone-50 focus:bg-white focus:outline-none focus:border-pine-500"
                   />
                 </div>
 
                 <div>
-                  <label className="font-bold text-slate-700 block mb-1">{t('العمر ورقم الهاتف', 'Age & Phone')}</label>
+                  <label className="font-bold text-ink-700 block mb-1">{t('العمر ورقم الهاتف', 'Age & Phone')}</label>
                   <div className="flex gap-2">
                     <input
                       type="number"
                       value={newConsultation.patientAge || 45}
                       onChange={(e) => setNewConsultation({ ...newConsultation, patientAge: Number(e.target.value) })}
-                      className="w-20 p-2.5 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white focus:outline-none focus:border-teal-500"
+                      className="w-20 p-2.5 rounded-xl border border-pine-200 bg-bone-50 focus:bg-white focus:outline-none focus:border-pine-500"
                     />
                     <input
                       type="text"
                       value={newConsultation.patientPhone || '+218 91 000 0000'}
                       onChange={(e) => setNewConsultation({ ...newConsultation, patientPhone: e.target.value })}
-                      className="flex-1 p-2.5 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white focus:outline-none focus:border-teal-500 font-mono"
+                      className="flex-1 p-2.5 rounded-xl border border-pine-200 bg-bone-50 focus:bg-white focus:outline-none focus:border-pine-500 font-mono"
                     />
                   </div>
                 </div>
@@ -466,39 +466,39 @@ export default function ClinicalConsultationTab(_: ClinicalConsultationTabProps)
               {/* Tonometry & Visual Acuity */}
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs">
                 <div>
-                  <label className="font-bold text-slate-600 block mb-1">{t('نظر اليمنى OD', 'VA OD')}</label>
+                  <label className="font-bold text-ink-500 block mb-1">{t('نظر اليمنى OD', 'VA OD')}</label>
                   <input
                     type="text"
                     value={newConsultation.visualAcuityOD_BCVA || '6/6'}
                     onChange={(e) => setNewConsultation({ ...newConsultation, visualAcuityOD_BCVA: e.target.value })}
-                    className="w-full p-2 rounded-xl border border-slate-200 font-mono"
+                    className="w-full p-2 rounded-xl border border-pine-200 font-mono"
                   />
                 </div>
                 <div>
-                  <label className="font-bold text-slate-600 block mb-1">{t('ضغط اليمنى (mmHg)', 'IOP OD')}</label>
+                  <label className="font-bold text-ink-500 block mb-1">{t('ضغط اليمنى (mmHg)', 'IOP OD')}</label>
                   <input
                     type="number"
                     value={newConsultation.iopOD_mmHg || 16}
                     onChange={(e) => setNewConsultation({ ...newConsultation, iopOD_mmHg: Number(e.target.value) })}
-                    className="w-full p-2 rounded-xl border border-slate-200 font-mono"
+                    className="w-full p-2 rounded-xl border border-pine-200 font-mono"
                   />
                 </div>
                 <div>
-                  <label className="font-bold text-slate-600 block mb-1">{t('نظر اليسرى OS', 'VA OS')}</label>
+                  <label className="font-bold text-ink-500 block mb-1">{t('نظر اليسرى OS', 'VA OS')}</label>
                   <input
                     type="text"
                     value={newConsultation.visualAcuityOS_BCVA || '6/6'}
                     onChange={(e) => setNewConsultation({ ...newConsultation, visualAcuityOS_BCVA: e.target.value })}
-                    className="w-full p-2 rounded-xl border border-slate-200 font-mono"
+                    className="w-full p-2 rounded-xl border border-pine-200 font-mono"
                   />
                 </div>
                 <div>
-                  <label className="font-bold text-slate-600 block mb-1">{t('ضغط اليسرى (mmHg)', 'IOP OS')}</label>
+                  <label className="font-bold text-ink-500 block mb-1">{t('ضغط اليسرى (mmHg)', 'IOP OS')}</label>
                   <input
                     type="number"
                     value={newConsultation.iopOS_mmHg || 15}
                     onChange={(e) => setNewConsultation({ ...newConsultation, iopOS_mmHg: Number(e.target.value) })}
-                    className="w-full p-2 rounded-xl border border-slate-200 font-mono"
+                    className="w-full p-2 rounded-xl border border-pine-200 font-mono"
                   />
                 </div>
               </div>
@@ -506,38 +506,38 @@ export default function ClinicalConsultationTab(_: ClinicalConsultationTabProps)
               {/* Diagnosis & ICD-10 */}
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
                 <div>
-                  <label className="font-bold text-slate-700 block mb-1">{t('رمز ICD-10', 'ICD-10 Code')}</label>
+                  <label className="font-bold text-ink-700 block mb-1">{t('رمز ICD-10', 'ICD-10 Code')}</label>
                   <input
                     type="text"
                     value={newConsultation.icdCode || 'H25.1'}
                     onChange={(e) => setNewConsultation({ ...newConsultation, icdCode: e.target.value })}
-                    className="w-full p-2.5 rounded-xl border border-slate-200 font-mono font-bold uppercase"
+                    className="w-full p-2.5 rounded-xl border border-pine-200 font-mono font-bold uppercase"
                   />
                 </div>
                 <div className="sm:col-span-2">
-                  <label className="font-bold text-slate-700 block mb-1">{t('التشخيص السريري المعتمد', 'Clinical Diagnosis')}</label>
+                  <label className="font-bold text-ink-700 block mb-1">{t('التشخيص السريري المعتمد', 'Clinical Diagnosis')}</label>
                   <input
                     type="text"
                     value={newConsultation.diagnosisAr || ''}
                     onChange={(e) => setNewConsultation({ ...newConsultation, diagnosisAr: e.target.value })}
                     placeholder="مثال: مياه بيضاء نووية بالعين اليمنى"
-                    className="w-full p-2.5 rounded-xl border border-slate-200"
+                    className="w-full p-2.5 rounded-xl border border-pine-200"
                   />
                 </div>
               </div>
 
               {/* Actions */}
-              <div className="flex items-center justify-end gap-3 pt-3 border-t border-slate-100">
+              <div className="flex items-center justify-end gap-3 pt-3 border-t border-bone-100">
                 <button
                   type="button"
                   onClick={() => setIsNewRecordModalOpen(false)}
-                  className="px-4 py-2 text-xs font-bold text-slate-600 hover:bg-slate-100 rounded-xl"
+                  className="px-4 py-2 text-xs font-bold text-ink-500 hover:bg-bone-100 rounded-xl"
                 >
                   {t('إلغاء', 'Cancel')}
                 </button>
                 <button
                   type="submit"
-                  className="px-5 py-2 text-xs font-black text-white bg-teal-600 hover:bg-teal-700 rounded-xl shadow-md cursor-pointer"
+                  className="px-5 py-2 text-xs font-extrabold text-white bg-pine-700 hover:bg-pine-800 rounded-xl shadow-md cursor-pointer"
                 >
                   {t('حفظ المعاينة والوصفة', 'Save EMR Note')}
                 </button>

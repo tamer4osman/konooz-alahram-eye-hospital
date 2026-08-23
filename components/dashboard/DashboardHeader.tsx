@@ -40,21 +40,21 @@ export default function DashboardHeader({
   ];
 
   return (
-    <header className="bg-slate-900 text-white border-b border-slate-800 sticky top-0 z-30 shadow-lg">
+    <header className="bg-ink-900 text-white border-b border-ink-700 sticky top-0 z-30 shadow-lg">
       {/* Top Telemetry & Status Bar */ }
-      <div className="bg-[#081729] border-b border-slate-800/80 px-4 sm:px-6 py-2">
+      <div className="bg-pine-950 border-b border-ink-700/80 px-4 sm:px-6 py-2">
         <div className="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-3 text-xs">
           <div className="flex items-center gap-3">
-            <div className="flex items-center gap-1.5 text-teal-400 font-semibold">
+            <div className="flex items-center gap-1.5 text-brass-400 font-semibold">
               <span className="relative flex h-2.5 w-2.5">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-teal-400 opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-teal-500"></span>
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-brass-400 opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-pine-500"></span>
               </span>
               <span>{t('نظام إدارة العمليات الحية - مستشفى كنوز الأهرام', 'Live Operations & Control Hub - Konooz Hospital')}</span>
             </div>
-            <span className="hidden md:inline-block text-slate-600">|</span>
-            <span className="hidden md:inline-flex items-center gap-1 text-slate-400">
-              <Building2 className="w-3.5 h-3.5 text-slate-500" />
+            <span className="hidden md:inline-block text-ink-500">|</span>
+            <span className="hidden md:inline-flex items-center gap-1 text-ink-400">
+              <Building2 className="w-3.5 h-3.5 text-ink-500" />
               <span>{t('المجمع الجراحي والعيادات - فرع بنغازي', 'Benghazi Surgical Complex')}</span>
             </span>
           </div>
@@ -63,7 +63,7 @@ export default function DashboardHeader({
           <div className="flex items-center gap-3">
             <button
               onClick={() => setActiveView('portal')}
-              className="flex items-center gap-1.5 px-3 py-1 bg-teal-900/40 hover:bg-teal-800/60 text-teal-300 hover:text-white border border-teal-600/40 rounded-lg text-xs font-bold transition-colors cursor-pointer"
+              className="flex items-center gap-1.5 px-3 py-1 bg-pine-900/40 hover:bg-pine-800/60 text-brass-300 hover:text-white border border-pine-700/40 rounded-lg text-xs font-bold transition-colors cursor-pointer"
             >
               {isRTL ? <ArrowRight className="w-3.5 h-3.5" /> : <ArrowLeft className="w-3.5 h-3.5" />}
               <span>{t('العودة لبوابة المرضى والموقع العام', 'Back to Public Hospital Portal') }</span>
@@ -77,7 +77,7 @@ export default function DashboardHeader({
         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
           {/* Left Title & System Status */}
           <div className="flex items-center gap-3.5">
-            <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-teal-500 to-[#0C2340] border border-teal-400/40 flex items-center justify-center shadow-inner flex-shrink-0">
+            <div className="w-11 h-11 rounded-xl bg-pine-800 border border-brass-400/40 flex items-center justify-center shadow-inner flex-shrink-0">
               <Activity className="w-6 h-6 text-white" />
             </div>
             <div>
@@ -85,11 +85,11 @@ export default function DashboardHeader({
                 <h1 className="text-base sm:text-lg font-extrabold text-white tracking-tight">
                   {t('لوحة التحكم وإدارة موارد المستشفى', 'Hospital Resource & Operations Command')}
                 </h1>
-                <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
+                <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-pine-500/20 text-pine-300 border border-pine-500/30">
                   {t('جميع الأنظمة تعمل بكفاءة 100%', 'All Systems 100% Operational') }
                 </span>
               </div>
-              <p className="text-xs text-slate-400 mt-0.5">
+              <p className="text-xs text-ink-400 mt-0.5">
                 {t(
                   'مراقبة الكوادر الطبية، غرف العمليات، الأجهزة الحيوية، والمؤشرات الإحصائية متعددة الفترات', 'Controlling staff, operating suites, high-tech devices & multi-period analytics'
                 )}
@@ -101,9 +101,9 @@ export default function DashboardHeader({
           <div className="flex flex-wrap items-center gap-2.5">
             
             {/* Multi-Timeframe Selector Tabs */}
-            <div className="bg-slate-800/90 border border-slate-700/80 p-1 rounded-xl flex items-center gap-1 shadow-inner">
-              <span className="text-[11px] font-bold text-slate-400 px-2 hidden sm:inline-flex items-center gap-1">
-                <Calendar className="w-3 h-3 text-teal-400" />
+            <div className="bg-ink-700/90 border border-ink-700/80 p-1 rounded-xl flex items-center gap-1 shadow-inner">
+              <span className="text-[11px] font-bold text-ink-400 px-2 hidden sm:inline-flex items-center gap-1">
+                <Calendar className="w-3 h-3 text-brass-400" />
                 <span>{t('الفترة:', 'Period:')}</span>
               </span>
               {[
@@ -114,8 +114,8 @@ export default function DashboardHeader({
                   onClick={() => onChangeTimeframe(tf.key as any)}
                   className={`px-3 py-1 rounded-lg text-xs font-bold transition-all cursor-pointer ${
                     timeframe === tf.key
-                      ? 'bg-teal-600 text-white shadow-sm'
-                      : 'text-slate-400 hover:text-white hover:bg-slate-700/50'
+                      ? 'bg-pine-700 text-white shadow-sm'
+                      : 'text-ink-400 hover:text-white hover:bg-ink-700/50'
                   }`}
                 >
                   {t(tf.labelAr, tf.labelEn)}
@@ -127,8 +127,8 @@ export default function DashboardHeader({
             <button
               onClick={handleRefresh}
               title={t('تحديث البيانات اللحظية', 'Refresh Live Data')}
-              className={`p-2 rounded-xl bg-slate-800 border border-slate-700 text-slate-300 hover:text-white hover:bg-slate-700 transition-all cursor-pointer ${
-                isRefreshing ? 'animate-spin text-teal-400' : ''
+              className={`p-2 rounded-xl bg-ink-700 border border-ink-700 text-ink-300 hover:text-white hover:bg-ink-700 transition-all cursor-pointer ${
+                isRefreshing ? 'animate-spin text-brass-400' : ''
               }` }
             >
               <RefreshCw className="w-4 h-4" />
@@ -138,21 +138,21 @@ export default function DashboardHeader({
             <div className="relative">
               <button
                 onClick={() => setShowNotifications(!showNotifications)}
-                className="p-2 rounded-xl bg-slate-800 border border-slate-700 text-slate-300 hover:text-white hover:bg-slate-700 transition-all relative cursor-pointer"
+                className="p-2 rounded-xl bg-ink-700 border border-ink-700 text-ink-300 hover:text-white hover:bg-ink-700 transition-all relative cursor-pointer"
                 title={t('التنبيهات والإشعارات اللحظية', 'Live Notifications')}
               >
                 <Bell className="w-4 h-4" />
-                <span className="absolute top-1 right-1 w-2 h-2 rounded-full bg-amber-400 animate-pulse" />
+                <span className="absolute top-1 right-1 w-2 h-2 rounded-full bg-brass-400 animate-pulse" />
               </button>
 
               {showNotifications && (
-                <div className="absolute top-full mt-2 left-0 rtl:left-auto rtl:right-0 w-80 bg-slate-850 bg-slate-900 border border-slate-700 rounded-2xl shadow-2xl p-3 z-50 animate-fadeIn">
-                  <div className="flex items-center justify-between pb-2 mb-2 border-b border-slate-800">
+                <div className="absolute top-full mt-2 left-0 rtl:left-auto rtl:right-0 w-80 bg-pine-950 border border-ink-700 rounded-2xl shadow-2xl p-3 z-50 animate-fadeIn">
+                  <div className="flex items-center justify-between pb-2 mb-2 border-b border-ink-700">
                     <span className="text-xs font-bold text-white flex items-center gap-1.5">
-                      <Bell className="w-3.5 h-3.5 text-teal-400" />
+                      <Bell className="w-3.5 h-3.5 text-brass-400" />
                       <span>{t('تنبيهات العمليات الحية', 'Live Operations Feed')}</span>
                     </span>
-                    <span className="text-[10px] font-bold text-teal-400 bg-teal-950 px-2 py-0.5 rounded-full border border-teal-800">
+                    <span className="text-[10px] font-bold text-brass-400 bg-pine-950 px-2 py-0.5 rounded-full border border-pine-800">
                       3 {t('جديدة', 'new')}
                     </span>
                   </div>
@@ -161,19 +161,19 @@ export default function DashboardHeader({
                     {notifications.map((n) => (
                       <div
                         key={n.id}
-                        className="p-2 rounded-xl bg-slate-800/80 border border-slate-700/60 text-xs hover:bg-slate-800 transition-colors"
+                        className="p-2 rounded-xl bg-ink-700/80 border border-ink-700/60 text-xs hover:bg-ink-700 transition-colors"
                       >
                         <div className="flex items-start justify-between gap-2">
-                          <p className="font-semibold text-slate-200">{t(n.titleAr, n.titleEn)}</p>
+                          <p className="font-semibold text-pine-200">{t(n.titleAr, n.titleEn)}</p>
                         </div>
-                        <span className="text-[10px] text-slate-400 mt-1 block">{t(n.timeAr, n.timeEn)}</span>
+                        <span className="text-[10px] text-ink-400 mt-1 block">{t(n.timeAr, n.timeEn)}</span>
                       </div>
                     ))}
                   </div>
 
                   <button
                     onClick={() => onOpenAddModal('broadcast')}
-                    className="w-full mt-2 py-1.5 bg-teal-600/30 hover:bg-teal-600/50 text-teal-300 text-xs font-bold rounded-lg border border-teal-500/30 transition-colors text-center block cursor-pointer"
+                    className="w-full mt-2 py-1.5 bg-pine-700/30 hover:bg-pine-700/50 text-brass-300 text-xs font-bold rounded-lg border border-pine-500/30 transition-colors text-center block cursor-pointer"
                   >
                     {t('إرسال تعميم أو تنبيه عاجل', 'Broadcast Urgent Alert')}
                   </button>
@@ -185,30 +185,30 @@ export default function DashboardHeader({
             <div className="relative">
               <button
                 onClick={() => setUserDropdownOpen(!userDropdownOpen)}
-                className="flex items-center gap-2 bg-slate-800 hover:bg-slate-750 border border-slate-700 px-3 py-1.5 rounded-xl transition-all cursor-pointer"
+                className="flex items-center gap-2 bg-pine-800 hover:bg-pine-700 border border-ink-700 px-3 py-1.5 rounded-xl transition-all cursor-pointer"
               >
                 <Image
                   src={currentUser.avatar}
                   alt={currentUser.nameEn}
                   width={28}
                   height={28}
-                  className="w-7 h-7 rounded-lg object-cover border border-teal-400"
+                  className="w-7 h-7 rounded-lg object-cover border border-brass-400"
                 />
                 <div className="text-start hidden sm:block">
                   <div className="text-xs font-extrabold text-white leading-tight">
                     {lang === 'ar' ? currentUser.nameAr : currentUser.nameEn}
                   </div>
-                  <div className="text-[10px] text-teal-300 leading-tight">
+                  <div className="text-[10px] text-brass-300 leading-tight">
                     {lang === 'ar' ? currentUser.roleAr : currentUser.roleEn}
                   </div>
                 </div>
-                <ChevronDown className="w-3.5 h-3.5 text-slate-400 ml-1" />
+                <ChevronDown className="w-3.5 h-3.5 text-ink-400 ml-1" />
               </button>
 
               {userDropdownOpen && (
-                <div className="absolute top-full mt-2 left-0 rtl:left-auto rtl:right-0 w-72 bg-slate-900 border border-slate-700 rounded-2xl shadow-2xl p-2 z-50 animate-fadeIn">
-                  <div className="px-3 py-2 border-b border-slate-800 mb-1">
-                    <span className="text-[11px] font-bold text-slate-400 block">
+                <div className="absolute top-full mt-2 left-0 rtl:left-auto rtl:right-0 w-72 bg-ink-900 border border-ink-700 rounded-2xl shadow-2xl p-2 z-50 animate-fadeIn">
+                  <div className="px-3 py-2 border-b border-ink-700 mb-1">
+                    <span className="text-[11px] font-bold text-ink-400 block">
                       {t('تبديل المستخدم والمنصب الإداري (حسابات تجريبية):', 'Switch Manager Profile (Mock Mode):')}
                     </span>
                   </div>
@@ -223,8 +223,8 @@ export default function DashboardHeader({
                         }}
                         className={`w-full p-2 rounded-xl flex items-center gap-2.5 text-start transition-colors cursor-pointer ${
                           currentUser.id === mgr.id
-                            ? 'bg-teal-900/60 border border-teal-500/40 text-white'
-                            : 'hover:bg-slate-800 text-slate-300'
+                            ? 'bg-pine-900/60 border border-pine-500/40 text-white'
+                            : 'hover:bg-ink-700 text-ink-300'
                         }`}
                       >
                         <Image
@@ -232,13 +232,13 @@ export default function DashboardHeader({
                           alt={mgr.nameEn}
                           width={32}
                           height={32}
-                          className="w-8 h-8 rounded-lg object-cover border border-slate-700 flex-shrink-0"
+                          className="w-8 h-8 rounded-lg object-cover border border-ink-700 flex-shrink-0"
                         />
                         <div className="overflow-hidden">
                           <div className="text-xs font-bold truncate">
                             {lang === 'ar' ? mgr.nameAr : mgr.nameEn}
                           </div>
-                          <div className="text-[10px] text-slate-400 truncate">
+                          <div className="text-[10px] text-ink-400 truncate">
                             {lang === 'ar' ? mgr.roleAr : mgr.roleEn}
                           </div>
                         </div>
@@ -246,7 +246,7 @@ export default function DashboardHeader({
                     ))}
                   </div>
 
-                  <div className="mt-2 pt-2 border-t border-slate-800 px-2 py-1 text-[10px] text-slate-500 text-center">
+                  <div className="mt-2 pt-2 border-t border-ink-700 px-2 py-1 text-[10px] text-ink-500 text-center">
                     {t('وضع المحاكاة: متصل كـ مدير العمليات', 'Simulation Mode: Operational Authority')}
                   </div>
                 </div>
@@ -257,17 +257,17 @@ export default function DashboardHeader({
             <div className="relative">
               <button
                 onClick={() => setAddMenuOpen(!addMenuOpen)}
-                className="flex items-center gap-1.5 px-3 py-1.5 bg-teal-600 hover:bg-teal-500 text-white rounded-xl text-xs font-bold transition-all shadow-sm cursor-pointer"
+                className="flex items-center gap-1.5 px-3 py-1.5 bg-pine-700 hover:bg-pine-500 text-white rounded-xl text-xs font-bold transition-all shadow-sm cursor-pointer"
               >
                 <Plus className="w-3.5 h-3.5" />
                 <span>{t('إضافة مورد جديد', 'Quick Add')}</span>
-                <ChevronDown className="w-3 h-3 ml-0.5 text-teal-200" />
+                <ChevronDown className="w-3 h-3 ml-0.5 text-pine-200" />
               </button>
 
               {addMenuOpen && (
-                <div className="absolute top-full mt-2 left-0 rtl:left-auto rtl:right-0 w-64 bg-slate-900 border border-slate-700 rounded-2xl shadow-2xl p-2 z-50 animate-fadeIn">
-                  <div className="px-3 py-1.5 border-b border-slate-800 mb-1">
-                    <span className="text-[11px] font-bold text-slate-400 block">
+                <div className="absolute top-full mt-2 left-0 rtl:left-auto rtl:right-0 w-64 bg-ink-900 border border-ink-700 rounded-2xl shadow-2xl p-2 z-50 animate-fadeIn">
+                  <div className="px-3 py-1.5 border-b border-ink-700 mb-1">
+                    <span className="text-[11px] font-bold text-ink-400 block">
                       {t('إضافة مورد جديد للنظام:', 'Add New Hospital Resource:')}
                     </span>
                   </div>
@@ -278,14 +278,14 @@ export default function DashboardHeader({
                         onOpenAddModal('surgery');
                         setAddMenuOpen(false);
                       }}
-                      className="w-full p-2 rounded-xl flex items-center gap-2.5 text-start hover:bg-slate-800 text-slate-200 hover:text-white transition-colors cursor-pointer text-xs font-bold"
+                      className="w-full p-2 rounded-xl flex items-center gap-2.5 text-start hover:bg-ink-700 text-pine-200 hover:text-white transition-colors cursor-pointer text-xs font-bold"
                     >
-                      <div className="p-1.5 rounded-lg bg-teal-500/20 text-teal-300">
+                      <div className="p-1.5 rounded-lg bg-pine-500/20 text-brass-300">
                         <Calendar className="w-4 h-4" />
                       </div>
                       <div>
                         <div>{t('حجز عملية جراحية', 'Schedule Surgery Case')}</div>
-                        <div className="text-[10px] text-slate-400 font-normal">{t('إدراج مريض في الجدول', 'Add patient to OR pipeline')}</div>
+                        <div className="text-[10px] text-ink-400 font-normal">{t('إدراج مريض في الجدول', 'Add patient to OR pipeline')}</div>
                       </div>
                     </button>
 
@@ -294,14 +294,14 @@ export default function DashboardHeader({
                         onOpenAddModal('staff');
                         setAddMenuOpen(false);
                       }}
-                      className="w-full p-2 rounded-xl flex items-center gap-2.5 text-start hover:bg-slate-800 text-slate-200 hover:text-white transition-colors cursor-pointer text-xs font-bold"
+                      className="w-full p-2 rounded-xl flex items-center gap-2.5 text-start hover:bg-ink-700 text-pine-200 hover:text-white transition-colors cursor-pointer text-xs font-bold"
                     >
                       <div className="p-1.5 rounded-lg bg-blue-500/20 text-blue-300">
                         <Users className="w-4 h-4" />
                       </div>
                       <div>
                         <div>{t('إضافة كادر طبي / تمريضي', 'Add Staff Member')}</div>
-                        <div className="text-[10px] text-slate-400 font-normal">{t('طبيب، جراح، تمريض، فني', 'Doctor, nurse, technician')}</div>
+                        <div className="text-[10px] text-ink-400 font-normal">{t('طبيب، جراح، تمريض، فني', 'Doctor, nurse, technician')}</div>
                       </div>
                     </button>
 
@@ -310,14 +310,14 @@ export default function DashboardHeader({
                         onOpenAddModal('room');
                         setAddMenuOpen(false);
                       }}
-                      className="w-full p-2 rounded-xl flex items-center gap-2.5 text-start hover:bg-slate-800 text-slate-200 hover:text-white transition-colors cursor-pointer text-xs font-bold"
+                      className="w-full p-2 rounded-xl flex items-center gap-2.5 text-start hover:bg-ink-700 text-pine-200 hover:text-white transition-colors cursor-pointer text-xs font-bold"
                     >
-                      <div className="p-1.5 rounded-lg bg-amber-500/20 text-amber-300">
+                      <div className="p-1.5 rounded-lg bg-brass-500/20 text-brass-300">
                         <Building2 className="w-4 h-4" />
                       </div>
                       <div>
                         <div>{t('إضافة جناح / غرفة عمليات', 'Add Room / Suite')}</div>
-                        <div className="text-[10px] text-slate-400 font-normal">{t('غرفة عمليات، عيادة، مختبر', 'Theater, clinic, diagnostic lab')}</div>
+                        <div className="text-[10px] text-ink-400 font-normal">{t('غرفة عمليات، عيادة، مختبر', 'Theater, clinic, diagnostic lab')}</div>
                       </div>
                     </button>
 
@@ -326,14 +326,14 @@ export default function DashboardHeader({
                         onOpenAddModal('equipment');
                         setAddMenuOpen(false);
                       }}
-                      className="w-full p-2 rounded-xl flex items-center gap-2.5 text-start hover:bg-slate-800 text-slate-200 hover:text-white transition-colors cursor-pointer text-xs font-bold"
+                      className="w-full p-2 rounded-xl flex items-center gap-2.5 text-start hover:bg-ink-700 text-pine-200 hover:text-white transition-colors cursor-pointer text-xs font-bold"
                     >
-                      <div className="p-1.5 rounded-lg bg-emerald-500/20 text-emerald-300">
+                      <div className="p-1.5 rounded-lg bg-pine-500/20 text-pine-300">
                         <Cpu className="w-4 h-4" />
                       </div>
                       <div>
                         <div>{t('إضافة جهاز طبي / ليزك', 'Add Medical Equipment')}</div>
-                        <div className="text-[10px] text-slate-400 font-normal">{t('تسجيل جهاز ومعايرة', 'Device registry & calibration')}</div>
+                        <div className="text-[10px] text-ink-400 font-normal">{t('تسجيل جهاز ومعايرة', 'Device registry & calibration')}</div>
                       </div>
                     </button>
 
@@ -342,7 +342,7 @@ export default function DashboardHeader({
                         onOpenAddModal('broadcast');
                         setAddMenuOpen(false);
                       }}
-                      className="w-full p-2 rounded-xl flex items-center gap-2.5 text-start hover:bg-slate-800 text-rose-300 hover:text-rose-200 transition-colors cursor-pointer text-xs font-bold border-t border-slate-800/80 mt-1 pt-2"
+                      className="w-full p-2 rounded-xl flex items-center gap-2.5 text-start hover:bg-ink-700 text-rose-300 hover:text-rose-200 transition-colors cursor-pointer text-xs font-bold border-t border-ink-700/80 mt-1 pt-2"
                     >
                       <div className="p-1.5 rounded-lg bg-rose-500/20 text-rose-300">
                         <Radio className="w-4 h-4 animate-pulse" />

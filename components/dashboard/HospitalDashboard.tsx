@@ -374,13 +374,13 @@ export default function HospitalDashboard() {
   ];
 
   return (
-    <div className="min-h-screen bg-slate-100 text-slate-900 pb-16">
+    <div className="min-h-screen bg-bone-100 text-ink-900 pb-16">
       
       {/* Broadcast Alert Banner if Active */}
       {activeBroadcastBanner && (
-        <div className="bg-gradient-to-r from-rose-600 to-amber-600 text-white px-4 py-2.5 shadow-md flex items-center justify-between gap-3 text-xs font-bold animate-pulse">
+        <div className="bg-gradient-to-r from-rose-600 to-brass-600 text-white px-4 py-2.5 shadow-md flex items-center justify-between gap-3 text-xs font-bold animate-pulse">
           <div className="flex items-center gap-2 max-w-5xl mx-auto flex-1">
-            <Radio className="w-4 h-4 text-amber-200 flex-shrink-0 animate-spin" />
+            <Radio className="w-4 h-4 text-brass-600 flex-shrink-0 animate-spin" />
             <span>{t('تنبيه وإشعار إداري عاجل لكافة الأجنحة: ', 'URGENT COMPLEX-WIDE BROADCAST: ')}</span>
             <span className="font-extrabold underline">{activeBroadcastBanner}</span>
           </div>
@@ -412,7 +412,7 @@ export default function HospitalDashboard() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 pt-6 space-y-6">
         
         {/* Navigation Tabs Bar */}
-        <div className="bg-white rounded-2xl p-2 border border-slate-200 shadow-sm flex items-center gap-1.5 overflow-x-auto">
+        <div className="bg-white rounded-2xl p-2 border border-pine-200 shadow-sm flex items-center gap-1.5 overflow-x-auto">
           {navTabs.map((tab) => {
             const Icon = tab.icon;
             const isActive = activeTab === tab.id;
@@ -421,18 +421,18 @@ export default function HospitalDashboard() {
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id as any)}
-                className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs sm:text-sm font-black whitespace-nowrap transition-all cursor-pointer ${
+                className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs sm:text-sm font-extrabold whitespace-nowrap transition-all cursor-pointer ${
                   isActive
-                    ? 'bg-[#0C2340] text-white shadow-md'
-                    : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
+                    ? 'bg-[#0B3D33] text-white shadow-md'
+                    : 'text-ink-500 hover:text-ink-900 hover:bg-bone-100'
                 }`}
               >
-                <Icon className={`w-4 h-4 ${isActive ? 'text-teal-400' : 'text-slate-400'}`} />
+                <Icon className={`w-4 h-4 ${isActive ? 'text-brass-400' : 'text-ink-400'}`} />
                 <span>{t(tab.labelAr, tab.labelEn)}</span>
                 {tab.count !== null && (
                   <span
                     className={`px-1.5 py-0.5 rounded-full text-[10px] font-mono font-bold ${
-                      isActive ? 'bg-teal-500 text-white' : 'bg-slate-200 text-slate-700'
+                      isActive ? 'bg-pine-500 text-white' : 'bg-pine-200 text-ink-700'
                     }`}
                   >
                     {tab.count}
@@ -534,21 +534,21 @@ export default function HospitalDashboard() {
       {/* MODAL 1: ADD NEW STAFF MEMBER */}
       {/* ========================================================================= */}
       {isAddStaffOpen && (
-        <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 overflow-y-auto">
-          <div className="bg-white rounded-3xl max-w-xl w-full p-6 shadow-2xl border border-slate-200 relative animate-scaleUp">
+        <div className="fixed inset-0 z-50 bg-ink-900/60 backdrop-blur-xs flex items-center justify-center p-4 overflow-y-auto">
+          <div className="bg-white rounded-3xl max-w-xl w-full p-6 shadow-2xl border border-pine-200 relative animate-scaleUp">
             <button
               onClick={() => setIsAddStaffOpen(false)}
-              className="absolute top-5 left-5 rtl:left-auto rtl:right-5 p-2 text-slate-400 hover:text-slate-700 rounded-full hover:bg-slate-100 transition-colors"
+              className="absolute top-5 left-5 rtl:left-auto rtl:right-5 p-2 text-ink-400 hover:text-ink-700 rounded-full hover:bg-bone-100 transition-colors"
             >
               <X className="w-5 h-5" />
             </button>
 
             <div className="mb-5">
-              <h3 className="text-base sm:text-lg font-black text-[#0C2340] flex items-center gap-2">
-                <Users className="w-5 h-5 text-teal-600" />
+              <h3 className="text-base sm:text-lg font-extrabold text-pine-900 flex items-center gap-2">
+                <Users className="w-5 h-5 text-pine-700" />
                 <span>{t('إضافة عضو كادر طبي / فني جديد', 'Register New Medical Staff Member')}</span>
               </h3>
-              <p className="text-xs text-slate-500 mt-0.5">
+              <p className="text-xs text-ink-500 mt-0.5">
                 {t('تعيين الطبيب أو الممرض أو الأخصائي وتخصيص المناوبة والموقع', 'Assign role, shift timings, and active clinic/theater')}
               </p>
             </div>
@@ -556,46 +556,46 @@ export default function HospitalDashboard() {
             <form onSubmit={handleAddStaffSubmit} className="space-y-4 text-xs">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
-                  <label className="font-bold text-slate-700 block mb-1">{t('الاسم بالعربية *', 'Full Name (Arabic) *')}</label>
+                  <label className="font-bold text-ink-700 block mb-1">{t('الاسم بالعربية *', 'Full Name (Arabic) *')}</label>
                   <input
                     type="text"
                     required
                     value={newStaffForm.nameAr}
                     onChange={(e) => setNewStaffForm({ ...newStaffForm, nameAr: e.target.value })}
                     placeholder="د. محمد الساعدي"
-                    className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-teal-500 font-semibold"
+                    className="w-full p-2.5 bg-bone-50 border border-pine-200 rounded-xl focus:ring-2 focus:ring-pine-500 font-semibold"
                   />
                 </div>
                 <div>
-                  <label className="font-bold text-slate-700 block mb-1">{t('الاسم بالإنجليزية', 'Full Name (English)')}</label>
+                  <label className="font-bold text-ink-700 block mb-1">{t('الاسم بالإنجليزية', 'Full Name (English)')}</label>
                   <input
                     type="text"
                     value={newStaffForm.nameEn}
                     onChange={(e) => setNewStaffForm({ ...newStaffForm, nameEn: e.target.value })}
                     placeholder="Dr. Mohammed Al-Saadi"
-                    className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-teal-500 font-semibold"
+                    className="w-full p-2.5 bg-bone-50 border border-pine-200 rounded-xl focus:ring-2 focus:ring-pine-500 font-semibold"
                   />
                 </div>
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
-                  <label className="font-bold text-slate-700 block mb-1">{t('المسمى الوظيفي والتخصص *', 'Specialty Title *')}</label>
+                  <label className="font-bold text-ink-700 block mb-1">{t('المسمى الوظيفي والتخصص *', 'Specialty Title *')}</label>
                   <input
                     type="text"
                     required
                     value={newStaffForm.roleAr}
                     onChange={(e) => setNewStaffForm({ ...newStaffForm, roleAr: e.target.value })}
                     placeholder="أخصائي جراحة عيون ومياه بيضاء"
-                    className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-teal-500 font-semibold"
+                    className="w-full p-2.5 bg-bone-50 border border-pine-200 rounded-xl focus:ring-2 focus:ring-pine-500 font-semibold"
                   />
                 </div>
                 <div>
-                  <label className="font-bold text-slate-700 block mb-1">{t('الفئة الوظيفية', 'Staff Category')}</label>
+                  <label className="font-bold text-ink-700 block mb-1">{t('الفئة الوظيفية', 'Staff Category')}</label>
                   <select
                     value={newStaffForm.category}
                     onChange={(e) => setNewStaffForm({ ...newStaffForm, category: e.target.value })}
-                    className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-teal-500 font-semibold"
+                    className="w-full p-2.5 bg-bone-50 border border-pine-200 rounded-xl focus:ring-2 focus:ring-pine-500 font-semibold"
                   >
                     <option value="surgeon">{t('جراح استشاري', 'Surgeon / Consultant')}</option>
                     <option value="consultant">{t('استشاري زائر', 'Visiting Professor')}</option>
@@ -609,63 +609,63 @@ export default function HospitalDashboard() {
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
-                  <label className="font-bold text-slate-700 block mb-1">{t('الموقع المخصص / الغرفة', 'Assigned Room')}</label>
+                  <label className="font-bold text-ink-700 block mb-1">{t('الموقع المخصص / الغرفة', 'Assigned Room')}</label>
                   <input
                     type="text"
                     value={newStaffForm.roomAssignedAr}
                     onChange={(e) => setNewStaffForm({ ...newStaffForm, roomAssignedAr: e.target.value })}
                     placeholder="عيادة 105"
-                    className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-teal-500 font-semibold"
+                    className="w-full p-2.5 bg-bone-50 border border-pine-200 rounded-xl focus:ring-2 focus:ring-pine-500 font-semibold"
                   />
                 </div>
                 <div>
-                  <label className="font-bold text-slate-700 block mb-1">{t('مواعيد المناوبة', 'Shift Timings')}</label>
+                  <label className="font-bold text-ink-700 block mb-1">{t('مواعيد المناوبة', 'Shift Timings')}</label>
                   <input
                     type="text"
                     value={newStaffForm.shift}
                     onChange={(e) => setNewStaffForm({ ...newStaffForm, shift: e.target.value })}
                     placeholder="08:00 - 16:00"
-                    className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-teal-500 font-semibold"
+                    className="w-full p-2.5 bg-bone-50 border border-pine-200 rounded-xl focus:ring-2 focus:ring-pine-500 font-semibold"
                   />
                 </div>
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
-                  <label className="font-bold text-slate-700 block mb-1">{t('رقم الهاتف للتواصل المباشر', 'Direct Phone')}</label>
+                  <label className="font-bold text-ink-700 block mb-1">{t('رقم الهاتف للتواصل المباشر', 'Direct Phone')}</label>
                   <input
                     type="text"
                     value={newStaffForm.phone}
                     onChange={(e) => setNewStaffForm({ ...newStaffForm, phone: e.target.value })}
                     placeholder="+218 91 000 0000"
-                    className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-teal-500 font-semibold"
+                    className="w-full p-2.5 bg-bone-50 border border-pine-200 rounded-xl focus:ring-2 focus:ring-pine-500 font-semibold"
                   />
                 </div>
                 <div>
-                  <label className="font-bold text-slate-700 block mb-1">{t('البريد الإلكتروني المؤسسي', 'Hospital Email')}</label>
+                  <label className="font-bold text-ink-700 block mb-1">{t('البريد الإلكتروني المؤسسي', 'Hospital Email')}</label>
                   <input
                     type="email"
                     value={newStaffForm.email}
                     onChange={(e) => setNewStaffForm({ ...newStaffForm, email: e.target.value })}
                     placeholder="doctor@konooz-hospital.ly"
-                    className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-teal-500 font-semibold"
+                    className="w-full p-2.5 bg-bone-50 border border-pine-200 rounded-xl focus:ring-2 focus:ring-pine-500 font-semibold"
                   />
                 </div>
               </div>
 
-              <div className="flex items-center justify-end gap-3 pt-3 border-t border-slate-100">
+              <div className="flex items-center justify-end gap-3 pt-3 border-t border-bone-100">
                 <button
                   type="button"
                   onClick={() => setIsAddStaffOpen(false)}
-                  className="px-4 py-2 text-slate-600 hover:bg-slate-100 rounded-xl font-bold transition-colors cursor-pointer"
+                  className="px-4 py-2 text-ink-500 hover:bg-bone-100 rounded-xl font-bold transition-colors cursor-pointer"
                 >
                   {t('إلغاء', 'Cancel')}
                 </button>
                 <button
                   type="submit"
-                  className="px-5 py-2.5 bg-[#0C2340] hover:bg-teal-800 text-white rounded-xl font-bold transition-all shadow-md flex items-center gap-2 cursor-pointer"
+                  className="px-5 py-2.5 bg-pine-900 hover:bg-pine-700 text-white rounded-xl font-bold transition-all shadow-md flex items-center gap-2 cursor-pointer"
                 >
-                  <CheckCircle2 className="w-4 h-4 text-teal-400" />
+                  <CheckCircle2 className="w-4 h-4 text-brass-400" />
                   <span>{t('تأكيد وحفظ الكادر', 'Confirm & Add Staff')}</span>
                 </button>
               </div>
@@ -678,21 +678,21 @@ export default function HospitalDashboard() {
       {/* MODAL 2: SCHEDULE NEW SURGERY CASE */}
       {/* ========================================================================= */}
       {isScheduleSurgeryOpen && (
-        <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 overflow-y-auto">
-          <div className="bg-white rounded-3xl max-w-xl w-full p-6 shadow-2xl border border-slate-200 relative animate-scaleUp">
+        <div className="fixed inset-0 z-50 bg-ink-900/60 backdrop-blur-xs flex items-center justify-center p-4 overflow-y-auto">
+          <div className="bg-white rounded-3xl max-w-xl w-full p-6 shadow-2xl border border-pine-200 relative animate-scaleUp">
             <button
               onClick={() => setIsScheduleSurgeryOpen(false)}
-              className="absolute top-5 left-5 rtl:left-auto rtl:right-5 p-2 text-slate-400 hover:text-slate-700 rounded-full hover:bg-slate-100 transition-colors"
+              className="absolute top-5 left-5 rtl:left-auto rtl:right-5 p-2 text-ink-400 hover:text-ink-700 rounded-full hover:bg-bone-100 transition-colors"
             >
               <X className="w-5 h-5" />
             </button>
 
             <div className="mb-5">
-              <h3 className="text-base sm:text-lg font-black text-[#0C2340] flex items-center gap-2">
-                <Calendar className="w-5 h-5 text-teal-600" />
+              <h3 className="text-base sm:text-lg font-extrabold text-pine-900 flex items-center gap-2">
+                <Calendar className="w-5 h-5 text-pine-700" />
                 <span>{t('حجز وتنسيق موعد جراحة عيون عاجلة / مجدولة', 'Schedule New Ophthalmic Surgery Case')}</span>
               </h3>
-              <p className="text-xs text-slate-500 mt-0.5">
+              <p className="text-xs text-ink-500 mt-0.5">
                 {t('ربط المريض بالجراح، الجناح المعقم، ونوع التخدير المطلوب', 'Connect patient to surgeon, theater suite, and anesthesia team')}
               </p>
             </div>
@@ -700,32 +700,32 @@ export default function HospitalDashboard() {
             <form onSubmit={handleScheduleSurgerySubmit} className="space-y-4 text-xs">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
-                  <label className="font-bold text-slate-700 block mb-1">{t('اسم المريض بالعربية *', 'Patient Name (Arabic) *')}</label>
+                  <label className="font-bold text-ink-700 block mb-1">{t('اسم المريض بالعربية *', 'Patient Name (Arabic) *')}</label>
                   <input
                     type="text"
                     required
                     value={newSurgeryForm.patientNameAr}
                     onChange={(e) => setNewSurgeryForm({ ...newSurgeryForm, patientNameAr: e.target.value })}
                     placeholder="سليمان عبد القادر"
-                    className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-teal-500 font-semibold"
+                    className="w-full p-2.5 bg-bone-50 border border-pine-200 rounded-xl focus:ring-2 focus:ring-pine-500 font-semibold"
                   />
                 </div>
                 <div className="grid grid-cols-2 gap-2">
                   <div>
-                    <label className="font-bold text-slate-700 block mb-1">{t('العمر', 'Age')}</label>
+                    <label className="font-bold text-ink-700 block mb-1">{t('العمر', 'Age')}</label>
                     <input
                       type="number"
                       value={newSurgeryForm.patientAge}
                       onChange={(e) => setNewSurgeryForm({ ...newSurgeryForm, patientAge: Number(e.target.value) })}
-                      className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-teal-500 font-semibold"
+                      className="w-full p-2.5 bg-bone-50 border border-pine-200 rounded-xl focus:ring-2 focus:ring-pine-500 font-semibold"
                     />
                   </div>
                   <div>
-                    <label className="font-bold text-slate-700 block mb-1">{t('الجنس', 'Gender')}</label>
+                    <label className="font-bold text-ink-700 block mb-1">{t('الجنس', 'Gender')}</label>
                     <select
                       value={newSurgeryForm.gender}
                       onChange={(e) => setNewSurgeryForm({ ...newSurgeryForm, gender: e.target.value as any })}
-                      className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-teal-500 font-semibold"
+                      className="w-full p-2.5 bg-bone-50 border border-pine-200 rounded-xl focus:ring-2 focus:ring-pine-500 font-semibold"
                     >
                       <option value="male">{t('ذكر', 'Male')}</option>
                       <option value="female">{t('أنثى', 'Female')}</option>
@@ -735,11 +735,11 @@ export default function HospitalDashboard() {
               </div>
 
               <div>
-                <label className="font-bold text-slate-700 block mb-1">{t('نوع الإجراء الجراحي *', 'Surgical Procedure *')}</label>
+                <label className="font-bold text-ink-700 block mb-1">{t('نوع الإجراء الجراحي *', 'Surgical Procedure *')}</label>
                 <select
                   value={newSurgeryForm.procedureAr}
                   onChange={(e) => setNewSurgeryForm({ ...newSurgeryForm, procedureAr: e.target.value })}
-                  className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-teal-500 font-semibold"
+                  className="w-full p-2.5 bg-bone-50 border border-pine-200 rounded-xl focus:ring-2 focus:ring-pine-500 font-semibold"
                 >
                   <option value="عملية إزالة المياه البيضاء بالموجات فوق الصوتية (الفاكو) وزراعة عدسة مطوية">
                     {t('إزالة المياه البيضاء (الفاكو) + عدسة مطوية', 'Phacoemulsification + Foldable IOL')}
@@ -764,11 +764,11 @@ export default function HospitalDashboard() {
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
-                  <label className="font-bold text-slate-700 block mb-1">{t('الجراح المسؤول *', 'Surgeon In Charge *')}</label>
+                  <label className="font-bold text-ink-700 block mb-1">{t('الجراح المسؤول *', 'Surgeon In Charge *')}</label>
                   <select
                     value={newSurgeryForm.surgeonAr}
                     onChange={(e) => setNewSurgeryForm({ ...newSurgeryForm, surgeonAr: e.target.value })}
-                    className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-teal-500 font-semibold"
+                    className="w-full p-2.5 bg-bone-50 border border-pine-200 rounded-xl focus:ring-2 focus:ring-pine-500 font-semibold"
                   >
                     <option value="أ.د. محمود الحسيني">أ.د. محمود الحسيني (الشبكية قصر العيني)</option>
                     <option value="أ.د. طارق قطامش">أ.د. طارق قطامش (القرنية والليزك قصر العيني)</option>
@@ -779,11 +779,11 @@ export default function HospitalDashboard() {
                 </div>
 
                 <div>
-                  <label className="font-bold text-slate-700 block mb-1">{t('الجناح الجراحي المخصص', 'Surgical Theater')}</label>
+                  <label className="font-bold text-ink-700 block mb-1">{t('الجناح الجراحي المخصص', 'Surgical Theater')}</label>
                   <select
                     value={newSurgeryForm.roomCode}
                     onChange={(e) => setNewSurgeryForm({ ...newSurgeryForm, roomCode: e.target.value })}
-                    className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-teal-500 font-semibold"
+                    className="w-full p-2.5 bg-bone-50 border border-pine-200 rounded-xl focus:ring-2 focus:ring-pine-500 font-semibold"
                   >
                     <option value="OR-101">OR-101 (جناح الشبكية - Lumera & Constellation)</option>
                     <option value="OR-102">OR-102 (جناح الفاكو والعدسات - Centurion)</option>
@@ -794,29 +794,29 @@ export default function HospitalDashboard() {
 
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                 <div>
-                  <label className="font-bold text-slate-700 block mb-1">{t('وقت الدخول', 'Time Slot')}</label>
+                  <label className="font-bold text-ink-700 block mb-1">{t('وقت الدخول', 'Time Slot')}</label>
                   <input
                     type="time"
                     value={newSurgeryForm.time}
                     onChange={(e) => setNewSurgeryForm({ ...newSurgeryForm, time: e.target.value })}
-                    className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-teal-500 font-semibold"
+                    className="w-full p-2.5 bg-bone-50 border border-pine-200 rounded-xl focus:ring-2 focus:ring-pine-500 font-semibold"
                   />
                 </div>
                 <div>
-                  <label className="font-bold text-slate-700 block mb-1">{t('المدة المتوقعة (دقيقة)', 'Est. Duration')}</label>
+                  <label className="font-bold text-ink-700 block mb-1">{t('المدة المتوقعة (دقيقة)', 'Est. Duration')}</label>
                   <input
                     type="number"
                     value={newSurgeryForm.estimatedDurationMin}
                     onChange={(e) => setNewSurgeryForm({ ...newSurgeryForm, estimatedDurationMin: Number(e.target.value) })}
-                    className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-teal-500 font-semibold"
+                    className="w-full p-2.5 bg-bone-50 border border-pine-200 rounded-xl focus:ring-2 focus:ring-pine-500 font-semibold"
                   />
                 </div>
                 <div>
-                  <label className="font-bold text-slate-700 block mb-1">{t('مستوى الأولوية', 'Priority Level')}</label>
+                  <label className="font-bold text-ink-700 block mb-1">{t('مستوى الأولوية', 'Priority Level')}</label>
                   <select
                     value={newSurgeryForm.priority}
                     onChange={(e) => setNewSurgeryForm({ ...newSurgeryForm, priority: e.target.value as any })}
-                    className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-teal-500 font-semibold"
+                    className="w-full p-2.5 bg-bone-50 border border-pine-200 rounded-xl focus:ring-2 focus:ring-pine-500 font-semibold"
                   >
                     <option value="elective">{t('عادية مجدولة', 'Elective / Standard')}</option>
                     <option value="high_priority">{t('أولوية متقدمة', 'High Priority')}</option>
@@ -825,19 +825,19 @@ export default function HospitalDashboard() {
                 </div>
               </div>
 
-              <div className="flex items-center justify-end gap-3 pt-3 border-t border-slate-100">
+              <div className="flex items-center justify-end gap-3 pt-3 border-t border-bone-100">
                 <button
                   type="button"
                   onClick={() => setIsScheduleSurgeryOpen(false)}
-                  className="px-4 py-2 text-slate-600 hover:bg-slate-100 rounded-xl font-bold transition-colors cursor-pointer"
+                  className="px-4 py-2 text-ink-500 hover:bg-bone-100 rounded-xl font-bold transition-colors cursor-pointer"
                 >
                   {t('إلغاء', 'Cancel')}
                 </button>
                 <button
                   type="submit"
-                  className="px-5 py-2.5 bg-[#0C2340] hover:bg-teal-800 text-white rounded-xl font-bold transition-all shadow-md flex items-center gap-2 cursor-pointer"
+                  className="px-5 py-2.5 bg-pine-900 hover:bg-pine-700 text-white rounded-xl font-bold transition-all shadow-md flex items-center gap-2 cursor-pointer"
                 >
-                  <CheckCircle2 className="w-4 h-4 text-teal-400" />
+                  <CheckCircle2 className="w-4 h-4 text-brass-400" />
                   <span>{t('تثبيت وإدراج الحالة في الجدول', 'Schedule Surgery Case')}</span>
                 </button>
               </div>
@@ -850,76 +850,76 @@ export default function HospitalDashboard() {
       {/* MODAL 3: BIOMEDICAL MAINTENANCE LOG */}
       {/* ========================================================================= */}
       {isMaintenanceOpen && selectedDeviceForMaintenance && (
-        <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 overflow-y-auto">
-          <div className="bg-white rounded-3xl max-w-lg w-full p-6 shadow-2xl border border-slate-200 relative animate-scaleUp">
+        <div className="fixed inset-0 z-50 bg-ink-900/60 backdrop-blur-xs flex items-center justify-center p-4 overflow-y-auto">
+          <div className="bg-white rounded-3xl max-w-lg w-full p-6 shadow-2xl border border-pine-200 relative animate-scaleUp">
             <button
               onClick={() => setIsMaintenanceOpen(false)}
-              className="absolute top-5 left-5 rtl:left-auto rtl:right-5 p-2 text-slate-400 hover:text-slate-700 rounded-full hover:bg-slate-100 transition-colors"
+              className="absolute top-5 left-5 rtl:left-auto rtl:right-5 p-2 text-ink-400 hover:text-ink-700 rounded-full hover:bg-bone-100 transition-colors"
             >
               <X className="w-5 h-5" />
             </button>
 
             <div className="mb-4">
-              <span className="text-[10px] font-mono font-black text-teal-800 bg-teal-50 px-2 py-0.5 rounded uppercase">
+              <span className="text-[10px] font-mono font-extrabold text-pine-800 bg-pine-50 px-2 py-0.5 rounded uppercase">
                 {selectedDeviceForMaintenance.brand} - {selectedDeviceForMaintenance.serialNumber}
               </span>
-              <h3 className="text-base font-black text-[#0C2340] mt-1 flex items-center gap-2">
-                <Wrench className="w-5 h-5 text-teal-600" />
+              <h3 className="text-base font-extrabold text-pine-900 mt-1 flex items-center gap-2">
+                <Wrench className="w-5 h-5 text-pine-700" />
                 <span>{t('توثيق صيانة ومعايرة جهاز طبي', 'Biomedical Service & Optical Calibration Log')}</span>
               </h3>
-              <p className="text-xs text-slate-500 mt-0.5">
+              <p className="text-xs text-ink-500 mt-0.5">
                 {lang === 'ar' ? selectedDeviceForMaintenance.nameAr : selectedDeviceForMaintenance.nameEn}
               </p>
             </div>
 
             <form onSubmit={handleMaintenanceSubmit} className="space-y-3 text-xs">
-              <div className="p-3 bg-slate-50 rounded-xl border border-slate-100 space-y-1">
+              <div className="p-3 bg-bone-50 rounded-xl border border-bone-100 space-y-1">
                 <div className="flex justify-between">
-                  <span className="text-slate-500">{t('الموقع الحالي:', 'Location:')}</span>
-                  <strong className="text-slate-900">{selectedDeviceForMaintenance.roomCode}</strong>
+                  <span className="text-ink-500">{t('الموقع الحالي:', 'Location:')}</span>
+                  <strong className="text-ink-900">{selectedDeviceForMaintenance.roomCode}</strong>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-slate-500">{t('المهندس المسؤول:', 'Engineer:')}</span>
-                  <strong className="text-slate-900">
+                  <span className="text-ink-500">{t('المهندس المسؤول:', 'Engineer:')}</span>
+                  <strong className="text-ink-900">
                     {lang === 'ar' ? selectedDeviceForMaintenance.technicianInChargeAr : selectedDeviceForMaintenance.technicianInChargeEn}
                   </strong>
                 </div>
               </div>
 
               <div>
-                <label className="font-bold text-slate-700 block mb-1">{t('ملاحظات الفحص والمعايرة *', 'Calibration & Inspection Notes *')}</label>
+                <label className="font-bold text-ink-700 block mb-1">{t('ملاحظات الفحص والمعايرة *', 'Calibration & Inspection Notes *')}</label>
                 <textarea
                   rows={3}
                   value={maintenanceNotes}
                   onChange={(e) => setMaintenanceNotes(e.target.value)}
                   placeholder={t('تم فحص طاقة الليزر، معايرة المسافة البؤرية، واختبار حساسات الضغط بنجاح...', 'Energy level verified, beam centering tested, full self-diagnostic passed...')}
-                  className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-teal-500 font-semibold"
+                  className="w-full p-2.5 bg-bone-50 border border-pine-200 rounded-xl focus:ring-2 focus:ring-pine-500 font-semibold"
                 />
               </div>
 
               <div>
-                <label className="font-bold text-slate-700 block mb-1">{t('تاريخ المعايرة الدورية القادمة', 'Next Due Date')}</label>
+                <label className="font-bold text-ink-700 block mb-1">{t('تاريخ المعايرة الدورية القادمة', 'Next Due Date')}</label>
                 <input
                   type="date"
                   value={nextServiceDue}
                   onChange={(e) => setNextServiceDue(e.target.value)}
-                  className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-teal-500 font-semibold"
+                  className="w-full p-2.5 bg-bone-50 border border-pine-200 rounded-xl focus:ring-2 focus:ring-pine-500 font-semibold"
                 />
               </div>
 
-              <div className="flex items-center justify-end gap-3 pt-3 border-t border-slate-100">
+              <div className="flex items-center justify-end gap-3 pt-3 border-t border-bone-100">
                 <button
                   type="button"
                   onClick={() => setIsMaintenanceOpen(false)}
-                  className="px-4 py-2 text-slate-600 hover:bg-slate-100 rounded-xl font-bold transition-colors cursor-pointer"
+                  className="px-4 py-2 text-ink-500 hover:bg-bone-100 rounded-xl font-bold transition-colors cursor-pointer"
                 >
                   {t('إلغاء', 'Cancel')}
                 </button>
                 <button
                   type="submit"
-                  className="px-5 py-2.5 bg-teal-700 hover:bg-teal-800 text-white rounded-xl font-bold transition-all shadow-md flex items-center gap-2 cursor-pointer"
+                  className="px-5 py-2.5 bg-pine-800 hover:bg-pine-800 text-white rounded-xl font-bold transition-all shadow-md flex items-center gap-2 cursor-pointer"
                 >
-                  <CheckCircle2 className="w-4 h-4 text-teal-300" />
+                  <CheckCircle2 className="w-4 h-4 text-brass-300" />
                   <span>{t('اعتماد المعايرة وإعادة للخدمة', 'Certify & Set Operational')}</span>
                 </button>
               </div>
@@ -932,21 +932,21 @@ export default function HospitalDashboard() {
       {/* MODAL: ADD NEW ROOM / OPERATING THEATER */}
       {/* ========================================================================= */}
       {isAddRoomOpen && (
-        <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 overflow-y-auto">
-          <div className="bg-white rounded-3xl max-w-xl w-full p-6 shadow-2xl border border-slate-200 relative animate-scaleUp">
+        <div className="fixed inset-0 z-50 bg-ink-900/60 backdrop-blur-xs flex items-center justify-center p-4 overflow-y-auto">
+          <div className="bg-white rounded-3xl max-w-xl w-full p-6 shadow-2xl border border-pine-200 relative animate-scaleUp">
             <button
               onClick={() => setIsAddRoomOpen(false)}
-              className="absolute top-5 left-5 rtl:left-auto rtl:right-5 p-2 text-slate-400 hover:text-slate-700 rounded-full hover:bg-slate-100 transition-colors cursor-pointer"
+              className="absolute top-5 left-5 rtl:left-auto rtl:right-5 p-2 text-ink-400 hover:text-ink-700 rounded-full hover:bg-bone-100 transition-colors cursor-pointer"
             >
               <X className="w-5 h-5" />
             </button>
 
             <div className="mb-5">
-              <h3 className="text-base sm:text-lg font-black text-[#0C2340] flex items-center gap-2">
-                <Building2 className="w-5 h-5 text-teal-600" />
+              <h3 className="text-base sm:text-lg font-extrabold text-pine-900 flex items-center gap-2">
+                <Building2 className="w-5 h-5 text-pine-700" />
                 <span>{t('إضافة غرفة عمليات / جناح سريري جديد', 'Register New Surgical Suite / Clinic Room')}</span>
               </h3>
-              <p className="text-xs text-slate-500 mt-0.5">
+              <p className="text-xs text-ink-500 mt-0.5">
                 {t('تعريف الجناح الجراحي أو العيادة وتحديد الأجهزة المجهزة ونظام التعقيم', 'Define suite specs, climate controls, and biomedical equipment')}
               </p>
             </div>
@@ -954,22 +954,22 @@ export default function HospitalDashboard() {
             <form onSubmit={handleAddRoomSubmit} className="space-y-4 text-xs">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
-                  <label className="font-bold text-slate-700 block mb-1">{t('رمز الجناح / الغرفة *', 'Room Code *')}</label>
+                  <label className="font-bold text-ink-700 block mb-1">{t('رمز الجناح / الغرفة *', 'Room Code *')}</label>
                   <input
                     type="text"
                     required
                     value={newRoomForm.code}
                     onChange={(e) => setNewRoomForm({ ...newRoomForm, code: e.target.value })}
                     placeholder="OR-104"
-                    className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-teal-500 font-semibold uppercase font-mono"
+                    className="w-full p-2.5 bg-bone-50 border border-pine-200 rounded-xl focus:ring-2 focus:ring-pine-500 font-semibold uppercase font-mono"
                   />
                 </div>
                 <div>
-                  <label className="font-bold text-slate-700 block mb-1">{t('نوع الجناح / القسم *', 'Room Category *')}</label>
+                  <label className="font-bold text-ink-700 block mb-1">{t('نوع الجناح / القسم *', 'Room Category *')}</label>
                   <select
                     value={newRoomForm.type}
                     onChange={(e) => setNewRoomForm({ ...newRoomForm, type: e.target.value as RoomType })}
-                    className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-teal-500 font-bold"
+                    className="w-full p-2.5 bg-bone-50 border border-pine-200 rounded-xl focus:ring-2 focus:ring-pine-500 font-bold"
                   >
                     <option value="operating_theater">{t('جناح عمليات جراحية رئيسي', 'Major Operating Theater')}</option>
                     <option value="laser_room">{t('جناح عمليات الليزك وتصحيح الإبصار', 'Refractive LASIK Suite')}</option>
@@ -982,84 +982,84 @@ export default function HospitalDashboard() {
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
-                  <label className="font-bold text-slate-700 block mb-1">{t('اسم الجناح بالعربية *', 'Room Name (Arabic) *')}</label>
+                  <label className="font-bold text-ink-700 block mb-1">{t('اسم الجناح بالعربية *', 'Room Name (Arabic) *')}</label>
                   <input
                     type="text"
                     required
                     value={newRoomForm.nameAr}
                     onChange={(e) => setNewRoomForm({ ...newRoomForm, nameAr: e.target.value })}
                     placeholder="جناح العمليات 4 (جراحات الليزر والفاكو)"
-                    className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-teal-500 font-semibold"
+                    className="w-full p-2.5 bg-bone-50 border border-pine-200 rounded-xl focus:ring-2 focus:ring-pine-500 font-semibold"
                   />
                 </div>
                 <div>
-                  <label className="font-bold text-slate-700 block mb-1">{t('اسم الجناح بالإنجليزية', 'Room Name (English)')}</label>
+                  <label className="font-bold text-ink-700 block mb-1">{t('اسم الجناح بالإنجليزية', 'Room Name (English)')}</label>
                   <input
                     type="text"
                     value={newRoomForm.nameEn}
                     onChange={(e) => setNewRoomForm({ ...newRoomForm, nameEn: e.target.value })}
                     placeholder="Operating Theater 4 (Laser & Phaco Suite)"
-                    className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-teal-500 font-semibold"
+                    className="w-full p-2.5 bg-bone-50 border border-pine-200 rounded-xl focus:ring-2 focus:ring-pine-500 font-semibold"
                   />
                 </div>
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
-                  <label className="font-bold text-slate-700 block mb-1">{t('الموقع / الطابق بالعربية', 'Floor Location (Arabic)')}</label>
+                  <label className="font-bold text-ink-700 block mb-1">{t('الموقع / الطابق بالعربية', 'Floor Location (Arabic)')}</label>
                   <input
                     type="text"
                     value={newRoomForm.floorAr}
                     onChange={(e) => setNewRoomForm({ ...newRoomForm, floorAr: e.target.value })}
                     placeholder="الطابق الثاني - المجمع الجراحي"
-                    className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-teal-500 font-semibold"
+                    className="w-full p-2.5 bg-bone-50 border border-pine-200 rounded-xl focus:ring-2 focus:ring-pine-500 font-semibold"
                   />
                 </div>
                 <div>
-                  <label className="font-bold text-slate-700 block mb-1">{t('الجهاز الرئيسي المجهز بالجناح', 'Primary Biomedical Device')}</label>
+                  <label className="font-bold text-ink-700 block mb-1">{t('الجهاز الرئيسي المجهز بالجناح', 'Primary Biomedical Device')}</label>
                   <input
                     type="text"
                     value={newRoomForm.mainDeviceAssignedAr}
                     onChange={(e) => setNewRoomForm({ ...newRoomForm, mainDeviceAssignedAr: e.target.value })}
                     placeholder="Zeiss Lumera 700 + Alcon Centurion"
-                    className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-teal-500 font-semibold"
+                    className="w-full p-2.5 bg-bone-50 border border-pine-200 rounded-xl focus:ring-2 focus:ring-pine-500 font-semibold"
                   />
                 </div>
               </div>
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="font-bold text-slate-700 block mb-1">{t('درجة الحرارة المعيارية (°C)', 'Target Temp (°C)')}</label>
+                  <label className="font-bold text-ink-700 block mb-1">{t('درجة الحرارة المعيارية (°C)', 'Target Temp (°C)')}</label>
                   <input
                     type="number"
                     step="0.5"
                     value={newRoomForm.tempCelsius}
                     onChange={(e) => setNewRoomForm({ ...newRoomForm, tempCelsius: Number(e.target.value) })}
-                    className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-teal-500 font-mono font-bold"
+                    className="w-full p-2.5 bg-bone-50 border border-pine-200 rounded-xl focus:ring-2 focus:ring-pine-500 font-mono font-bold"
                   />
                 </div>
                 <div>
-                  <label className="font-bold text-slate-700 block mb-1">{t('نسبة الرطوبة المثالية (%)', 'Target Humidity (%)')}</label>
+                  <label className="font-bold text-ink-700 block mb-1">{t('نسبة الرطوبة المثالية (%)', 'Target Humidity (%)')}</label>
                   <input
                     type="number"
                     value={newRoomForm.humidityPercent}
                     onChange={(e) => setNewRoomForm({ ...newRoomForm, humidityPercent: Number(e.target.value) })}
-                    className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-teal-500 font-mono font-bold"
+                    className="w-full p-2.5 bg-bone-50 border border-pine-200 rounded-xl focus:ring-2 focus:ring-pine-500 font-mono font-bold"
                   />
                 </div>
               </div>
 
-              <div className="flex items-center justify-end gap-3 pt-3 border-t border-slate-100">
+              <div className="flex items-center justify-end gap-3 pt-3 border-t border-bone-100">
                 <button
                   type="button"
                   onClick={() => setIsAddRoomOpen(false)}
-                  className="px-4 py-2 text-slate-600 hover:bg-slate-100 rounded-xl font-bold transition-colors cursor-pointer"
+                  className="px-4 py-2 text-ink-500 hover:bg-bone-100 rounded-xl font-bold transition-colors cursor-pointer"
                 >
                   {t('إلغاء', 'Cancel')}
                 </button>
                 <button
                   type="submit"
-                  className="px-5 py-2.5 bg-teal-600 hover:bg-teal-700 text-white rounded-xl font-black transition-all shadow-md flex items-center gap-2 cursor-pointer"
+                  className="px-5 py-2.5 bg-pine-700 hover:bg-pine-800 text-white rounded-xl font-extrabold transition-all shadow-md flex items-center gap-2 cursor-pointer"
                 >
                   <Plus className="w-4 h-4" />
                   <span>{t('تسجيل وتدشين الجناح', 'Register Room')}</span>
@@ -1074,21 +1074,21 @@ export default function HospitalDashboard() {
       {/* MODAL: ADD NEW MEDICAL DEVICE / EQUIPMENT */}
       {/* ========================================================================= */}
       {isAddEquipmentOpen && (
-        <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 overflow-y-auto">
-          <div className="bg-white rounded-3xl max-w-xl w-full p-6 shadow-2xl border border-slate-200 relative animate-scaleUp">
+        <div className="fixed inset-0 z-50 bg-ink-900/60 backdrop-blur-xs flex items-center justify-center p-4 overflow-y-auto">
+          <div className="bg-white rounded-3xl max-w-xl w-full p-6 shadow-2xl border border-pine-200 relative animate-scaleUp">
             <button
               onClick={() => setIsAddEquipmentOpen(false)}
-              className="absolute top-5 left-5 rtl:left-auto rtl:right-5 p-2 text-slate-400 hover:text-slate-700 rounded-full hover:bg-slate-100 transition-colors cursor-pointer"
+              className="absolute top-5 left-5 rtl:left-auto rtl:right-5 p-2 text-ink-400 hover:text-ink-700 rounded-full hover:bg-bone-100 transition-colors cursor-pointer"
             >
               <X className="w-5 h-5" />
             </button>
 
             <div className="mb-5">
-              <h3 className="text-base sm:text-lg font-black text-[#0C2340] flex items-center gap-2">
-                <Cpu className="w-5 h-5 text-teal-600" />
+              <h3 className="text-base sm:text-lg font-extrabold text-pine-900 flex items-center gap-2">
+                <Cpu className="w-5 h-5 text-pine-700" />
                 <span>{t('إضافة جهاز طبي ونظام ليزر جديد', 'Add Biomedical Equipment / Laser')}</span>
               </h3>
-              <p className="text-xs text-slate-500 mt-0.5">
+              <p className="text-xs text-ink-500 mt-0.5">
                 {t('تسجيل بيانات الجهاز الطبي، الرقم التسلسلي، موقع التشغيل، وتعيين مهندس الصيانة', 'Register serial number, operating suite, calibration interval, and lead bio-engineer')}
               </p>
             </div>
@@ -1096,71 +1096,71 @@ export default function HospitalDashboard() {
             <form onSubmit={handleAddEquipmentSubmit} className="space-y-4 text-xs">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
-                  <label className="font-bold text-slate-700 block mb-1">{t('اسم الجهاز بالعربية *', 'Device Name (Arabic) *')}</label>
+                  <label className="font-bold text-ink-700 block mb-1">{t('اسم الجهاز بالعربية *', 'Device Name (Arabic) *')}</label>
                   <input
                     type="text"
                     required
                     value={newEquipmentForm.nameAr}
                     onChange={(e) => setNewEquipmentForm({ ...newEquipmentForm, nameAr: e.target.value })}
                     placeholder="جهاز ليزر الفيمتو ثانية المتطور"
-                    className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-teal-500 font-semibold"
+                    className="w-full p-2.5 bg-bone-50 border border-pine-200 rounded-xl focus:ring-2 focus:ring-pine-500 font-semibold"
                   />
                 </div>
                 <div>
-                  <label className="font-bold text-slate-700 block mb-1">{t('اسم الجهاز بالإنجليزية', 'Device Name (English)')}</label>
+                  <label className="font-bold text-ink-700 block mb-1">{t('اسم الجهاز بالإنجليزية', 'Device Name (English)')}</label>
                   <input
                     type="text"
                     value={newEquipmentForm.nameEn}
                     onChange={(e) => setNewEquipmentForm({ ...newEquipmentForm, nameEn: e.target.value })}
                     placeholder="Femtosecond Laser Surgical System"
-                    className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-teal-500 font-semibold"
+                    className="w-full p-2.5 bg-bone-50 border border-pine-200 rounded-xl focus:ring-2 focus:ring-pine-500 font-semibold"
                   />
                 </div>
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                 <div>
-                  <label className="font-bold text-slate-700 block mb-1">{t('الشركة المصنعة *', 'Manufacturer Brand *')}</label>
+                  <label className="font-bold text-ink-700 block mb-1">{t('الشركة المصنعة *', 'Manufacturer Brand *')}</label>
                   <input
                     type="text"
                     required
                     value={newEquipmentForm.brand}
                     onChange={(e) => setNewEquipmentForm({ ...newEquipmentForm, brand: e.target.value })}
                     placeholder="Carl Zeiss Meditec"
-                    className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-teal-500 font-semibold"
+                    className="w-full p-2.5 bg-bone-50 border border-pine-200 rounded-xl focus:ring-2 focus:ring-pine-500 font-semibold"
                   />
                 </div>
                 <div>
-                  <label className="font-bold text-slate-700 block mb-1">{t('الموديل / الطراز *', 'Model *')}</label>
+                  <label className="font-bold text-ink-700 block mb-1">{t('الموديل / الطراز *', 'Model *')}</label>
                   <input
                     type="text"
                     required
                     value={newEquipmentForm.model}
                     onChange={(e) => setNewEquipmentForm({ ...newEquipmentForm, model: e.target.value })}
                     placeholder="VisuMax 800"
-                    className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-teal-500 font-semibold"
+                    className="w-full p-2.5 bg-bone-50 border border-pine-200 rounded-xl focus:ring-2 focus:ring-pine-500 font-semibold"
                   />
                 </div>
                 <div>
-                  <label className="font-bold text-slate-700 block mb-1">{t('الرقم التسلسلي (SN) *', 'Serial Number *')}</label>
+                  <label className="font-bold text-ink-700 block mb-1">{t('الرقم التسلسلي (SN) *', 'Serial Number *')}</label>
                   <input
                     type="text"
                     required
                     value={newEquipmentForm.serialNumber}
                     onChange={(e) => setNewEquipmentForm({ ...newEquipmentForm, serialNumber: e.target.value })}
                     placeholder="CZ-VM-800-4491"
-                    className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-teal-500 font-mono font-bold"
+                    className="w-full p-2.5 bg-bone-50 border border-pine-200 rounded-xl focus:ring-2 focus:ring-pine-500 font-mono font-bold"
                   />
                 </div>
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
-                  <label className="font-bold text-slate-700 block mb-1">{t('الغرفة أو الجناح المخصص له *', 'Assigned Room *')}</label>
+                  <label className="font-bold text-ink-700 block mb-1">{t('الغرفة أو الجناح المخصص له *', 'Assigned Room *')}</label>
                   <select
                     value={newEquipmentForm.roomCode}
                     onChange={(e) => setNewEquipmentForm({ ...newEquipmentForm, roomCode: e.target.value })}
-                    className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-teal-500 font-bold"
+                    className="w-full p-2.5 bg-bone-50 border border-pine-200 rounded-xl focus:ring-2 focus:ring-pine-500 font-bold"
                   >
                     {roomsList.map((room) => (
                       <option key={room.id} value={room.code}>
@@ -1170,39 +1170,39 @@ export default function HospitalDashboard() {
                   </select>
                 </div>
                 <div>
-                  <label className="font-bold text-slate-700 block mb-1">{t('المهندس الحيوي المسؤول', 'Lead Bio-Engineer')}</label>
+                  <label className="font-bold text-ink-700 block mb-1">{t('المهندس الحيوي المسؤول', 'Lead Bio-Engineer')}</label>
                   <input
                     type="text"
                     value={newEquipmentForm.technicianInChargeAr}
                     onChange={(e) => setNewEquipmentForm({ ...newEquipmentForm, technicianInChargeAr: e.target.value })}
                     placeholder="م. سالم المجبري"
-                    className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-teal-500 font-semibold"
+                    className="w-full p-2.5 bg-bone-50 border border-pine-200 rounded-xl focus:ring-2 focus:ring-pine-500 font-semibold"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="font-bold text-slate-700 block mb-1">{t('ملاحظات التشغيل والمعايرة الأولية', 'Initial Calibration Notes')}</label>
+                <label className="font-bold text-ink-700 block mb-1">{t('ملاحظات التشغيل والمعايرة الأولية', 'Initial Calibration Notes')}</label>
                 <textarea
                   rows={2}
                   value={newEquipmentForm.notesAr}
                   onChange={(e) => setNewEquipmentForm({ ...newEquipmentForm, notesAr: e.target.value })}
                   placeholder="تم فحص ومطابقة الليزر واختبار الأمان البصري بنجاح..."
-                  className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-teal-500 font-semibold"
+                  className="w-full p-2.5 bg-bone-50 border border-pine-200 rounded-xl focus:ring-2 focus:ring-pine-500 font-semibold"
                 />
               </div>
 
-              <div className="flex items-center justify-end gap-3 pt-3 border-t border-slate-100">
+              <div className="flex items-center justify-end gap-3 pt-3 border-t border-bone-100">
                 <button
                   type="button"
                   onClick={() => setIsAddEquipmentOpen(false)}
-                  className="px-4 py-2 text-slate-600 hover:bg-slate-100 rounded-xl font-bold transition-colors cursor-pointer"
+                  className="px-4 py-2 text-ink-500 hover:bg-bone-100 rounded-xl font-bold transition-colors cursor-pointer"
                 >
                   {t('إلغاء', 'Cancel')}
                 </button>
                 <button
                   type="submit"
-                  className="px-5 py-2.5 bg-teal-600 hover:bg-teal-700 text-white rounded-xl font-black transition-all shadow-md flex items-center gap-2 cursor-pointer"
+                  className="px-5 py-2.5 bg-pine-700 hover:bg-pine-800 text-white rounded-xl font-extrabold transition-all shadow-md flex items-center gap-2 cursor-pointer"
                 >
                   <Plus className="w-4 h-4" />
                   <span>{t('إضافة الجهاز للأسطول', 'Register Equipment')}</span>
@@ -1217,34 +1217,34 @@ export default function HospitalDashboard() {
       {/* MODAL 4: EMERGENCY / SYSTEM BROADCAST */}
       {/* ========================================================================= */}
       {isBroadcastOpen && (
-        <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 overflow-y-auto">
-          <div className="bg-white rounded-3xl max-w-lg w-full p-6 shadow-2xl border border-slate-200 relative animate-scaleUp">
+        <div className="fixed inset-0 z-50 bg-ink-900/60 backdrop-blur-xs flex items-center justify-center p-4 overflow-y-auto">
+          <div className="bg-white rounded-3xl max-w-lg w-full p-6 shadow-2xl border border-pine-200 relative animate-scaleUp">
             <button
               onClick={() => setIsBroadcastOpen(false)}
-              className="absolute top-5 left-5 rtl:left-auto rtl:right-5 p-2 text-slate-400 hover:text-slate-700 rounded-full hover:bg-slate-100 transition-colors"
+              className="absolute top-5 left-5 rtl:left-auto rtl:right-5 p-2 text-ink-400 hover:text-ink-700 rounded-full hover:bg-bone-100 transition-colors"
             >
               <X className="w-5 h-5" />
             </button>
 
             <div className="mb-4">
-              <h3 className="text-base font-black text-rose-700 flex items-center gap-2">
+              <h3 className="text-base font-extrabold text-rose-700 flex items-center gap-2">
                 <Radio className="w-5 h-5 text-rose-600 animate-pulse" />
                 <span>{t('إرسال تعميم وإشعار لحظي لكافة أجنحة المستشفى', 'Complex-Wide Audio & Visual Broadcast')}</span>
               </h3>
-              <p className="text-xs text-slate-500 mt-0.5">
+              <p className="text-xs text-ink-500 mt-0.5">
                 {t('يظهر هذا الإشعار فورا في جميع شاشات غرف العمليات والعيادات والاستقبال', 'Instantly displayed on all live screens in theaters, clinics, and nurse stations')}
               </p>
             </div>
 
             <form onSubmit={handleBroadcastSubmit} className="space-y-4 text-xs">
               <div>
-                <label className="font-bold text-slate-700 block mb-1">{t('مستوى الأهمية والإنذار', 'Alert Severity Level')}</label>
+                <label className="font-bold text-ink-700 block mb-1">{t('مستوى الأهمية والإنذار', 'Alert Severity Level')}</label>
                 <div className="grid grid-cols-3 gap-2">
                   <button
                     type="button"
                     onClick={() => setBroadcastLevel('info')}
                     className={`p-2 rounded-xl border text-center font-bold transition-all cursor-pointer ${
-                      broadcastLevel === 'info' ? 'bg-teal-50 border-teal-600 text-teal-800' : 'bg-slate-50 text-slate-600'
+                      broadcastLevel === 'info' ? 'bg-pine-50 border-pine-700 text-pine-800' : 'bg-bone-50 text-ink-500'
                     }`}
                   >
                     {t('إشعار إداري عام', 'General Info')}
@@ -1253,7 +1253,7 @@ export default function HospitalDashboard() {
                     type="button"
                     onClick={() => setBroadcastLevel('urgent')}
                     className={`p-2 rounded-xl border text-center font-bold transition-all cursor-pointer ${
-                      broadcastLevel === 'urgent' ? 'bg-amber-50 border-amber-600 text-amber-800' : 'bg-slate-50 text-slate-600'
+                      broadcastLevel === 'urgent' ? 'bg-brass-50 ring-1 ring-brass-400 text-brass-600' : 'bg-bone-50 text-ink-500'
                     }`}
                   >
                     {t('تنبيه هام', 'High Priority')}
@@ -1262,7 +1262,7 @@ export default function HospitalDashboard() {
                     type="button"
                     onClick={() => setBroadcastLevel('alert')}
                     className={`p-2 rounded-xl border text-center font-bold transition-all cursor-pointer ${
-                      broadcastLevel === 'alert' ? 'bg-rose-50 border-rose-600 text-rose-800' : 'bg-slate-50 text-slate-600'
+                      broadcastLevel === 'alert' ? 'bg-rose-50 border-rose-600 text-rose-800' : 'bg-bone-50 text-ink-500'
                     }`}
                   >
                     {t('طوارئ عاجلة (Code)', 'Urgent Emergency')}
@@ -1271,22 +1271,22 @@ export default function HospitalDashboard() {
               </div>
 
               <div>
-                <label className="font-bold text-slate-700 block mb-1">{t('نص الإشعار / التعميم *', 'Broadcast Message *')}</label>
+                <label className="font-bold text-ink-700 block mb-1">{t('نص الإشعار / التعميم *', 'Broadcast Message *')}</label>
                 <textarea
                   rows={3}
                   required
                   value={broadcastMessage}
                   onChange={(e) => setBroadcastMessage(e.target.value)}
                   placeholder={t('يرجى من فريق التمريض تجهيز جناح العمليات 2 لجراحة مياه بيضاء طارئة...', 'All teams note: Visiting Professor Dr. Katamish starting refractive laser schedule in OR-3...')}
-                  className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-rose-500 font-semibold"
+                  className="w-full p-2.5 bg-bone-50 border border-pine-200 rounded-xl focus:ring-2 focus:ring-rose-500 font-semibold"
                 />
               </div>
 
-              <div className="flex items-center justify-end gap-3 pt-3 border-t border-slate-100">
+              <div className="flex items-center justify-end gap-3 pt-3 border-t border-bone-100">
                 <button
                   type="button"
                   onClick={() => setIsBroadcastOpen(false)}
-                  className="px-4 py-2 text-slate-600 hover:bg-slate-100 rounded-xl font-bold transition-colors cursor-pointer"
+                  className="px-4 py-2 text-ink-500 hover:bg-bone-100 rounded-xl font-bold transition-colors cursor-pointer"
                 >
                   {t('إلغاء', 'Cancel')}
                 </button>

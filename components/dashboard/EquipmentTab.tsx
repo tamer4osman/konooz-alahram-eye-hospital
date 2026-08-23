@@ -52,14 +52,14 @@ export default function EquipmentTab({
           bg: 'bg-rose-500 text-white', text: t('قيد الاستخدام (نشط)', 'In Use'), border: 'border-rose-300' };
       case 'operational':
         return {
-          bg: 'bg-emerald-600 text-white', text: t('جاهز ومعاير 100%', 'Operational'), border: 'border-emerald-300'
+          bg: 'bg-emerald-600 text-white', text: t('جاهز ومعاير 100%', 'Operational'), border: 'border-pine-300'
         };
       case 'under_calibration':
         return {
-          bg: 'bg-amber-500 text-white', text: t('معايرة دورية', 'Calibrating'), border: 'border-amber-300' };
+          bg: 'bg-brass-500 text-white', text: t('معايرة دورية', 'Calibrating'), border: 'border-brass-300' };
       default:
         return {
-          bg: 'bg-slate-600 text-white', text: t('صيانة مجدولة', 'Maintenance'), border: 'border-slate-300'
+          bg: 'bg-ink-500 text-white', text: t('صيانة مجدولة', 'Maintenance'), border: 'border-ink-300'
         };
     } };
 
@@ -74,13 +74,13 @@ export default function EquipmentTab({
     <div className="space-y-6 animate-fadeIn">
       
       {/* Top Header Banner */}
-      <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div className="bg-white p-5 rounded-2xl border border-pine-200 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h2 className="text-base sm:text-lg font-black text-[#0C2340] flex items-center gap-2">
-            <Cpu className="w-5 h-5 text-teal-600" />
+          <h2 className="text-base sm:text-lg font-extrabold text-pine-900 flex items-center gap-2">
+            <Cpu className="w-5 h-5 text-pine-700" />
             <span>{t('إدارة الأجهزة والمعدات الطبية وجراحات الليزر', 'Biomedical Devices & Laser Systems Fleet')}</span>
           </h2>
-          <p className="text-xs text-slate-500 mt-0.5">
+          <p className="text-xs text-ink-500 mt-0.5">
             {t(
               'متابعة المعايرة الدورية، سجلات الأمان، ساعات التشغيل، ومؤشرات كفاءة الليزر والميكروسكوبات',
               'Track optical calibration, safety protocols, procedure count & uptime telemetry'
@@ -90,14 +90,14 @@ export default function EquipmentTab({
 
         {/* Global Fleet Uptime Metric & Add Device Button */}
         <div className="flex items-center gap-2.5">
-          <div className="hidden sm:flex px-3.5 py-2 bg-teal-50 text-teal-900 border border-teal-200 rounded-xl text-xs font-bold items-center gap-2">
-            <ShieldCheck className="w-4 h-4 text-teal-600" />
+          <div className="hidden sm:flex px-3.5 py-2 bg-pine-50 text-pine-900 border border-pine-200 rounded-xl text-xs font-bold items-center gap-2">
+            <ShieldCheck className="w-4 h-4 text-pine-700" />
             <span>{t('متوسط كفاءة الأسطول: 99.8%', 'Fleet Average Uptime: 99.8%')}</span>
           </div>
 
           <button
             onClick={onOpenAddEquipmentModal}
-            className="px-3.5 py-2 bg-teal-600 hover:bg-teal-700 text-white rounded-xl text-xs font-black flex items-center gap-1.5 shadow-sm transition-all cursor-pointer"
+            className="px-3.5 py-2 bg-pine-700 hover:bg-pine-800 text-white rounded-xl text-xs font-extrabold flex items-center gap-1.5 shadow-sm transition-all cursor-pointer"
           >
             <Plus className="w-4 h-4" />
             <span>{t('إضافة جهاز طبي جديد', 'Add Medical Device')}</span>
@@ -106,17 +106,17 @@ export default function EquipmentTab({
       </div>
 
       {/* Filter and Search Bar */}
-      <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm space-y-3">
+      <div className="bg-white p-4 rounded-2xl border border-pine-200 shadow-sm space-y-3">
         <div className="flex flex-col md:flex-row items-center gap-3">
           {/* Search */}
           <div className="relative w-full md:w-80">
-            <Search className="w-4 h-4 absolute top-3 left-3 rtl:left-auto rtl:right-3 text-slate-400" />
+            <Search className="w-4 h-4 absolute top-3 left-3 rtl:left-auto rtl:right-3 text-ink-400" />
             <input
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder={t('البحث باسم الجهاز أو الموديل أو السيريال...', 'Search by device name, brand, model, serial...')}
-              className="w-full pl-9 pr-4 rtl:pr-9 rtl:pl-4 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-900 focus:outline-none focus:ring-2 focus:ring-teal-500"
+              className="w-full pl-9 pr-4 rtl:pr-9 rtl:pl-4 py-2 bg-bone-50 border border-pine-200 rounded-xl text-xs font-semibold text-ink-900 focus:outline-none focus:ring-2 focus:ring-pine-500"
             />
           </div>
 
@@ -128,8 +128,8 @@ export default function EquipmentTab({
                 onClick={() => setSelectedStatus(st.id)}
                 className={`px-3 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all cursor-pointer ${
                   selectedStatus === st.id
-                    ? 'bg-[#0C2340] text-white shadow-xs'
-                    : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                    ? 'bg-[#0B3D33] text-white shadow-xs'
+                    : 'bg-bone-100 text-ink-500 hover:bg-pine-200'
                 }`}
               >
                 {t(st.labelAr, st.labelEn)}
@@ -154,10 +154,10 @@ export default function EquipmentTab({
                 {/* Brand & Serial Number Header */}
                 <div className="flex items-start justify-between gap-2 mb-2">
                   <div>
-                    <span className="text-[10px] font-extrabold text-teal-800 bg-teal-50 px-2 py-0.5 rounded-md border border-teal-200 uppercase tracking-wider block w-fit mb-1">
+                    <span className="text-[10px] font-extrabold text-pine-800 bg-pine-50 px-2 py-0.5 rounded-md border border-pine-200 uppercase tracking-wider block w-fit mb-1">
                       {device.brand}
                     </span>
-                    <h3 className="text-sm font-extrabold text-[#0C2340]">
+                    <h3 className="text-sm font-extrabold text-pine-900">
                       {lang === 'ar' ? device.nameAr : device.nameEn}
                     </h3>
                   </div>
@@ -169,7 +169,7 @@ export default function EquipmentTab({
                     className={`text-[10px] font-extrabold py-1 px-2 rounded-lg border focus:outline-none cursor-pointer ${badge.bg}`}
                   >
                     {statusOptions.map((st) => (
-                      <option key={st} value={st} className="bg-white text-slate-900 font-semibold">
+                      <option key={st} value={st} className="bg-white text-ink-900 font-semibold">
                         {st === 'operational'
                           ? t('جاهز ومعاير', 'Operational')
                           : st === 'in_use'
@@ -183,80 +183,80 @@ export default function EquipmentTab({
                 </div>
 
                 {/* Model and Room Code */}
-                <div className="flex items-center justify-between text-xs text-slate-600 bg-slate-50 p-2.5 rounded-xl border border-slate-100 mb-3">
+                <div className="flex items-center justify-between text-xs text-ink-500 bg-bone-50 p-2.5 rounded-xl border border-bone-100 mb-3">
                   <div>
-                    <span className="text-[10px] text-slate-400 block">{t('الموديل التقني', 'Model')}</span>
-                    <span className="font-bold text-slate-800 font-mono text-[11px]">{device.model}</span>
+                    <span className="text-[10px] text-ink-400 block">{t('الموديل التقني', 'Model')}</span>
+                    <span className="font-bold text-ink-700 font-mono text-[11px]">{device.model}</span>
                   </div>
                   <div className="text-end">
-                    <span className="text-[10px] text-slate-400 block">{t('الموقع', 'Location')}</span>
-                    <span className="font-mono text-xs font-black text-teal-800 bg-white px-2 py-0.5 rounded border border-slate-200">
+                    <span className="text-[10px] text-ink-400 block">{t('الموقع', 'Location')}</span>
+                    <span className="font-mono text-xs font-extrabold text-pine-800 bg-white px-2 py-0.5 rounded border border-pine-200">
                       {device.roomCode}
                     </span>
                   </div>
                 </div>
 
                 {/* Telemetry Metrics Bar */}
-                <div className="grid grid-cols-3 gap-2 bg-slate-900 text-white p-2.5 rounded-xl text-center mb-3">
+                <div className="grid grid-cols-3 gap-2 bg-ink-900 text-white p-2.5 rounded-xl text-center mb-3">
                   <div>
-                    <span className="text-[9px] text-slate-400 block">{t('نسبة الجاهزية', 'Uptime')}</span>
-                    <span className="font-mono text-xs font-bold text-emerald-400">{device.uptimePercentage}%</span>
+                    <span className="text-[9px] text-ink-400 block">{t('نسبة الجاهزية', 'Uptime')}</span>
+                    <span className="font-mono text-xs font-bold text-brass-400">{device.uptimePercentage}%</span>
                   </div>
-                  <div className="border-x border-slate-700">
-                    <span className="text-[9px] text-slate-400 block">{t('إجمالي الحالات', 'Procedures')}</span>
-                    <span className="font-mono text-xs font-bold text-amber-300">{device.totalProceduresRun}</span>
+                  <div className="border-x border-ink-700">
+                    <span className="text-[9px] text-ink-400 block">{t('إجمالي الحالات', 'Procedures')}</span>
+                    <span className="font-mono text-xs font-bold text-brass-300">{device.totalProceduresRun}</span>
                   </div>
                   <div>
-                    <span className="text-[9px] text-slate-400 block">{t('صحة الجهاز', 'Health')}</span>
-                    <span className="font-mono text-xs font-bold text-teal-300">{device.healthScore}/100</span>
+                    <span className="text-[9px] text-ink-400 block">{t('صحة الجهاز', 'Health')}</span>
+                    <span className="font-mono text-xs font-bold text-brass-300">{device.healthScore}/100</span>
                   </div>
                 </div>
 
                 {/* Notes & Calibration Status */}
-                <p className="text-[11px] text-slate-600 bg-slate-50 p-2 rounded-lg border border-slate-100 mb-3">
+                <p className="text-[11px] text-ink-500 bg-bone-50 p-2 rounded-lg border border-bone-100 mb-3">
                   {lang === 'ar' ? device.notesAr : device.notesEn}
                 </p>
 
                 {/* Maintenance Due Date & In Charge */}
-                <div className="space-y-1 text-[11px] text-slate-500 mb-3">
+                <div className="space-y-1 text-[11px] text-ink-500 mb-3">
                   <div className="flex items-center justify-between">
                     <span>{t('آخر صيانة ومعايرة:', 'Last Calibration:')}</span>
-                    <strong className="font-mono text-slate-700">{device.lastMaintenanceDate}</strong>
+                    <strong className="font-mono text-ink-700">{device.lastMaintenanceDate}</strong>
                   </div>
                   <div className="flex items-center justify-between">
                     <span>{t('الصيانة القادمة:', 'Next Due:')}</span>
-                    <strong className="font-mono text-teal-700">{device.nextServiceDue}</strong>
+                    <strong className="font-mono text-pine-800">{device.nextServiceDue}</strong>
                   </div>
                   <div className="flex items-center justify-between">
                     <span>{t('المهندس المسؤول:', 'Engineer In Charge:')}</span>
-                    <strong className="text-slate-800">{lang === 'ar' ? device.technicianInChargeAr : device.technicianInChargeEn}</strong>
+                    <strong className="text-ink-700">{lang === 'ar' ? device.technicianInChargeAr : device.technicianInChargeEn}</strong>
                   </div>
                 </div>
               </div>
 
               {/* Action Buttons */}
-              <div className="pt-2 border-t border-slate-100 flex items-center gap-2">
+              <div className="pt-2 border-t border-bone-100 flex items-center gap-2">
                 <button
                   onClick={() => handleSelfCalibrate(device.id)}
                   disabled={isCalibrating}
-                  className="flex-1 py-1.5 bg-slate-100 hover:bg-teal-50 hover:text-teal-800 text-slate-700 text-xs font-bold rounded-lg flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
+                  className="flex-1 py-1.5 bg-bone-100 hover:bg-pine-50 hover:text-pine-800 text-ink-700 text-xs font-bold rounded-lg flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
                 >
-                  <RefreshCw className={`w-3.5 h-3.5 ${isCalibrating ? 'animate-spin text-teal-600' : ''}`} />
+                  <RefreshCw className={`w-3.5 h-3.5 ${isCalibrating ? 'animate-spin text-pine-700' : ''}`} />
                   <span>{isCalibrating ? t('جاري الاختبار...', 'Testing...') : t('اختبار المعايرة', 'Run Self-Test')}</span>
                 </button>
 
                 <button
                   onClick={() => onOpenMaintenanceModal(device)}
-                  className="px-3 py-1.5 bg-[#0C2340] hover:bg-teal-800 text-white text-xs font-bold rounded-lg flex items-center gap-1.5 transition-colors cursor-pointer"
+                  className="px-3 py-1.5 bg-pine-900 hover:bg-pine-700 text-white text-xs font-bold rounded-lg flex items-center gap-1.5 transition-colors cursor-pointer"
                 >
-                  <Wrench className="w-3.5 h-3.5 text-teal-300" />
+                  <Wrench className="w-3.5 h-3.5 text-brass-300" />
                   <span>{t('طلب صيانة', 'Service Log')}</span>
                 </button>
 
                 <button
                   onClick={() => setConfirmingDeleteId(device.id)}
                   title={t('إخراج الجهاز من الخدمة وحذفه', 'Decommission / Remove device')}
-                  className="p-1.5 bg-slate-100 hover:bg-rose-50 text-slate-400 hover:text-rose-600 rounded-lg transition-colors cursor-pointer"
+                  className="p-1.5 bg-bone-100 hover:bg-rose-50 text-ink-400 hover:text-rose-600 rounded-lg transition-colors cursor-pointer"
                 >
                   <Trash2 className="w-3.5 h-3.5" />
                 </button>
@@ -274,13 +274,13 @@ export default function EquipmentTab({
                         onRemoveEquipment(device.id);
                         setConfirmingDeleteId(null);
                       }}
-                      className="px-2.5 py-1 bg-rose-600 hover:bg-rose-700 text-white text-[10px] font-black rounded-lg transition-colors cursor-pointer"
+                      className="px-2.5 py-1 bg-rose-600 hover:bg-rose-700 text-white text-[10px] font-extrabold rounded-lg transition-colors cursor-pointer"
                     >
                       {t('نعم، حذف', 'Delete')}
                     </button>
                     <button
                       onClick={() => setConfirmingDeleteId(null)}
-                      className="px-2 py-1 bg-slate-200 hover:bg-slate-300 text-slate-700 text-[10px] font-bold rounded-lg transition-colors cursor-pointer"
+                      className="px-2 py-1 bg-pine-200 hover:bg-ink-300 text-ink-700 text-[10px] font-bold rounded-lg transition-colors cursor-pointer"
                     >
                       {t('إلغاء', 'Cancel')}
                     </button>
