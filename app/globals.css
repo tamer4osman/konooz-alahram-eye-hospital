@@ -1,83 +1,188 @@
 @import "tailwindcss";
 
+@theme {
+  /* ── Pine & Bone — Konooz Al-Ahram 2026 identity ───────────────── */
+  --color-pine-50: #f2f6f4;
+  --color-pine-100: #e4ede9;
+  --color-pine-200: #c9dbd5;
+  --color-pine-300: #a3c2b9;
+  --color-pine-400: #74a096;
+  --color-pine-500: #4f8076;
+  --color-pine-600: #3b6860;
+  --color-pine-700: #30544d;
+  --color-pine-800: #1f4a40;
+  --color-pine-900: #0b3d33;
+  --color-pine-950: #08211c;
+
+  --color-bone-50: #faf8f4;
+  --color-bone-100: #f4f1ea;
+  --color-bone-200: #e9e4d8;
+
+  --color-ink-900: #16211d;
+  --color-ink-700: #37443f;
+  --color-ink-500: #5b6b65;
+  --color-ink-400: #7d8a84;
+  --color-ink-300: #9aa6a0;
+
+  --color-brass-50: #fbf3e4;
+  --color-brass-100: #f6e8cc;
+  --color-brass-300: #eec98a;
+  --color-brass-400: #e8a33d;
+  --color-brass-500: #d99430;
+  --color-brass-600: #b87a22;
+
+  /* Typography — Alexandria covers Arabic + Latin */
+  --font-sans: var(--font-alexandria), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-alexandria), ui-sans-serif, system-ui, sans-serif;
+
+  /* Motion */
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
 @layer base {
   :root {
-    --brand-navy: #0C2340;
-    --brand-navy-light: #163660;
-    --brand-navy-dark: #07172B;
-    --brand-cyan: #00A896;
-    --brand-cyan-light: #02C39A;
-    --brand-cyan-dark: #028090;
-    --brand-gold: #D4AF37;
-    --brand-gold-light: #F3E5AB;
-    --brand-gold-dark: #AA820A;
+    --surface-page: var(--color-bone-50);
+    --surface-card: #ffffff;
+    --text-primary: var(--color-ink-900);
+    --text-muted: var(--color-ink-500);
+    --accent: var(--color-pine-900);
+    --accent-strong: var(--color-pine-700);
+    --ring-color: var(--color-pine-500);
   }
 
   body {
-    background-color: #F8FAFC;
-    color: #0F172A;
-    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+    background-color: var(--surface-page);
+    color: var(--text-primary);
+    font-family: var(--font-sans);
     -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  /* Numeric data renders with tabular figures */
+  .tnum,
+  tabular-nums {
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* Consistent, visible keyboard focus everywhere */
+  :focus-visible {
+    outline: 2px solid var(--ring-color);
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  ::selection {
+    background-color: var(--color-pine-900);
+    color: var(--color-bone-50);
   }
 }
 
-/* High Contrast Mode for Low Vision Patients */
+/* ── Scroll-reveal primitives (driven by <Reveal/>, reduced-motion safe) ──
+   Hidden state only applies when JS is available (html.js), so SSR output,
+   crawlers, and no-JS visitors always see the content. */
+@media (prefers-reduced-motion: no-preference) {
+  html.js .reveal {
+    opacity: 0;
+    transform: translateY(20px);
+    transition:
+      opacity 0.65s var(--ease-out-expo),
+      transform 0.65s var(--ease-out-expo);
+    transition-delay: var(--reveal-delay, 0ms);
+    will-change: opacity, transform;
+  }
+  html.js .reveal.is-visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .reveal {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* Pressed feedback for every interactive element */
+button:active,
+a.button-press:active {
+  transform: scale(0.98);
+}
+
+/* ── High Contrast Mode for Low-Vision Patients ─────────────────── */
 .high-contrast {
-  --brand-navy: #000000;
-  --brand-navy-light: #111111;
-  --brand-cyan: #00FFCC;
-  --brand-gold: #FFD700;
+  --surface-page: #000000;
+  --surface-card: #0a0a0a;
+  --text-primary: #ffffff;
+  --text-muted: #e2e8f0;
+  --accent: #ffffff;
+  --accent-strong: #ffffff;
+  --ring-color: #00ffcc;
   background-color: #000000 !important;
-  color: #FFFFFF !important;
+  color: #ffffff !important;
 }
 
 .high-contrast .bg-white,
-.high-contrast .bg-slate-50,
-.high-contrast .bg-slate-100 {
-  background-color: #0A0A0A !important;
-  border-color: #333333 !important;
-  color: #FFFFFF !important;
+.high-contrast .bg-bone-50,
+.high-contrast .bg-bone-100,
+.high-contrast .bg-bone-100\/60,
+.high-contrast .bg-pine-50 {
+  background-color: #0a0a0a !important;
+  color: #ffffff !important;
 }
 
-.high-contrast .text-slate-600,
-.high-contrast .text-slate-500,
-.high-contrast .text-slate-700 {
-  color: #E2E8F0 !important;
+.high-contrast .text-ink-900,
+.high-contrast .text-ink-700,
+.high-contrast .text-pine-900,
+.high-contrast .text-pine-800,
+.high-contrast .text-pine-700 {
+  color: #ffffff !important;
 }
 
-.high-contrast .border-slate-100,
-.high-contrast .border-slate-200 {
+.high-contrast .text-ink-500,
+.high-contrast .text-ink-400,
+.high-contrast .text-brass-600 {
+  color: #e2e8f0 !important;
+}
+
+.high-contrast [class*="ring-pine-900"],
+.high-contrast [class*="border-pine-900"] {
   border-color: #475569 !important;
 }
 
-/* Reading Ruler for visual tracking */
+/* ── Reading Ruler for visual tracking ───────────────────────────── */
 .reading-guide-line {
   position: fixed;
   left: 0;
   right: 0;
   height: 3px;
-  background: rgba(0, 168, 150, 0.7);
-  box-shadow: 0 0 12px rgba(0, 168, 150, 0.8);
+  background: rgba(79, 128, 118, 0.75);
+  box-shadow: 0 0 12px rgba(79, 128, 118, 0.85);
   pointer-events: none;
   z-index: 99999;
 }
 
-/* Smooth Scrolling */
-html {
-  scroll-behavior: smooth;
-}
-
-/* Custom Scrollbar */
+/* ── Scrollbar ───────────────────────────────────────────────────── */
 ::-webkit-scrollbar {
   width: 8px;
 }
 ::-webkit-scrollbar-track {
-  background: #F1F5F9;
+  background: var(--color-bone-100);
 }
 ::-webkit-scrollbar-thumb {
-  background: #CBD5E1;
+  background: var(--color-pine-300);
   border-radius: 4px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #94A3B8;
+  background: var(--color-pine-400);
+}
+
+.scrollbar-none {
+  scrollbar-width: none;
+}
+.scrollbar-none::-webkit-scrollbar {
+  display: none;
 }

@@ -1,25 +1,18 @@
 import type { Metadata, Viewport } from 'next';
 import type { ReactNode } from 'react';
-import { Cairo, Plus_Jakarta_Sans } from 'next/font/google';
+import { Alexandria } from 'next/font/google';
 import './globals.css';
 import SEOStructuredData from '@/components/SEOStructuredData';
 
-const cairo = Cairo({
+const alexandria = Alexandria({
   subsets: ['arabic', 'latin'],
-  variable: '--font-cairo',
+  variable: '--font-alexandria',
   display: 'swap',
-  weight: ['400', '500', '600', '700', '800', '900'],
-});
-
-const plusJakartaSans = Plus_Jakarta_Sans({
-  subsets: ['latin'],
-  variable: '--font-jakarta',
-  display: 'swap',
-  weight: ['400', '500', '600', '700', '800'],
+  weight: ['300', '400', '500', '600', '700', '800'],
 });
 
 export const viewport: Viewport = {
-  themeColor: '#0a192f',
+  themeColor: '#0B3D33',
   width: 'device-width',
   initialScale: 1,
   maximumScale: 5,
@@ -123,17 +116,17 @@ export default function RootLayout({
   children: ReactNode;
 }) {
   return (
-    <html lang="ar" dir="rtl" className={`${cairo.variable} ${plusJakartaSans.variable}`} suppressHydrationWarning>
+    <html lang="ar" dir="rtl" className={alexandria.variable} suppressHydrationWarning>
       <head>
         <script
           dangerouslySetInnerHTML={{
             __html:
-              "(function(){try{var p=new URLSearchParams(window.location.search).get('lang');var s=p||localStorage.getItem('konooz_lang');if(s==='en'){document.documentElement.lang='en';document.documentElement.dir='ltr';}}catch(e){}})();",
+              "(function(){try{document.documentElement.classList.add('js');var p=new URLSearchParams(window.location.search).get('lang');var s=p||localStorage.getItem('konooz_lang');if(s==='en'){document.documentElement.lang='en';document.documentElement.dir='ltr';}}catch(e){}})();",
           }}
         />
         <SEOStructuredData />
       </head>
-      <body className="font-sans antialiased bg-slate-50 text-slate-900 selection:bg-teal-500 selection:text-white" suppressHydrationWarning>
+      <body className="font-sans antialiased bg-bone-50 text-ink-900 selection:bg-pine-900 selection:text-bone-50" suppressHydrationWarning>
         {children}
       </body>
     </html>
