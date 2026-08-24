@@ -1,9 +1,9 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Reveal from './Reveal';
 import { useLanguage } from '@/context/LanguageContext';
-import { TESTIMONIALS, TRUST_STATS, Testimonial } from '@/data/hospitalData';
+import { TRUST_STATS, Testimonial } from '@/data/hospitalData';
 import {
   Star,
   Quote,
@@ -23,19 +23,37 @@ import {
 export default function TestimonialsAndStats() {
   const { lang, t, isRTL } = useLanguage();
   const [activeTestimonialIdx, setActiveTestimonialIdx] = useState(0);
+  // Testimonials are managed content served from the database.
+  const [testimonials, setTestimonials] = useState<Testimonial[]>([]);
+
+  useEffect(() => {
+    let cancelled = false;
+    fetch('/api/public/testimonials')
+      .then(async (res) => {
+        if (!res.ok) return;
+        const json = await res.json();
+        if (!cancelled && Array.isArray(json?.data)) setTestimonials(json.data as Testimonial[]);
+      })
+      .catch(() => {});
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const safeIdx = testimonials.length > 0 ? activeTestimonialIdx % testimonials.length : 0;
 
   // Before / After Clarity Simulation Slider
   const [clarityPosition, setClarityPosition] = useState(50); // percentage
 
   const nextTestimonial = () => {
-    setActiveTestimonialIdx((prev) => (prev + 1) % TESTIMONIALS.length);
+    setActiveTestimonialIdx((prev) => (testimonials.length > 0 ? (prev + 1) % testimonials.length : 0));
   };
 
   const prevTestimonial = () => {
-    setActiveTestimonialIdx((prev) => (prev - 1 + TESTIMONIALS.length) % TESTIMONIALS.length);
+    setActiveTestimonialIdx((prev) => (testimonials.length > 0 ? (prev - 1 + testimonials.length) % testimonials.length : 0));
   };
 
-  const currentTestimonial: Testimonial = TESTIMONIALS[activeTestimonialIdx];
+  const currentTestimonial: Testimonial | undefined = testimonials[safeIdx];
 
   return (
     <section id="about" className="py-16 sm:py-24 bg-white relative">
@@ -252,6 +270,7 @@ export default function TestimonialsAndStats() {
             <div className="relative max-w-4xl mx-auto bg-bone-50 rounded-2xl ring-1 ring-pine-900/10 p-6 sm:p-10">
               <Quote className="w-12 h-12 text-pine-200 absolute top-6 right-6 rtl:right-auto rtl:left-6 -scale-x-100" aria-hidden="true" />
 
+              {currentTestimonial && (
               <div className="space-y-4 relative z-10">
                 {/* Rating Stars */}
                 <div className="flex items-center gap-1" aria-label={`${currentTestimonial.rating}/5`}>
@@ -286,6 +305,7 @@ export default function TestimonialsAndStats() {
                   </div>
                 </div>
               </div>
+              )}
 
               {/* Slider Navigation Buttons */}
               <div className="flex items-center justify-center gap-3 pt-6">
@@ -298,7 +318,7 @@ export default function TestimonialsAndStats() {
                 </button>
 
                 <div className="flex items-center gap-1.5">
-                  {TESTIMONIALS.map((_, i) => (
+                  {testimonials.map((_, i) => (
                     <button
                       key={i}
                       onClick={() => setActiveTestimonialIdx(i)}

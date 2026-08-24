@@ -768,6 +768,33 @@ model DiagnosticPacsOrder {
 }
 
 // ──────────────────────────────────────────────
+// PUBLIC CONTENT — marketing site
+// ──────────────────────────────────────────────
+
+model Testimonial {
+  id          String   @id @default(cuid())
+  patientNameAr String
+  patientNameEn String?
+  cityAr      String   @default("")
+  cityEn      String?
+  procedureAr String   @default("")
+  procedureEn String?
+  doctorAr    String   @default("")
+  doctorEn    String?
+  commentAr   String
+  commentEn   String?
+  rating      Int      @default(5)
+  dateAr      String   @default("")
+  dateEn      String?
+  isActive    Boolean  @default(true)
+  sortOrder   Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("testimonials")
+}
+
+// ──────────────────────────────────────────────
 // NEWSLETTER — BCK-025
 // ──────────────────────────────────────────────
 
