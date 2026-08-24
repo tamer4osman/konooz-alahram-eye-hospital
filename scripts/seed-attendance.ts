@@ -1,6 +1,6 @@
-import { readFileSync } from 'node:fs';
-import { join } from 'node:path';
-import { PrismaClient, ShiftType, AttendanceStatus, StaffCategory } from '@prisma/client';
+import { ShiftType, AttendanceStatus, StaffCategory } from '@prisma/client';
+import { runSeed,
+  loadSeedJson } from './seed-runner';
 
 interface SeedAttendance {
   id: string;
@@ -29,12 +29,9 @@ interface SeedAttendance {
   notesEn: string;
 }
 
-const prisma = new PrismaClient();
 
-async function main() {
-  const records = JSON.parse(
-    readFileSync(join(__dirname, 'attendance.seed.json'), 'utf8'),
-  ) as SeedAttendance[];
+runSeed(async (prisma) => {
+  const records = loadSeedJson<SeedAttendance[]>('attendance.seed.json');
 
   for (const r of records) {
     const data = {
@@ -66,11 +63,4 @@ async function main() {
     await prisma.staffAttendanceRecord.upsert({ where: { id: r.id }, update: data, create: { id: r.id, ...data } });
   }
   console.log(`seeded ${records.length} attendance records`);
-}
-
-main()
-  .catch((err) => {
-    console.error(err);
-    process.exit(1);
-  })
-  .finally(() => prisma.$disconnect());
+});

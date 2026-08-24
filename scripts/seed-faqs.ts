@@ -1,6 +1,5 @@
-import { readFileSync } from 'node:fs';
-import { join } from 'node:path';
-import { PrismaClient } from '@prisma/client';
+import { runSeed,
+  loadSeedJson } from './seed-runner';
 
 interface SeedFaq {
   qAr: string;
@@ -9,12 +8,9 @@ interface SeedFaq {
   aEn: string;
 }
 
-const prisma = new PrismaClient();
 
-async function main() {
-  const faqs = JSON.parse(
-    readFileSync(join(__dirname, 'faqs.seed.json'), 'utf8'),
-  ) as SeedFaq[];
+runSeed(async (prisma) => {
+  const faqs = loadSeedJson<SeedFaq[]>('faqs.seed.json');
 
   for (const [idx, f] of faqs.entries()) {
     const data = { qAr: f.qAr, qEn: f.qEn, aAr: f.aAr, aEn: f.aEn, sortOrder: idx };
@@ -26,11 +22,4 @@ async function main() {
     }
   }
   console.log(`seeded ${faqs.length} faqs`);
-}
-
-main()
-  .catch((err) => {
-    console.error(err);
-    process.exit(1);
-  })
-  .finally(() => prisma.$disconnect());
+});

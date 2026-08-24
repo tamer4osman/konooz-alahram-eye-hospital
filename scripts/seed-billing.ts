@@ -1,6 +1,5 @@
-import { readFileSync } from 'node:fs';
-import { join } from 'node:path';
-import { PrismaClient } from '@prisma/client';
+import { runSeed,
+  loadSeedJson } from './seed-runner';
 
 interface SeedInsurer {
   id: string; nameAr: string; nameEn: string; coveragePercentage: number;
@@ -27,12 +26,13 @@ interface SeedPacs {
   timeCompleted: string; imageThumbnail: string;
 }
 
-const prisma = new PrismaClient();
 
-async function main() {
-  const data = JSON.parse(
-    readFileSync(join(__dirname, 'billing.seed.json'), 'utf8'),
-  ) as { insurances: SeedInsurer[]; invoices: SeedInvoice[]; pacsOrders: SeedPacs[] };
+runSeed(async (prisma) => {
+  const data = loadSeedJson<{
+    insurances: SeedInsurer[];
+    invoices: SeedInvoice[];
+    pacsOrders: SeedPacs[];
+  }>('billing.seed.json');
 
   for (const i of data.insurances) {
     const d = { nameAr: i.nameAr, nameEn: i.nameEn, coveragePercentage: i.coveragePercentage, preAuthRequired: i.preAuthRequired, contactDesk: i.contactDesk, logo: i.logo };
@@ -87,11 +87,4 @@ async function main() {
     await prisma.diagnosticPacsOrder.upsert({ where: { id: p.id }, update: d, create: { id: p.id, ...d } });
   }
   console.log(`seeded ${data.insurances.length} insurers, ${data.invoices.length} invoices, ${data.pacsOrders.length} pacs orders`);
-}
-
-main()
-  .catch((err) => {
-    console.error(err);
-    process.exit(1);
-  })
-  .finally(() => prisma.$disconnect());
+});

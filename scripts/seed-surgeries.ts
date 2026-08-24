@@ -1,6 +1,6 @@
-import { readFileSync } from 'node:fs';
-import { join } from 'node:path';
-import { PrismaClient, SurgeryStatus, Gender } from '@prisma/client';
+import { SurgeryStatus, Gender } from '@prisma/client';
+import { runSeed,
+  loadSeedJson } from './seed-runner';
 
 interface SeedSurgery {
   id: string;
@@ -23,12 +23,9 @@ interface SeedSurgery {
   anesthesiaTypeEn: string;
 }
 
-const prisma = new PrismaClient();
 
-async function main() {
-  const surgeries = JSON.parse(
-    readFileSync(join(__dirname, 'surgeries.seed.json'), 'utf8'),
-  ) as SeedSurgery[];
+runSeed(async (prisma) => {
+  const surgeries = loadSeedJson<SeedSurgery[]>('surgeries.seed.json');
 
   for (const s of surgeries) {
     const data = {
@@ -55,11 +52,4 @@ async function main() {
     await prisma.scheduledSurgery.upsert({ where: { id: s.id }, update: data, create: { id: s.id, ...data } });
   }
   console.log(`seeded ${surgeries.length} surgeries`);
-}
-
-main()
-  .catch((err) => {
-    console.error(err);
-    process.exit(1);
-  })
-  .finally(() => prisma.$disconnect());
+});

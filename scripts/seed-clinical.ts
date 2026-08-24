@@ -1,6 +1,5 @@
-import { readFileSync } from 'node:fs';
-import { join } from 'node:path';
-import { PrismaClient } from '@prisma/client';
+import { runSeed,
+  loadSeedJson } from './seed-runner';
 
 interface SeedRxItem {
   id: string;
@@ -55,12 +54,9 @@ interface SeedClinical {
   nextFollowUpDate: string;
 }
 
-const prisma = new PrismaClient();
 
-async function main() {
-  const records = JSON.parse(
-    readFileSync(join(__dirname, 'clinical.seed.json'), 'utf8'),
-  ) as SeedClinical[];
+runSeed(async (prisma) => {
+  const records = loadSeedJson<SeedClinical[]>('clinical.seed.json');
 
   for (const r of records) {
     const data = {
@@ -121,11 +117,4 @@ async function main() {
     });
   }
   console.log(`seeded ${records.length} clinical records (with prescriptions)`);
-}
-
-main()
-  .catch((err) => {
-    console.error(err);
-    process.exit(1);
-  })
-  .finally(() => prisma.$disconnect());
+});

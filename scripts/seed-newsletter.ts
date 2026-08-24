@@ -1,6 +1,5 @@
-import { readFileSync } from 'node:fs';
-import { join } from 'node:path';
-import { PrismaClient } from '@prisma/client';
+import { runSeed,
+  loadSeedJson } from './seed-runner';
 
 interface SeedTopic {
   id: string;
@@ -23,12 +22,9 @@ interface SeedIssue {
   summaryEn: string;
 }
 
-const prisma = new PrismaClient();
 
-async function main() {
-  const { topics, issues } = JSON.parse(
-    readFileSync(join(__dirname, 'newsletter.seed.json'), 'utf8'),
-  ) as { topics: SeedTopic[]; issues: SeedIssue[] };
+runSeed(async (prisma) => {
+  const { topics, issues } = loadSeedJson<{ topics: SeedTopic[]; issues: SeedIssue[] }>('newsletter.seed.json');
 
   for (const [idx, tp] of topics.entries()) {
     const data = {
@@ -57,11 +53,4 @@ async function main() {
     await prisma.newsletterIssue.upsert({ where: { id: is.id }, update: data, create: { id: is.id, ...data } });
   }
   console.log(`seeded ${topics.length} topics, ${issues.length} issues`);
-}
-
-main()
-  .catch((err) => {
-    console.error(err);
-    process.exit(1);
-  })
-  .finally(() => prisma.$disconnect());
+});

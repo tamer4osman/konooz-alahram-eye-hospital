@@ -1,6 +1,6 @@
-import { readFileSync } from 'node:fs';
-import { join } from 'node:path';
-import { PrismaClient, ConsumableCategory } from '@prisma/client';
+import { ConsumableCategory } from '@prisma/client';
+import { runSeed,
+  loadSeedJson } from './seed-runner';
 
 interface SeedConsumable {
   id: string;
@@ -20,12 +20,9 @@ interface SeedConsumable {
   unitCostLYD: number;
 }
 
-const prisma = new PrismaClient();
 
-async function main() {
-  const items = JSON.parse(
-    readFileSync(join(__dirname, 'consumables.seed.json'), 'utf8'),
-  ) as SeedConsumable[];
+runSeed(async (prisma) => {
+  const items = loadSeedJson<SeedConsumable[]>('consumables.seed.json');
 
   for (const c of items) {
     const data = {
@@ -47,11 +44,4 @@ async function main() {
     await prisma.consumableType.upsert({ where: { id: c.id }, update: data, create: { id: c.id, ...data } });
   }
   console.log(`seeded ${items.length} consumables`);
-}
-
-main()
-  .catch((err) => {
-    console.error(err);
-    process.exit(1);
-  })
-  .finally(() => prisma.$disconnect());
+});

@@ -1,6 +1,6 @@
-import { readFileSync } from 'node:fs';
-import { join } from 'node:path';
-import { PrismaClient, StaffCategory } from '@prisma/client';
+import { StaffCategory } from '@prisma/client';
+import { runSeed,
+  loadSeedJson } from './seed-runner';
 
 interface SeedStaff {
   id: string;
@@ -25,12 +25,9 @@ interface SeedStaff {
 
 const CATEGORIES: StaffCategory[] = ['surgeon', 'consultant', 'resident', 'nurse', 'technician', 'admin'];
 
-const prisma = new PrismaClient();
 
-async function main() {
-  const staff = JSON.parse(
-    readFileSync(join(__dirname, 'staff-members.seed.json'), 'utf8'),
-  ) as SeedStaff[];
+runSeed(async (prisma) => {
+  const staff = loadSeedJson<SeedStaff[]>('staff-members.seed.json');
 
   for (const [idx, s] of staff.entries()) {
     const data = {
@@ -61,11 +58,4 @@ async function main() {
     }
   }
   console.log(`seeded ${staff.length} staff members`);
-}
-
-main()
-  .catch((err) => {
-    console.error(err);
-    process.exit(1);
-  })
-  .finally(() => prisma.$disconnect());
+});

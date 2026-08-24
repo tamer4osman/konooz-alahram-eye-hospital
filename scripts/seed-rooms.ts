@@ -1,6 +1,6 @@
-import { readFileSync } from 'node:fs';
-import { join } from 'node:path';
-import { PrismaClient, RoomType, RoomStatus } from '@prisma/client';
+import { RoomType, RoomStatus } from '@prisma/client';
+import { runSeed,
+  loadSeedJson } from './seed-runner';
 
 interface SeedRoom {
   id: string;
@@ -26,12 +26,9 @@ interface SeedRoom {
   mainDeviceAssignedEn: string;
 }
 
-const prisma = new PrismaClient();
 
-async function main() {
-  const rooms = JSON.parse(
-    readFileSync(join(__dirname, 'rooms.seed.json'), 'utf8'),
-  ) as SeedRoom[];
+runSeed(async (prisma) => {
+  const rooms = loadSeedJson<SeedRoom[]>('rooms.seed.json');
 
   for (const r of rooms) {
     const data = {
@@ -59,11 +56,4 @@ async function main() {
     await prisma.room.upsert({ where: { id: r.id }, update: data, create: { id: r.id, ...data } });
   }
   console.log(`seeded ${rooms.length} rooms`);
-}
-
-main()
-  .catch((err) => {
-    console.error(err);
-    process.exit(1);
-  })
-  .finally(() => prisma.$disconnect());
+});

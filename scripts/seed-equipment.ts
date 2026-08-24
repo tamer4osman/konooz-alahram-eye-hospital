@@ -1,6 +1,6 @@
-import { readFileSync } from 'node:fs';
-import { join } from 'node:path';
-import { PrismaClient, DeviceStatus } from '@prisma/client';
+import { DeviceStatus } from '@prisma/client';
+import { runSeed,
+  loadSeedJson } from './seed-runner';
 
 interface SeedEquipment {
   id: string;
@@ -25,12 +25,9 @@ interface SeedEquipment {
   notesEn: string;
 }
 
-const prisma = new PrismaClient();
 
-async function main() {
-  const items = JSON.parse(
-    readFileSync(join(__dirname, 'equipment.seed.json'), 'utf8'),
-  ) as SeedEquipment[];
+runSeed(async (prisma) => {
+  const items = loadSeedJson<SeedEquipment[]>('equipment.seed.json');
 
   for (const e of items) {
     const data = {
@@ -57,11 +54,4 @@ async function main() {
     await prisma.equipment.upsert({ where: { id: e.id }, update: data, create: { id: e.id, ...data } });
   }
   console.log(`seeded ${items.length} equipment items`);
-}
-
-main()
-  .catch((err) => {
-    console.error(err);
-    process.exit(1);
-  })
-  .finally(() => prisma.$disconnect());
+});

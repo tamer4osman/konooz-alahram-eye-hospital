@@ -1,6 +1,5 @@
-import { readFileSync } from 'node:fs';
-import { join } from 'node:path';
-import { PrismaClient } from '@prisma/client';
+import { runSeed,
+  loadSeedJson } from './seed-runner';
 
 interface SeedStat {
   value: string;
@@ -9,12 +8,9 @@ interface SeedStat {
   icon: string;
 }
 
-const prisma = new PrismaClient();
 
-async function main() {
-  const stats = JSON.parse(
-    readFileSync(join(__dirname, 'trust-stats.seed.json'), 'utf8'),
-  ) as SeedStat[];
+runSeed(async (prisma) => {
+  const stats = loadSeedJson<SeedStat[]>('trust-stats.seed.json');
 
   for (const [idx, s] of stats.entries()) {
     const data = { value: s.value, labelAr: s.labelAr, labelEn: s.labelEn, icon: s.icon, sortOrder: idx };
@@ -26,11 +22,4 @@ async function main() {
     }
   }
   console.log(`seeded ${stats.length} trust stats`);
-}
-
-main()
-  .catch((err) => {
-    console.error(err);
-    process.exit(1);
-  })
-  .finally(() => prisma.$disconnect());
+});

@@ -1,6 +1,5 @@
-import { readFileSync } from 'node:fs';
-import { join } from 'node:path';
-import { PrismaClient } from '@prisma/client';
+import { runSeed,
+  loadSeedJson } from './seed-runner';
 
 interface SeedDoctor {
   id: string;
@@ -26,7 +25,6 @@ interface SeedDoctor {
   highlightsEn: string[];
 }
 
-const prisma = new PrismaClient();
 
 function toAvailability(status: SeedDoctor['status']) {
   if (status === 'available_now') return 'AVAILABLE_NOW' as const;
@@ -34,10 +32,8 @@ function toAvailability(status: SeedDoctor['status']) {
   return 'REGULAR' as const;
 }
 
-async function main() {
-  const doctors = JSON.parse(
-    readFileSync(join(__dirname, 'doctors.seed.json'), 'utf8'),
-  ) as SeedDoctor[];
+runSeed(async (prisma) => {
+  const doctors = loadSeedJson<SeedDoctor[]>('doctors.seed.json');
 
   for (const d of doctors) {
     await prisma.doctor.upsert({
@@ -91,11 +87,4 @@ async function main() {
     });
   }
   console.log(`seeded ${doctors.length} doctors`);
-}
-
-main()
-  .catch((err) => {
-    console.error(err);
-    process.exit(1);
-  })
-  .finally(() => prisma.$disconnect());
+});

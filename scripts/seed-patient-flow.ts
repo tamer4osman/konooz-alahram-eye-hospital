@@ -1,6 +1,6 @@
-import { PrismaClient, PatientFlowStageType } from '@prisma/client';
+import { PatientFlowStageType } from '@prisma/client';
+import { runSeed } from './seed-runner';
 
-const prisma = new PrismaClient();
 
 // Live flow events for today: open events = patients currently in a stage;
 // closed pairs (enteredAt/exitedAt) feed the average-time metric.
@@ -23,7 +23,7 @@ const CLOSED: Array<[PatientFlowStageType, number]> = [
   ['discharged', 5],
 ];
 
-async function main() {
+runSeed(async (prisma) => {
   const today = new Date();
   const at = (hoursAgo: number) => new Date(today.getTime() - hoursAgo * 3600_000);
 
@@ -56,11 +56,4 @@ async function main() {
     });
   }
   console.log(`seeded ${OPEN.reduce((a, [, c]) => a + c, 0)} open + ${CLOSED.length} closed flow events`);
-}
-
-main()
-  .catch((err) => {
-    console.error(err);
-    process.exit(1);
-  })
-  .finally(() => prisma.$disconnect());
+});

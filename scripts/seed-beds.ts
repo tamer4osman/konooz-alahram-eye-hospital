@@ -1,6 +1,6 @@
-import { readFileSync } from 'node:fs';
-import { join } from 'node:path';
-import { PrismaClient, WardType, BedStatus } from '@prisma/client';
+import { WardType, BedStatus } from '@prisma/client';
+import { runSeed,
+  loadSeedJson } from './seed-runner';
 
 interface SeedBed {
   id: string;
@@ -30,12 +30,9 @@ interface SeedBed {
   nurseInChargeEn?: string;
 }
 
-const prisma = new PrismaClient();
 
-async function main() {
-  const beds = JSON.parse(
-    readFileSync(join(__dirname, 'beds.seed.json'), 'utf8'),
-  ) as SeedBed[];
+runSeed(async (prisma) => {
+  const beds = loadSeedJson<SeedBed[]>('beds.seed.json');
 
   for (const b of beds) {
     const data = {
@@ -67,11 +64,4 @@ async function main() {
     await prisma.bed.upsert({ where: { id: b.id }, update: data, create: { id: b.id, ...data } });
   }
   console.log(`seeded ${beds.length} beds`);
-}
-
-main()
-  .catch((err) => {
-    console.error(err);
-    process.exit(1);
-  })
-  .finally(() => prisma.$disconnect());
+});
