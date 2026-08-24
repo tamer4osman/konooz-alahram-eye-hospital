@@ -472,6 +472,15 @@ model ConsumableType {
   createdAt  DateTime          @default(now())
   updatedAt  DateTime          @updatedAt
 
+  // Inventory fields (dashboard stock board)
+  brand        String  @default("")
+  reorderStatus String @default("optimal")
+  batchLot     String  @default("")
+  expiryDate   String?
+  locationAr   String  @default("")
+  locationEn   String?
+  unitCostLYD  Float   @default(0)
+
   usages SurgeryConsumableUsage[]
 
   @@map("consumable_types")

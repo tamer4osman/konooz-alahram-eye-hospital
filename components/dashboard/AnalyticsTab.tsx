@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { useLanguage } from '@/context/LanguageContext';
-import { ANALYTICS_DATA, HospitalStaff, HospitalRoom, HospitalEquipment, ScheduledSurgery, DUMMY_PATIENT_FLOW, DUMMY_CONSUMABLES_STOCK } from '@/data/dashboardData';
+import { ANALYTICS_DATA, HospitalStaff, HospitalRoom, HospitalEquipment, ScheduledSurgery, SurgicalConsumable, DUMMY_PATIENT_FLOW } from '@/data/dashboardData';
 import { ResponsiveContainer, ComposedChart, Line, Bar, XAxis, YAxis, Tooltip, Legend, CartesianGrid } from 'recharts';
 import { Activity, Award, ShieldCheck, Zap, Download, Building2, Users, Gauge, Package, Timer, Workflow } from 'lucide-react';
 
@@ -13,10 +13,11 @@ interface AnalyticsTabProps {
   roomsList?: HospitalRoom[];
   equipmentList?: HospitalEquipment[];
   surgeriesList?: ScheduledSurgery[];
+  consumablesList?: SurgicalConsumable[];
 }
 
 export default function AnalyticsTab({
-  timeframe, onChangeTimeframe, staffList = [], roomsList = [], equipmentList = [], surgeriesList: _surgeriesList = []
+  timeframe, onChangeTimeframe, staffList = [], roomsList = [], equipmentList = [], surgeriesList: _surgeriesList = [], consumablesList = []
 }: AnalyticsTabProps) {
   const { lang, t } = useLanguage();
   const [downloadSuccess, setDownloadSuccess] = useState(false);
@@ -422,7 +423,7 @@ export default function AnalyticsTab({
                 </tr>
               </thead>
               <tbody className="divide-y divide-bone-100">
-                {DUMMY_CONSUMABLES_STOCK.map((item) => (
+                {consumablesList.map((item) => (
                   <tr key={item.id} className="hover:bg-bone-50/80 transition-colors">
                     <td className="p-3">
                       <div className="font-extrabold text-pine-900">{lang === 'ar' ? item.nameAr : item.nameEn}</div>
