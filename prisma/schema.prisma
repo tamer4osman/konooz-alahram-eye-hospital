@@ -374,10 +374,35 @@ enum BedStatus {
 
 model Bed {
   id        String     @id @default(cuid())
+  bedNumber String     @unique
   wardType  WardType
-  label     String
+  wardNameAr String    @default("")
+  wardNameEn String?
+  floorAr   String     @default("")
+  floorEn   String?
   status    BedStatus  @default(ready_clean)
+
+  // Occupant snapshot
   patientId String?
+  patientNameAr String?
+  patientNameEn String?
+  patientAge Int?
+  assignedDoctorAr String?
+  assignedDoctorEn String?
+  surgeryPerformedAr String?
+  surgeryPerformedEn String?
+  admissionTime String?
+  estimatedDischargeTime String?
+
+  // Bedside vitals
+  bloodPressure String?
+  heartRateBpm Int?
+  spO2Percent Int?
+  tempCelsius Float?
+  painScore Int?
+  nurseInChargeAr String?
+  nurseInChargeEn String?
+
   createdAt DateTime   @default(now())
   updatedAt DateTime   @updatedAt
 

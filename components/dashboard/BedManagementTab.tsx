@@ -1,9 +1,8 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useLanguage } from '@/context/LanguageContext';
 import {
-  DUMMY_BEDS,
   HospitalBed,
   BedStatus,
   WardType
@@ -13,7 +12,21 @@ import { Bed, HeartPulse, Activity, UserCheck, Sparkles, Clock, Plus, Droplets }
 export default function BedManagementTab() {
   const { lang, t, } = useLanguage();
 
-  const [bedsList, setBedsList] = useState<HospitalBed[]>(DUMMY_BEDS);
+  const [bedsList, setBedsList] = useState<HospitalBed[]>([]);
+
+  useEffect(() => {
+    let cancelled = false;
+    fetch('/api/staff/beds')
+      .then(async (res) => {
+        if (!res.ok) return;
+        const json = await res.json();
+        if (!cancelled && Array.isArray(json?.data)) setBedsList(json.data as HospitalBed[]);
+      })
+      .catch(() => {});
+    return () => {
+      cancelled = true;
+    };
+  }, []);
   const [activeWardFilter, setActiveWardFilter] = useState<'all' | WardType>('all');
   const [selectedBed, setSelectedBed] = useState<HospitalBed | null>(null);
   const [isVitalsModalOpen, setIsVitalsModalOpen] = useState(false);
@@ -54,12 +67,22 @@ export default function BedManagementTab() {
         return bed;
       })
     );
+    fetch(`/api/staff/beds/${bedId}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ status: newStatus })
+    }).catch(() => {});
   };
 
   const handleDischargePatient = (bedId: string) => {
     setBedsList((prev) =>
       prev.map((b) => (b.id === bedId ? { ...b, status: 'dirty_cleaning' } : b))
     );
+    fetch(`/api/staff/beds/${bedId}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ status: 'dirty_cleaning' })
+    }).catch(() => {});
     setConfirmingDischargeId(null);
     if (selectedBed?.id === bedId) {
       setSelectedBed(null);
@@ -70,23 +93,48 @@ export default function BedManagementTab() {
     e.preventDefault();
     if (!selectedBed) return;
 
+    const vitals = {
+      bloodPressure: vitalsForm.bloodPressure,
+      heartRateBpm: Number(vitalsForm.heartRateBpm),
+      spO2Percent: Number(vitalsForm.spO2Percent),
+      tempCelsius: Number(vitalsForm.tempCelsius),
+      painScore: Number(vitalsForm.painScore)
+    };
+
     setBedsList((prev) =>
-      prev.map((b) =>
-        b.id === selectedBed.id
-          ? {
-              ...b, bloodPressure: vitalsForm.bloodPressure, heartRateBpm: Number(vitalsForm.heartRateBpm), spO2Percent: Number(vitalsForm.spO2Percent), tempCelsius: Number(vitalsForm.tempCelsius), painScore: Number(vitalsForm.painScore) }
-          : b
-      )
+      prev.map((b) => (b.id === selectedBed.id ? { ...b, ...vitals } : b))
     );
+    fetch(`/api/staff/beds/${selectedBed.id}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(vitals)
+    }).catch(() => {});
     setIsVitalsModalOpen(false); };
 
   const handleAddBed = (e: React.FormEvent) => {
     e.preventDefault();
-    const newBed: HospitalBed = {
-      id: 'bed-' + Date.now(), bedNumber: newBedForm.bedNumber || 'BED-' + Math.floor(100 + Math.random() * 900), wardType: newBedForm.wardType || 'daycare_suite', wardNameAr: newBedForm.wardType === 'pacu_recovery' ? 'وحدة الإفاقة المتقدمة (PACU)' : 'أجنحة الإقامة الفندقية واليوم الواحد', wardNameEn: newBedForm.wardType === 'pacu_recovery' ? 'Post-Anesthesia Care Unit (PACU)' : 'Daycare Private Suites', floorAr: newBedForm.floorAr || 'الطابق الأول', floorEn: newBedForm.floorEn || '1st Floor', status: 'ready_clean', nurseInChargeAr: 'فاطمة الورفلي (رئيسة التمريض)', nurseInChargeEn: 'Fatima Al-Warfalli, RN'
+    const payload = {
+      bedNumber: newBedForm.bedNumber || 'BED-' + Math.floor(100 + Math.random() * 900),
+      wardType: newBedForm.wardType || 'daycare_suite',
+      wardNameAr: newBedForm.wardType === 'pacu_recovery' ? 'وحدة الإفاقة المتقدمة (PACU)' : 'أجنحة الإقامة الفندقية واليوم الواحد',
+      wardNameEn: newBedForm.wardType === 'pacu_recovery' ? 'Post-Anesthesia Care Unit (PACU)' : 'Daycare Private Suites',
+      floorAr: newBedForm.floorAr || 'الطابق الأول',
+      floorEn: newBedForm.floorEn || '1st Floor',
+      nurseInChargeAr: 'فاطمة الورفلي (رئيسة التمريض)',
+      nurseInChargeEn: 'Fatima Al-Warfalli, RN'
     };
 
-    setBedsList([...bedsList, newBed]);
+    fetch('/api/staff/beds', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    })
+      .then(async (res) => {
+        if (!res.ok) return;
+        const json = await res.json();
+        if (json?.data) setBedsList((prev) => [...prev, json.data as HospitalBed]);
+      })
+      .catch(() => {});
     setIsAddBedModalOpen(false);
   };
 
