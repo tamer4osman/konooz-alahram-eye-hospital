@@ -1,19 +1,48 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useLanguage } from '@/context/LanguageContext';
-import { DUMMY_INSURANCES, DUMMY_INVOICES, DUMMY_PACS_ORDERS, HospitalBillingInvoice, DiagnosticPacsOrder } from '@/data/dashboardData';
+import { InsuranceProviderInfo, HospitalBillingInvoice, DiagnosticPacsOrder } from '@/data/dashboardData';
 import { Receipt, ShieldCheck, CreditCard, Printer, Plus, CheckCircle2 } from 'lucide-react';
 
 export default function BillingInsuranceTab() {
   const { lang, t, } = useLanguage();
 
-  const [invoices, setInvoices] = useState<HospitalBillingInvoice[]>(DUMMY_INVOICES);
-  const [pacsOrders, _setPacsOrders] = useState<DiagnosticPacsOrder[]>(DUMMY_PACS_ORDERS);
+  const [invoices, setInvoices] = useState<HospitalBillingInvoice[]>([]);
+  const [insurers, setInsurers] = useState<InsuranceProviderInfo[]>([]);
+  const [pacsOrders, _setPacsOrders] = useState<DiagnosticPacsOrder[]>([]);
   const [activeSubTab, setActiveSubTab] = useState<'invoices' | 'insurance' | 'pacs'>('invoices');
-  const [selectedInvoice, setSelectedInvoice] = useState<HospitalBillingInvoice | null>(DUMMY_INVOICES[0]);
+  const [selectedInvoice, setSelectedInvoice] = useState<HospitalBillingInvoice | null>(null);
   const [isInvoicePrintSuccess, setIsInvoicePrintSuccess] = useState(false);
   const [isCreateInvoiceOpen, setIsCreateInvoiceOpen] = useState(false);
+
+  useEffect(() => {
+    let cancelled = false;
+    fetch('/api/staff/invoices')
+      .then(async (res) => {
+        if (!res.ok) return;
+        const json = await res.json();
+        if (!cancelled && Array.isArray(json?.data)) {
+          const list = json.data as HospitalBillingInvoice[];
+          setInvoices(list);
+          if (list.length > 0) setSelectedInvoice(list[0]);
+        }
+      })
+      .catch(() => {});
+    fetch('/api/staff/billing')
+      .then(async (res) => {
+        if (!res.ok) return;
+        const json = await res.json();
+        if (!cancelled && json?.data) {
+          setInsurers((json.data.insurances ?? []) as InsuranceProviderInfo[]);
+          _setPacsOrders((json.data.pacsOrders ?? []) as DiagnosticPacsOrder[]);
+        }
+      })
+      .catch(() => {});
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   // New Invoice form state
   const [newInvoiceForm, setNewInvoiceForm] = useState({
@@ -30,7 +59,7 @@ export default function BillingInsuranceTab() {
 
   const handleCreateInvoice = (e: React.FormEvent) => {
     e.preventDefault();
-    const provider = DUMMY_INSURANCES.find((i) => i.id === newInvoiceForm.insuranceProvider) || DUMMY_INSURANCES[0];
+    const provider = insurers.find((i) => i.id === newInvoiceForm.insuranceProvider);
     const totalGross =
       Number(newInvoiceForm.surgeonFeeLYD) +
       Number(newInvoiceForm.orFacilityFeeLYD) +
@@ -39,15 +68,46 @@ export default function BillingInsuranceTab() {
       Number(newInvoiceForm.consumablesFeeLYD);
 
     const isSelfPay = newInvoiceForm.insuranceProvider === 'self_pay';
-    const covered = isSelfPay ? 0 : Math.round((totalGross * provider.coveragePercentage) / 100);
+    const coverage = isSelfPay ? 0 : (provider?.coveragePercentage ?? 0);
+    const covered = isSelfPay ? 0 : Math.round((totalGross * coverage) / 100);
     const coPay = totalGross - covered;
 
-    const created: HospitalBillingInvoice = {
-      id: 'inv-' + Date.now(), invoiceNumber: 'INV-2026-08' + Math.floor(10 + Math.random() * 90), ticketNumber: newInvoiceForm.ticketNumber, patientNameAr: newInvoiceForm.patientNameAr || 'مريض جديد', patientNameEn: newInvoiceForm.patientNameEn || newInvoiceForm.patientNameAr || 'New Patient', procedureAr: newInvoiceForm.procedureAr, procedureEn: newInvoiceForm.procedureEn, insuranceNameAr: isSelfPay ? 'دفع خاص نقدي' : provider.nameAr, insuranceNameEn: isSelfPay ? 'Private Cash' : provider.nameEn, dateIssued: '2026-08-18', surgeonFeeLYD: Number(newInvoiceForm.surgeonFeeLYD), orFacilityFeeLYD: Number(newInvoiceForm.orFacilityFeeLYD), anesthesiaFeeLYD: Number(newInvoiceForm.anesthesiaFeeLYD), lensOrDeviceFeeLYD: Number(newInvoiceForm.lensOrDeviceFeeLYD), consumablesFeeLYD: Number(newInvoiceForm.consumablesFeeLYD), totalGrossLYD: totalGross, insuranceCoveredLYD: covered, patientCoPayLYD: coPay, status: isSelfPay ? 'paid' : 'pre_auth_approved'
+    const payload = {
+      invoiceNumber: 'INV-2026-08' + Math.floor(10 + Math.random() * 90),
+      ticketNumber: newInvoiceForm.ticketNumber,
+      patientNameAr: newInvoiceForm.patientNameAr || 'مريض جديد',
+      patientNameEn: newInvoiceForm.patientNameEn || newInvoiceForm.patientNameAr || 'New Patient',
+      procedureAr: newInvoiceForm.procedureAr,
+      procedureEn: newInvoiceForm.procedureEn,
+      insuranceNameAr: isSelfPay ? 'دفع خاص نقدي' : (provider?.nameAr ?? ''),
+      insuranceNameEn: isSelfPay ? 'Private Cash' : (provider?.nameEn ?? ''),
+      surgeonFeeLYD: Number(newInvoiceForm.surgeonFeeLYD),
+      orFacilityFeeLYD: Number(newInvoiceForm.orFacilityFeeLYD),
+      anesthesiaFeeLYD: Number(newInvoiceForm.anesthesiaFeeLYD),
+      lensOrDeviceFeeLYD: Number(newInvoiceForm.lensOrDeviceFeeLYD),
+      consumablesFeeLYD: Number(newInvoiceForm.consumablesFeeLYD),
+      totalGrossLYD: totalGross,
+      insuranceCoveredLYD: covered,
+      patientCoPayLYD: coPay,
+      status: isSelfPay ? 'paid' : 'pre_auth_approved'
     };
 
-    setInvoices([created, ...invoices]);
-    setSelectedInvoice(created);
+    fetch('/api/staff/invoices', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    })
+      .then(async (res) => {
+        if (!res.ok) return;
+        const json = await res.json();
+        if (json?.data) {
+          const created = json.data as HospitalBillingInvoice;
+          setInvoices((prev) => [created, ...prev]);
+          setSelectedInvoice(created);
+        }
+      })
+      .catch(() => {});
+
     setIsCreateInvoiceOpen(false); };
 
   return (
@@ -314,7 +374,7 @@ export default function BillingInsuranceTab() {
       {/* SubTab 2: Insurance Providers */}
       {activeSubTab === 'insurance' && (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {DUMMY_INSURANCES.map((ins) => (
+          {insurers.map((ins) => (
             <div key={ins.id} className="bg-white rounded-2xl p-5 border border-pine-200 shadow-xs space-y-3">
               <div className="flex items-start justify-between">
                 <div className="flex items-center gap-3">

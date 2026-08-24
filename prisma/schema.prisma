@@ -654,6 +654,11 @@ model InsuranceProvider {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
+  coveragePercentage Float  @default(0)
+  preAuthRequired    Boolean @default(false)
+  contactDesk        String  @default("")
+  logo               String  @default("")
+
   policies InsurancePolicy[]
 
   @@map("insurance_providers")
@@ -679,6 +684,9 @@ enum InvoiceStatus {
   paid
   partially_paid
   cancelled
+  pending_insurance
+  pre_auth_approved
+  draft
 }
 
 model HospitalBillingInvoice {
@@ -698,6 +706,20 @@ model HospitalBillingInvoice {
   createdBy  String?
   createdAt  DateTime      @default(now())
   updatedAt  DateTime      @updatedAt
+
+  // Invoice breakdown (dashboard billing board)
+  invoiceNumber String @default("")
+  ticketNumber  String @default("")
+  insuranceNameAr String @default("")
+  insuranceNameEn String?
+  surgeonFeeLYD     Float @default(0)
+  orFacilityFeeLYD  Float @default(0)
+  anesthesiaFeeLYD  Float @default(0)
+  lensOrDeviceFeeLYD Float @default(0)
+  consumablesFeeLYD  Float @default(0)
+  totalGrossLYD      Float @default(0)
+  insuranceCoveredLYD Float @default(0)
+  patientCoPayLYD     Float @default(0)
 
   @@index([patientId])
   @@map("hospital_billing_invoices")
@@ -729,6 +751,17 @@ model DiagnosticPacsOrder {
   createdBy   String?
   createdAt   DateTime        @default(now())
   updatedAt   DateTime        @updatedAt
+
+  // PACS board fields
+  orderNumber      String @default("")
+  ticketNumber     String @default("")
+  deviceUsed       String @default("")
+  technicianAr     String @default("")
+  technicianEn     String?
+  findingsSummaryAr String?
+  findingsSummaryEn String?
+  timeCompleted    String?
+  imageThumbnail   String @default("")
 
   @@index([patientId])
   @@map("diagnostic_pacs_orders")

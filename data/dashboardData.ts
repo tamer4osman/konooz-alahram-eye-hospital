@@ -787,45 +787,6 @@ export interface InsuranceProviderInfo {
   logo: string;
 }
 
-export const DUMMY_INSURANCES: InsuranceProviderInfo[] = [
-  {
-    id: 'ins-wahda',
-    nameAr: 'شركة الوحدة للتأمين الصحي',
-    nameEn: 'Al-Wahda Health Insurance Co.',
-    coveragePercentage: 85,
-    preAuthRequired: true,
-    contactDesk: 'بوابة التأمين الفورية - فرع بنغازي الرئيسي',
-    logo: '🛡️'
-  },
-  {
-    id: 'ins-sahara',
-    nameAr: 'شركة الصحراء للتأمين الطبي',
-    nameEn: 'Sahara Medical Insurance',
-    coveragePercentage: 90,
-    preAuthRequired: true,
-    contactDesk: 'خدمة العملاء الإلكترونية 24/7',
-    logo: '🌴'
-  },
-  {
-    id: 'ins-libyan-co',
-    nameAr: 'شركة ليبيا للتأمين (ش.م.ل)',
-    nameEn: 'Libya Insurance Company',
-    coveragePercentage: 80,
-    preAuthRequired: false,
-    contactDesk: 'مكتب الارتباط المباشر بالمستشفى',
-    logo: '🇱🇾'
-  },
-  {
-    id: 'ins-noc-oil',
-    nameAr: 'المؤسسة الوطنية للنفط وشركة الخليج العربي',
-    nameEn: 'NOC & Arabian Gulf Oil Company (AGOCO)',
-    coveragePercentage: 100,
-    preAuthRequired: true,
-    contactDesk: 'الإدارة الطبية لشؤون العاملين بالنفط',
-    logo: '⛽'
-  }
-];
-
 export interface HospitalBillingInvoice {
   id: string;
   invoiceNumber: string;
@@ -851,72 +812,6 @@ export interface HospitalBillingInvoice {
   status: 'paid' | 'pending_insurance' | 'pre_auth_approved' | 'draft';
 }
 
-export const DUMMY_INVOICES: HospitalBillingInvoice[] = [
-  {
-    id: 'inv-3001',
-    invoiceNumber: 'INV-2026-0811',
-    ticketNumber: 'KZ-8841',
-    patientNameAr: 'الحاج فرج مصطفى المجبري',
-    patientNameEn: 'Faraj M. Al-Majbari',
-    procedureAr: 'جراحة استئصال زجاجية 25G + ليزر باطن العين + زيت سيليكون',
-    procedureEn: '25G Vitrectomy + Endolaser + Silicone Oil',
-    insuranceNameAr: 'المؤسسة الوطنية للنفط (NOC / AGOCO)',
-    insuranceNameEn: 'NOC & Arabian Gulf Oil Company',
-    dateIssued: '2026-08-18',
-    surgeonFeeLYD: 3500,
-    orFacilityFeeLYD: 1800,
-    anesthesiaFeeLYD: 800,
-    lensOrDeviceFeeLYD: 1200,
-    consumablesFeeLYD: 600,
-    totalGrossLYD: 7900,
-    insuranceCoveredLYD: 7900,
-    patientCoPayLYD: 0,
-    status: 'pre_auth_approved'
-  },
-  {
-    id: 'inv-3002',
-    invoiceNumber: 'INV-2026-0812',
-    ticketNumber: 'KZ-8902',
-    patientNameAr: 'مروة عبد القادر الورفلي',
-    patientNameEn: 'Marwa A. Al-Warfalli',
-    procedureAr: 'تصحيح الإبصار بالفيمتو ليزك المخصص بكلتا العينين (Custom-Q)',
-    procedureEn: 'Bilateral Wavefront-Guided Femto-LASIK',
-    insuranceNameAr: 'دفع خاص نقدي (سداد كامل)',
-    insuranceNameEn: 'Private Cash Payment',
-    dateIssued: '2026-08-18',
-    surgeonFeeLYD: 2200,
-    orFacilityFeeLYD: 1400,
-    anesthesiaFeeLYD: 200,
-    lensOrDeviceFeeLYD: 0,
-    consumablesFeeLYD: 400,
-    totalGrossLYD: 4200,
-    insuranceCoveredLYD: 0,
-    patientCoPayLYD: 4200,
-    status: 'paid'
-  },
-  {
-    id: 'inv-3003',
-    invoiceNumber: 'INV-2026-0813',
-    ticketNumber: 'KZ-8955',
-    patientNameAr: 'سالم إبراهيم بوزيد',
-    patientNameEn: 'Salem I. Bouzaid',
-    procedureAr: 'فاكو وإزالة مياه بيضاء وزراعة عدسة صفراء Alcon AcrySof IQ',
-    procedureEn: 'Phacoemulsification + Alcon AcrySof IQ IOL',
-    insuranceNameAr: 'شركة الوحدة للتأمين الصحي',
-    insuranceNameEn: 'Al-Wahda Health Insurance Co.',
-    dateIssued: '2026-08-18',
-    surgeonFeeLYD: 1800,
-    orFacilityFeeLYD: 1200,
-    anesthesiaFeeLYD: 400,
-    lensOrDeviceFeeLYD: 950,
-    consumablesFeeLYD: 350,
-    totalGrossLYD: 4700,
-    insuranceCoveredLYD: 3995,
-    patientCoPayLYD: 705,
-    status: 'paid'
-  }
-];
-
 export interface DiagnosticPacsOrder {
   id: string;
   orderNumber: string;
@@ -936,46 +831,4 @@ export interface DiagnosticPacsOrder {
   timeCompleted: string;
   imageThumbnail: string;
 }
-
-export const DUMMY_PACS_ORDERS: DiagnosticPacsOrder[] = [
-  {
-    id: 'pacs-501',
-    orderNumber: 'OCT-2026-9901',
-    ticketNumber: 'KZ-8841',
-    patientNameAr: 'الحاج فرج مصطفى المجبري',
-    patientNameEn: 'Faraj M. Al-Majbari',
-    scanTypeAr: 'أشعة مقطعية لشبكية العين والماقولا (High-Res Macular OCT)',
-    scanTypeEn: 'Spectralis Macular OCT HD Cross-Section',
-    deviceUsed: 'Heidelberg SPECTRALIS® OCT2',
-    orderingDoctorAr: 'أ.د. محمود الحسيني',
-    orderingDoctorEn: 'Prof. Dr. Mahmoud Al-Husseini',
-    technicianAr: 'فني عبد الرؤوف القماطي',
-    technicianEn: 'Tech Abdelraouf Al-Gmati',
-    status: 'completed',
-    findingsSummaryAr: 'تأكيد وجود انفصال حسي عصبي بالشبكية مع تراكم سوائل تحت الشبكية ومطابقة معطيات الجراحة العاجلة.',
-    findingsSummaryEn: 'Subretinal fluid and neurosensory retinal detachment verified. Macula-off.',
-    timeCompleted: '08:45',
-    imageThumbnail: '/avatars/photo-1579684385127-1ef15d508118.jpg'
-  },
-  {
-    id: 'pacs-502',
-    orderNumber: 'PNT-2026-9902',
-    ticketNumber: 'KZ-8902',
-    patientNameAr: 'مروة عبد القادر الورفلي',
-    patientNameEn: 'Marwa A. Al-Warfalli',
-    scanTypeAr: 'خريطة تضاريس القرنية الملونة ثلاثية الأبعاد (Pentacam HR 4-Maps Refractive)',
-    scanTypeEn: 'Oculus Pentacam HR 4-Maps Refractive Topography',
-    deviceUsed: 'Oculus Pentacam® HR High Resolution',
-    orderingDoctorAr: 'أ.د. طارق قطامش',
-    orderingDoctorEn: 'Prof. Dr. Tarek Katamish',
-    technicianAr: 'أخصائية هدى البرعصي',
-    technicianEn: 'Optometrist Huda Al-Barasi',
-    status: 'completed',
-    findingsSummaryAr: 'تحدب قرنية متماثل تماماً بدون أي علامات قرنية مخروطية مخفية (Belin/Ambrósio BAD-D: 0.82 طبيعي).',
-    findingsSummaryEn: 'Symmetric bow-tie with regular astigmatism. Belin/Ambrosio BAD-D 0.82 (Normal).',
-    timeCompleted: '09:30',
-    imageThumbnail: '/avatars/photo-1516549655169-df83a0774514.jpg'
-  }
-];
-
 
