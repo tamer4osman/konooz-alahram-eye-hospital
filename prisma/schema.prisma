@@ -286,6 +286,9 @@ model Room {
 enum SurgeryStatus {
   scheduled
   in_progress
+  pre_op_prep
+  in_or
+  post_op_recovery
   completed
   cancelled
 }
@@ -294,8 +297,8 @@ model ScheduledSurgery {
   id          String         @id @default(cuid())
   patientId   String?
   patient     PatientProfile? @relation(fields: [patientId], references: [id])
-  surgeonId   String
-  surgeon     Doctor         @relation("SurgeonSurgeries", fields: [surgeonId], references: [id])
+  surgeonId   String?
+  surgeon     Doctor?        @relation("SurgeonSurgeries", fields: [surgeonId], references: [id])
   roomId      String?
   room        Room?          @relation(fields: [roomId], references: [id])
   procedureAr String
@@ -307,6 +310,21 @@ model ScheduledSurgery {
   notesEn     String?
   createdAt   DateTime       @default(now())
   updatedAt   DateTime       @updatedAt
+
+  // Scheduling-time snapshot (Exception 1) — dashboard DTO fields
+  patientNameAr String @default("")
+  patientNameEn String?
+  patientPhone  String @default("")
+  patientAge    Int?
+  gender        Gender?
+  surgeonNameAr String @default("")
+  surgeonNameEn String?
+  specialtyId   String @default("")
+  roomCode      String @default("")
+  time          String @default("")
+  priority      String @default("elective")
+  anesthesiaTypeAr String @default("")
+  anesthesiaTypeEn String?
 
   consumables SurgeryConsumableUsage[]
 

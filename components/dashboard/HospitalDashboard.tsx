@@ -5,7 +5,6 @@ import { useLanguage } from '@/context/LanguageContext';
 import {
   DUMMY_MANAGERS,
   DUMMY_STAFF,
-  DUMMY_SURGERIES_TODAY,
   DashboardUser,
   HospitalStaff,
   HospitalRoom,
@@ -43,7 +42,7 @@ export default function HospitalDashboard() {
   // Rooms are persisted in the database via staff APIs (single source of truth).
   const [roomsList, setRoomsList] = useState<HospitalRoom[]>([]);
   const [equipmentList, setEquipmentList] = useState<HospitalEquipment[]>([]);
-  const [surgeriesList, setSurgeriesList] = useState<ScheduledSurgery[]>(DUMMY_SURGERIES_TODAY);
+  const [surgeriesList, setSurgeriesList] = useState<ScheduledSurgery[]>([]);
 
   useEffect(() => {
     let cancelled = false;
@@ -59,6 +58,13 @@ export default function HospitalDashboard() {
         if (!res.ok) return;
         const json = await res.json();
         if (!cancelled && Array.isArray(json?.data)) setEquipmentList(json.data as HospitalEquipment[]);
+      })
+      .catch(() => {});
+    fetch('/api/staff/surgeries')
+      .then(async (res) => {
+        if (!res.ok) return;
+        const json = await res.json();
+        if (!cancelled && Array.isArray(json?.data)) setSurgeriesList(json.data as ScheduledSurgery[]);
       })
       .catch(() => {});
     return () => {
@@ -145,10 +151,16 @@ export default function HospitalDashboard() {
     setSurgeriesList((prev) =>
       prev.map((s) => (s.id === surgeryId ? { ...s, status: newStatus } : s))
     );
+    fetch(`/api/staff/surgeries/${surgeryId}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ status: newStatus })
+    }).catch(() => {});
   };
 
   const handleRemoveSurgery = (surgeryId: string) => {
     setSurgeriesList((prev) => prev.filter((s) => s.id !== surgeryId));
+    fetch(`/api/staff/surgeries/${surgeryId}`, { method: 'DELETE' }).catch(() => {});
   };
 
   // Add New Staff Handler
@@ -200,10 +212,9 @@ export default function HospitalDashboard() {
     e.preventDefault();
     if (!newSurgeryForm.patientNameAr && !newSurgeryForm.patientNameEn) return;
 
-    const newSurgeryCase: ScheduledSurgery = {
-      id: `SRG-${Math.floor(1000 + Math.random() * 9000)}`,
-      patientNameAr: newSurgeryForm.patientNameAr || newSurgeryForm.patientNameEn,
-      patientNameEn: newSurgeryForm.patientNameEn || newSurgeryForm.patientNameAr,
+    const payload = {
+      patientNameAr: newSurgeryForm.patientNameAr || undefined,
+      patientNameEn: newSurgeryForm.patientNameEn || undefined,
       patientPhone: newSurgeryForm.patientPhone || '091-000-0000',
       patientAge: newSurgeryForm.patientAge,
       gender: newSurgeryForm.gender,
@@ -216,12 +227,22 @@ export default function HospitalDashboard() {
       time: newSurgeryForm.time,
       estimatedDurationMin: newSurgeryForm.estimatedDurationMin,
       priority: newSurgeryForm.priority,
-      status: 'scheduled',
       anesthesiaTypeAr: newSurgeryForm.anesthesiaTypeAr,
       anesthesiaTypeEn: newSurgeryForm.anesthesiaTypeEn
     };
 
-    setSurgeriesList((prev) => [newSurgeryCase, ...prev]);
+    fetch('/api/staff/surgeries', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    })
+      .then(async (res) => {
+        if (!res.ok) return;
+        const json = await res.json();
+        if (json?.data) setSurgeriesList((prev) => [json.data as ScheduledSurgery, ...prev]);
+      })
+      .catch(() => {});
+
     setIsScheduleSurgeryOpen(false);
     setNewSurgeryForm({
       patientNameAr: '',
