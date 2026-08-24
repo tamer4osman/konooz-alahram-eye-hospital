@@ -1,5 +1,5 @@
 import { apiSuccess, apiError } from '@/lib/api/response'
-import { getStaffUser } from '@/lib/auth/guards'
+import { requireAdmin } from '@/lib/api/admin-route'
 import { computeAnalytics, type AnalyticsTimeframe } from '@/lib/dashboard/analytics'
 
 export const dynamic = 'force-dynamic'
@@ -7,8 +7,8 @@ export const dynamic = 'force-dynamic'
 const VALID: AnalyticsTimeframe[] = ['day', 'week', 'month', 'year']
 
 export async function GET(request: Request) {
-  const staffUser = await getStaffUser()
-  if (!staffUser) return apiError(403, 'FORBIDDEN', 'هذه البيانات للطاقم المصرح لهم فقط', 'Staff access only')
+  const auth = await requireAdmin()
+  if (!auth.ok) return auth.response
   const tfParam = new URL(request.url).searchParams.get('timeframe') ?? 'day'
   if (!VALID.includes(tfParam as AnalyticsTimeframe)) {
     return apiError(400, 'INVALID_TIMEFRAME', 'فترة زمنية غير صالحة', 'Invalid timeframe')

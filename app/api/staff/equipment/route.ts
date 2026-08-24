@@ -1,8 +1,8 @@
 import { NextRequest } from 'next/server'
 import { z } from 'zod'
 import { prisma } from '@/lib/prisma'
-import { getStaffUser } from '@/lib/auth/guards'
 import { apiSuccess, apiError } from '@/lib/api/response'
+import { requireAdmin } from '@/lib/api/admin-route'
 import { toEquipmentDTO } from '@/lib/dashboard/equipment'
 
 export const dynamic = 'force-dynamic'
@@ -22,25 +22,18 @@ const createSchema = z.object({
 })
 
 export async function GET() {
-  const staff = await getStaffUser()
-  if (!staff) return apiError(403, 'FORBIDDEN', 'هذه البيانات للطاقم المصرح لهم فقط', 'Staff access only')
+  const auth = await requireAdmin()
+  if (!auth.ok) return auth.response
 
   const rows = await prisma.equipment.findMany({ orderBy: { createdAt: 'asc' } })
   return apiSuccess(rows.map(toEquipmentDTO))
 }
 
 export async function POST(req: NextRequest) {
-  const staff = await getStaffUser()
-  if (!staff) return apiError(403, 'FORBIDDEN', 'هذه البيانات للطاقم المصرح لهم فقط', 'Staff access only')
+  const auth = await requireAdmin()
+  if (!auth.ok) return auth.response
 
-  let body: unknown
-  try {
-    body = await req.json()
-  } catch {
-    return apiError(400, 'INVALID_JSON', 'صيغة الطلب غير صالحة', 'Invalid request payload')
-  }
-
-  const parsed = createSchema.safeParse(body)
+  const parsed = createSchema.safeParse(await req.json().catch(() => null))
   if (!parsed.success || (!parsed.data.nameAr && !parsed.data.nameEn)) {
     return apiError(422, 'VALIDATION_ERROR', 'بيانات الجهاز غير مكتملة', 'Equipment data is incomplete or invalid')
   }

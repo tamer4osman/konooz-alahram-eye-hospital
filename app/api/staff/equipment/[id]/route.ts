@@ -1,8 +1,8 @@
 import { NextRequest } from 'next/server'
 import { z } from 'zod'
 import { prisma } from '@/lib/prisma'
-import { getStaffUser } from '@/lib/auth/guards'
-import { apiSuccess, apiError } from '@/lib/api/response'
+import { apiSuccess } from '@/lib/api/response'
+import { requireAdmin, readJson, prismaFailure } from '@/lib/api/admin-route'
 import { toEquipmentDTO } from '@/lib/dashboard/equipment'
 
 export const dynamic = 'force-dynamic'
@@ -22,48 +22,37 @@ const patchSchema = z.object({
 })
 
 export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
-  const staff = await getStaffUser()
-  if (!staff) return apiError(403, 'FORBIDDEN', 'هذه البيانات للطاقم المصرح لهم فقط', 'Staff access only')
+  const auth = await requireAdmin()
+  if (!auth.ok) return auth.response
 
   const { id } = await params
 
-  let body: unknown
-  try {
-    body = await req.json()
-  } catch {
-    return apiError(400, 'INVALID_JSON', 'صيغة الطلب غير صالحة', 'Invalid request payload')
-  }
-
-  const parsed = patchSchema.safeParse(body)
-  if (!parsed.success) {
-    return apiError(422, 'VALIDATION_ERROR', 'قيم التحديث غير صالحة', 'Invalid update values')
-  }
+  const body = await readJson(req, patchSchema, 'قيم التحديث غير صالحة', 'Invalid update values')
+  if (!body.ok) return body.response
 
   try {
-    const row = await prisma.equipment.update({ where: { id }, data: parsed.data })
+    const row = await prisma.equipment.update({ where: { id }, data: body.data })
     return apiSuccess(toEquipmentDTO(row))
   } catch (err) {
-    const code = (err as { code?: string }).code
-    if (code === 'P2025') {
-      return apiError(404, 'EQUIPMENT_NOT_FOUND', 'الجهاز غير موجود', 'Equipment not found')
-    }
-    return apiError(500, 'EQUIPMENT_UPDATE_FAILED', 'تعذر تحديث الجهاز', 'Failed to update equipment')
+    return prismaFailure(err, {
+      notFound: { code: 'EQUIPMENT_NOT_FOUND', ar: 'الجهاز غير موجود', en: 'Equipment not found' },
+      failure: { code: 'EQUIPMENT_UPDATE_FAILED', ar: 'تعذر تحديث الجهاز', en: 'Failed to update equipment' },
+    })
   }
 }
 
 export async function DELETE(_req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
-  const staff = await getStaffUser()
-  if (!staff) return apiError(403, 'FORBIDDEN', 'هذه البيانات للطاقم المصرح لهم فقط', 'Staff access only')
+  const auth = await requireAdmin()
+  if (!auth.ok) return auth.response
 
   const { id } = await params
   try {
     await prisma.equipment.delete({ where: { id } })
     return apiSuccess({ ok: true })
   } catch (err) {
-    const code = (err as { code?: string }).code
-    if (code === 'P2025') {
-      return apiError(404, 'EQUIPMENT_NOT_FOUND', 'الجهاز غير موجود', 'Equipment not found')
-    }
-    return apiError(500, 'EQUIPMENT_DELETE_FAILED', 'تعذر حذف الجهاز', 'Failed to delete equipment')
+    return prismaFailure(err, {
+      notFound: { code: 'EQUIPMENT_NOT_FOUND', ar: 'الجهاز غير موجود', en: 'Equipment not found' },
+      failure: { code: 'EQUIPMENT_DELETE_FAILED', ar: 'تعذر حذف الجهاز', en: 'Failed to delete equipment' },
+    })
   }
 }

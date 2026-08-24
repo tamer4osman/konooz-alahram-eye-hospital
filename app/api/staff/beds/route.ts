@@ -1,8 +1,8 @@
 import { NextRequest } from 'next/server'
 import { z } from 'zod'
 import { prisma } from '@/lib/prisma'
-import { getStaffUser } from '@/lib/auth/guards'
-import { apiSuccess, apiError } from '@/lib/api/response'
+import { apiSuccess } from '@/lib/api/response'
+import { requireAdmin, readJson, prismaFailure } from '@/lib/api/admin-route'
 import { toBedDTO } from '@/lib/dashboard/beds'
 
 export const dynamic = 'force-dynamic'
@@ -21,29 +21,20 @@ const createSchema = z.object({
 })
 
 export async function GET() {
-  const staff = await getStaffUser()
-  if (!staff) return apiError(403, 'FORBIDDEN', 'هذه البيانات للطاقم المصرح لهم فقط', 'Staff access only')
+  const auth = await requireAdmin()
+  if (!auth.ok) return auth.response
 
   const rows = await prisma.bed.findMany({ orderBy: { createdAt: 'asc' } })
   return apiSuccess(rows.map(toBedDTO))
 }
 
 export async function POST(req: NextRequest) {
-  const staff = await getStaffUser()
-  if (!staff) return apiError(403, 'FORBIDDEN', 'هذه البيانات للطاقم المصرح لهم فقط', 'Staff access only')
+  const auth = await requireAdmin()
+  if (!auth.ok) return auth.response
 
-  let body: unknown
-  try {
-    body = await req.json()
-  } catch {
-    return apiError(400, 'INVALID_JSON', 'صيغة الطلب غير صالحة', 'Invalid request payload')
-  }
-
-  const parsed = createSchema.safeParse(body)
-  if (!parsed.success) {
-    return apiError(422, 'VALIDATION_ERROR', 'بيانات السرير غير مكتملة', 'Bed data is incomplete or invalid')
-  }
-  const input = parsed.data
+  const body = await readJson(req, createSchema, 'بيانات السرير غير مكتملة', 'Bed data is incomplete or invalid')
+  if (!body.ok) return body.response
+  const input = body.data
 
   try {
     const row = await prisma.bed.create({
@@ -60,10 +51,9 @@ export async function POST(req: NextRequest) {
     })
     return apiSuccess(toBedDTO(row), 201)
   } catch (err) {
-    const code = (err as { code?: string }).code
-    if (code === 'P2002') {
-      return apiError(409, 'BED_NUMBER_TAKEN', 'رقم السرير مستخدم مسبقاً', 'Bed number already exists')
-    }
-    return apiError(500, 'BED_CREATE_FAILED', 'تعذر إنشاء السرير', 'Failed to create bed')
+    return prismaFailure(err, {
+      conflict: { code: 'BED_NUMBER_TAKEN', ar: 'رقم السرير مستخدم مسبقاً', en: 'Bed number already exists' },
+      failure: { code: 'BED_CREATE_FAILED', ar: 'تعذر إنشاء السرير', en: 'Failed to create bed' },
+    })
   }
 }

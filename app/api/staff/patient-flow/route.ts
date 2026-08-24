@@ -1,13 +1,13 @@
 import { prisma } from '@/lib/prisma'
-import { getStaffUser } from '@/lib/auth/guards'
 import { apiSuccess, apiError } from '@/lib/api/response'
+import { requireAdmin } from '@/lib/api/admin-route'
 import { computeFlowStages } from '@/lib/dashboard/patientFlow'
 
 export const dynamic = 'force-dynamic'
 
 export async function GET() {
-  const staff = await getStaffUser()
-  if (!staff) return apiError(403, 'FORBIDDEN', 'هذه البيانات للطاقم المصرح لهم فقط', 'Staff access only')
+  const auth = await requireAdmin()
+  if (!auth.ok) return auth.response
 
   try {
     const startOfDay = new Date()

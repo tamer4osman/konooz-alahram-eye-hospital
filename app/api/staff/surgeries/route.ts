@@ -1,8 +1,8 @@
 import { NextRequest } from 'next/server'
 import { z } from 'zod'
 import { prisma } from '@/lib/prisma'
-import { getStaffUser } from '@/lib/auth/guards'
 import { apiSuccess, apiError } from '@/lib/api/response'
+import { requireAdmin, readJson } from '@/lib/api/admin-route'
 import { toSurgeryDTO } from '@/lib/dashboard/surgeries'
 
 export const dynamic = 'force-dynamic'
@@ -27,8 +27,8 @@ const createSchema = z.object({
 })
 
 export async function GET() {
-  const staff = await getStaffUser()
-  if (!staff) return apiError(403, 'FORBIDDEN', 'هذه البيانات للطاقم المصرح لهم فقط', 'Staff access only')
+  const auth = await requireAdmin()
+  if (!auth.ok) return auth.response
 
   const rows = await prisma.scheduledSurgery.findMany({
     orderBy: { createdAt: 'desc' },
@@ -37,21 +37,12 @@ export async function GET() {
 }
 
 export async function POST(req: NextRequest) {
-  const staff = await getStaffUser()
-  if (!staff) return apiError(403, 'FORBIDDEN', 'هذه البيانات للطاقم المصرح لهم فقط', 'Staff access only')
+  const auth = await requireAdmin()
+  if (!auth.ok) return auth.response
 
-  let body: unknown
-  try {
-    body = await req.json()
-  } catch {
-    return apiError(400, 'INVALID_JSON', 'صيغة الطلب غير صالحة', 'Invalid request payload')
-  }
-
-  const parsed = createSchema.safeParse(body)
-  if (!parsed.success) {
-    return apiError(422, 'VALIDATION_ERROR', 'بيانات العملية غير مكتملة', 'Surgery data is incomplete or invalid')
-  }
-  const input = parsed.data
+  const body = await readJson(req, createSchema, 'بيانات العملية غير مكتملة', 'Surgery data is incomplete or invalid')
+  if (!body.ok) return body.response
+  const input = body.data
   if (!input.patientNameAr && !input.patientNameEn) {
     return apiError(422, 'VALIDATION_ERROR', 'اسم المريض مطلوب', 'Patient name is required')
   }

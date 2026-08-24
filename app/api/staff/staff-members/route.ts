@@ -1,7 +1,7 @@
 import { prisma } from '@/lib/prisma'
 import type { StaffMember } from '@prisma/client'
 import { apiSuccess, apiError } from '@/lib/api/response'
-import { getStaffUser } from '@/lib/auth/guards'
+import { requireAdmin } from '@/lib/api/admin-route'
 
 export const dynamic = 'force-dynamic'
 
@@ -37,8 +37,8 @@ function parseCategory(value: unknown): StaffCategory {
 }
 
 export async function GET() {
-  const staffUser = await getStaffUser()
-  if (!staffUser) return apiError(403, 'FORBIDDEN', 'هذه البيانات للطاقم المصرح لهم فقط', 'Staff access only')
+  const auth = await requireAdmin()
+  if (!auth.ok) return auth.response
   try {
     const rows = await prisma.staffMember.findMany({
       where: { isActive: true },
@@ -51,8 +51,8 @@ export async function GET() {
 }
 
 export async function POST(request: Request) {
-  const staffUser = await getStaffUser()
-  if (!staffUser) return apiError(403, 'FORBIDDEN', 'هذه البيانات للطاقم المصرح لهم فقط', 'Staff access only')
+  const auth = await requireAdmin()
+  if (!auth.ok) return auth.response
   try {
     const body = await request.json()
     if (!body?.nameAr || typeof body.nameAr !== 'string') {
@@ -82,8 +82,8 @@ export async function POST(request: Request) {
 }
 
 export async function PATCH(request: Request) {
-  const staffUser = await getStaffUser()
-  if (!staffUser) return apiError(403, 'FORBIDDEN', 'هذه البيانات للطاقم المصرح لهم فقط', 'Staff access only')
+  const auth = await requireAdmin()
+  if (!auth.ok) return auth.response
   try {
     const body = await request.json()
     if (!body?.id || typeof body.id !== 'string') {
@@ -102,8 +102,8 @@ export async function PATCH(request: Request) {
 }
 
 export async function DELETE(request: Request) {
-  const staffUser = await getStaffUser()
-  if (!staffUser) return apiError(403, 'FORBIDDEN', 'هذه البيانات للطاقم المصرح لهم فقط', 'Staff access only')
+  const auth = await requireAdmin()
+  if (!auth.ok) return auth.response
   try {
     const id = new URL(request.url).searchParams.get('id')
     if (!id) {

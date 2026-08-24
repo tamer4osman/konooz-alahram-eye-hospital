@@ -1,13 +1,13 @@
 import { prisma } from '@/lib/prisma'
-import { getStaffUser } from '@/lib/auth/guards'
-import { apiSuccess, apiError } from '@/lib/api/response'
+import { apiSuccess } from '@/lib/api/response'
+import { requireAdmin } from '@/lib/api/admin-route'
 import { toInsurerDTO, toPacsDTO } from '@/lib/dashboard/billing'
 
 export const dynamic = 'force-dynamic'
 
 export async function GET() {
-  const staff = await getStaffUser()
-  if (!staff) return apiError(403, 'FORBIDDEN', 'هذه البيانات للطاقم المصرح لهم فقط', 'Staff access only')
+  const auth = await requireAdmin()
+  if (!auth.ok) return auth.response
 
   const [insurers, pacs] = await Promise.all([
     prisma.insuranceProvider.findMany({ orderBy: { createdAt: 'asc' } }),
