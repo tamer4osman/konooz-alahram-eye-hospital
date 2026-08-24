@@ -1274,7 +1274,7 @@ export default function PatientPortalModal() {
                     >
                       {t('تسجيل الخروج من الحساب السحابي', 'Sign Out of Cloud Account')}
                     </button>
-                    {serverUser?.role === 'STAFF' && (
+                    {serverUser?.role === 'ADMIN' && (
                       <button
                         type="button"
                         onClick={() => { closePatientPortal(); setActiveView('dashboard'); }}

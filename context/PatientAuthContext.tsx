@@ -41,7 +41,7 @@ interface PatientAuthContextType {
   isLoggedIn: boolean;
 
   // Server account (email + password, httpOnly session cookie)
-  serverUser: { id: string; email: string; role: 'PATIENT' | 'STAFF' } | null;
+  serverUser: { id: string; email: string; role: 'PATIENT' | 'STAFF' | 'ADMIN' } | null;
   isServerAuthenticated: boolean;
   loginWithServer: (email: string, password: string) => Promise<{ success: boolean; messageAr: string; messageEn: string }>;
   registerWithServer: (params: { fullNameAr: string; email: string; password: string; phone?: string; gender?: 'male' | 'female' }) => Promise<{ success: boolean; messageAr: string; messageEn: string }>;
@@ -177,7 +177,7 @@ export function PatientAuthProvider({ children }: { children: React.ReactNode })
   const [isPatientPortalOpen, setIsPatientPortalOpen] = useState<boolean>(false);
   const [activePortalTab, setActivePortalTab] = useState<PortalTab>('profile');
   const [newsletterSubscribers, setNewsletterSubscribers] = useState<Array<{ email: string; whatsapp: string; name: string; date: string }>>([]);
-  const [serverUser, setServerUser] = useState<{ id: string; email: string; role: 'PATIENT' | 'STAFF' } | null>(null);
+  const [serverUser, setServerUser] = useState<{ id: string; email: string; role: 'PATIENT' | 'STAFF' | 'ADMIN' } | null>(null);
 
   useEffect(() => {
     let cancelled = false;

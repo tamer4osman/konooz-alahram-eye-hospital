@@ -111,7 +111,7 @@ export default function Navbar() {
               <button
                 id="btn-nav-dashboard"
                 onClick={() => {
-                  if (serverUser?.role === 'STAFF') {
+                  if (serverUser?.role === 'ADMIN') {
                     setActiveView('dashboard');
                   } else {
                     openPatientPortal('auth');
@@ -263,7 +263,7 @@ export default function Navbar() {
             <button
               onClick={() => {
                 setMobileMenuOpen(false);
-                if (serverUser?.role === 'STAFF') {
+                if (serverUser?.role === 'ADMIN') {
                   setActiveView('dashboard');
                 } else {
                   openPatientPortal('auth');

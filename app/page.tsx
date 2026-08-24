@@ -47,7 +47,7 @@ function MainAppContent() {
   const { isPatientPortalOpen, serverUser, openPatientPortal } = usePatientAuth();
 
   if (activeView === 'dashboard') {
-    if (serverUser?.role !== 'STAFF') {
+    if (serverUser?.role !== 'ADMIN') {
       return (
         <div className="min-h-screen flex items-center justify-center bg-slate-950 px-4">
           <div className="max-w-md w-full bg-slate-900 border border-slate-700 rounded-2xl p-8 text-center space-y-4">
