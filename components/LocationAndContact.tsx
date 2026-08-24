@@ -1,15 +1,31 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { useLanguage } from '@/context/LanguageContext';
 import Reveal from './Reveal';
-import { HOSPITAL_CONTACTS, HOSPITAL_IMAGES, FAQ_LIST } from '@/data/hospitalData';
+import { HOSPITAL_CONTACTS, HOSPITAL_IMAGES } from '@/data/hospitalData';
+import type { FaqDTO } from '@/lib/content/faqs';
 import { MapPin, Phone, Clock, ExternalLink, ChevronDown, ChevronUp, CheckCircle2, Navigation, Building2 } from 'lucide-react';
 
 export default function LocationAndContact() {
   const { lang, t } = useLanguage();
   const [openFaqIdx, setOpenFaqIdx] = useState<number | null>(0);
+  const [faqs, setFaqs] = useState<FaqDTO[]>([]);
+
+  useEffect(() => {
+    let cancelled = false;
+    fetch('/api/public/faqs')
+      .then(async (res) => {
+        if (!res.ok) return;
+        const json = await res.json();
+        if (!cancelled && Array.isArray(json?.data)) setFaqs(json.data as FaqDTO[]);
+      })
+      .catch(() => {});
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   const toggleFaq = (idx: number) => {
     setOpenFaqIdx(openFaqIdx === idx ? null : idx);
@@ -318,7 +334,7 @@ export default function LocationAndContact() {
           </div>
 
           <div className="space-y-3 max-w-3xl mx-auto">
-            {FAQ_LIST.map((faq, idx) => {
+            {faqs.map((faq, idx) => {
               const isOpen = openFaqIdx === idx;
               return (
                 <div

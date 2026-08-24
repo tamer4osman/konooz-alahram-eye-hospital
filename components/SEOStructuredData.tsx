@@ -1,9 +1,10 @@
 import React from 'react';
-import { HOSPITAL_CONTACTS, SPECIALTIES, FAQ_LIST } from '@/data/hospitalData';
+import { HOSPITAL_CONTACTS, SPECIALTIES } from '@/data/hospitalData';
+import { getFaqs } from '@/lib/content/faqs';
 import { getPublicDoctors } from '@/lib/doctors';
 
 export default async function SEOStructuredData() {
-  const doctors = await getPublicDoctors();
+  const [doctors, faqs] = await Promise.all([getPublicDoctors(), getFaqs()]);
   const hospitalSchema = {
     '@context': 'https://schema.org',
     '@type': ['Hospital', 'MedicalBusiness', 'MedicalClinic', 'EmergencyService'],
@@ -115,7 +116,7 @@ export default async function SEOStructuredData() {
   const faqSchema = {
     '@context': 'https://schema.org',
     '@type': 'FAQPage',
-    mainEntity: FAQ_LIST.map((faq) => ({
+    mainEntity: faqs.map((faq) => ({
       '@type': 'Question',
       name: faq.qAr,
       acceptedAnswer: {
