@@ -1,9 +1,9 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useLanguage } from '@/context/LanguageContext';
 import { usePatientAuth } from '@/context/PatientAuthContext';
-import { NEWSLETTER_TOPICS, NEWSLETTER_ISSUES } from '@/data/patientPortalData';
+import { NewsletterTopic, NewsletterIssue } from '@/data/patientPortalData';
 import { HOSPITAL_CONTACTS } from '@/data/hospitalData';
 import Modal from '@/components/ui/Modal';
 import { X, User, Calendar, Pill, Bell, Mail, Phone, ShieldCheck, CheckCircle2, AlertCircle, Sparkles, Send, Eye, Clock, Printer, FileText, Lock, LogOut, ChevronRight, Smartphone, Check, Bookmark } from 'lucide-react';
@@ -38,7 +38,28 @@ export default function PatientPortalModal() {
 
   // Notification simulation state
   const [simulationSentMessage, setSimulationSentMessage] = useState<string | null>(null);
-  const [activeNewsletterIssue, setActiveNewsletterIssue] = useState<string>(NEWSLETTER_ISSUES[0].id);
+  const [newsletterTopics, setNewsletterTopics] = useState<NewsletterTopic[]>([]);
+  const [newsletterIssues, setNewsletterIssues] = useState<NewsletterIssue[]>([]);
+  const [activeNewsletterIssue, setActiveNewsletterIssue] = useState<string>('');
+
+  useEffect(() => {
+    let cancelled = false;
+    fetch('/api/public/newsletter')
+      .then(async (res) => {
+        if (!res.ok) return;
+        const json = await res.json();
+        if (!cancelled && json?.data) {
+          setNewsletterTopics((json.data.topics ?? []) as NewsletterTopic[]);
+          const issues = (json.data.issues ?? []) as NewsletterIssue[];
+          setNewsletterIssues(issues);
+          if (issues.length > 0) setActiveNewsletterIssue(issues[0].id);
+        }
+      })
+      .catch(() => {});
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   const handleServerAuthSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -1132,7 +1153,7 @@ export default function PatientPortalModal() {
                 </h4>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-                  {NEWSLETTER_TOPICS.map((topic) => {
+                  {newsletterTopics.map((topic) => {
                     const isSelected =
                       currentPatient?.communicationPreferences?.newsletterTopics?.includes(topic.id) ?? true;
 
@@ -1175,7 +1196,7 @@ export default function PatientPortalModal() {
                 </h4>
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  {NEWSLETTER_ISSUES.map((issue) => (
+                  {newsletterIssues.map((issue) => (
                     <div
                       key={issue.id}
                       className={`bg-white rounded-2xl p-5 border transition-all shadow-xs flex flex-col justify-between space-y-3 ${

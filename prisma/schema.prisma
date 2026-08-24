@@ -808,6 +808,40 @@ model Faq {
   @@map("faqs")
 }
 
+model NewsletterTopic {
+  id          String   @id @default(cuid())
+  titleAr     String
+  titleEn     String?
+  icon        String   @default("Sparkles")
+  frequencyAr String  @default("")
+  frequencyEn String?
+  isActive    Boolean  @default(true)
+  sortOrder   Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("newsletter_topics")
+}
+
+model NewsletterIssue {
+  id         String   @id @default(cuid())
+  date       String   @default("")
+  titleAr    String
+  titleEn    String?
+  categoryAr String  @default("")
+  categoryEn String?
+  readTimeAr String  @default("")
+  readTimeEn String?
+  summaryAr  String  @default("")
+  summaryEn  String?
+  isPublished Boolean @default(true)
+  sortOrder  Int      @default(0)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@map("newsletter_issues")
+}
+
 // ──────────────────────────────────────────────
 // NEWSLETTER — BCK-025
 // ──────────────────────────────────────────────
