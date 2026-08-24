@@ -472,13 +472,6 @@ export const TECHNOLOGIES: TechnologyItem[] = [
   },
 ];
 
-export const TRUST_STATS = [
-  { value: '+10,000', labelAr: 'عملية عيون ناجحة', labelEn: 'Successful Surgeries', icon: 'CheckCircle2' },
-  { value: '6+', labelAr: 'عيادات تخصصية دقيقة', labelEn: 'Sub-Specialized Clinics', icon: 'Building' },
-  { value: '100%', labelAr: 'بروتوكولات تعقيم دولية', labelEn: 'Sterilization Compliance', icon: 'ShieldCheck' },
-  { value: '24/7', labelAr: 'طوارئ إصابات العيون', labelEn: 'Emergency Eye Support', icon: 'Clock' },
-];
-
 export const PATIENT_CONDITIONS: PatientCondition[] = [
   {
     id: 'lasik',

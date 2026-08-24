@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import Reveal from './Reveal';
 import { useLanguage } from '@/context/LanguageContext';
-import { TRUST_STATS, Testimonial } from '@/data/hospitalData';
+import { Testimonial } from '@/data/hospitalData';
 import {
   Star,
   Quote,
@@ -26,6 +26,15 @@ export default function TestimonialsAndStats() {
   // Testimonials are managed content served from the database.
   const [testimonials, setTestimonials] = useState<Testimonial[]>([]);
 
+  interface TrustStatDTO {
+    id: string;
+    value: string;
+    labelAr: string;
+    labelEn: string;
+    icon: string;
+  }
+  const [trustStats, setTrustStats] = useState<TrustStatDTO[]>([]);
+
   useEffect(() => {
     let cancelled = false;
     fetch('/api/public/testimonials')
@@ -33,6 +42,13 @@ export default function TestimonialsAndStats() {
         if (!res.ok) return;
         const json = await res.json();
         if (!cancelled && Array.isArray(json?.data)) setTestimonials(json.data as Testimonial[]);
+      })
+      .catch(() => {});
+    fetch('/api/public/trust-stats')
+      .then(async (res) => {
+        if (!res.ok) return;
+        const json = await res.json();
+        if (!cancelled && Array.isArray(json?.data)) setTrustStats(json.data as TrustStatDTO[]);
       })
       .catch(() => {});
     return () => {
@@ -62,16 +78,16 @@ export default function TestimonialsAndStats() {
         {/* Statistics — hairline-divided metric row */}
         <Reveal>
           <div className="grid grid-cols-2 lg:grid-cols-4 lg:divide-x lg:divide-pine-900/10 divide-pine-900/10 gap-y-10">
-            {TRUST_STATS.map((stat, idx) => (
+            {trustStats.map((stat, idx) => (
               <div
                 key={idx}
-                className={`px-6 text-center space-y-2 ${idx % 2 === 0 ? 'border-e lg:border-e-0' : ''} ${idx < TRUST_STATS.length - 1 ? 'lg:border-e-0' : ''} ${idx % 2 === 0 && idx < TRUST_STATS.length - 1 ? '' : ''}`}
+                className={`px-6 text-center space-y-2 ${idx % 2 === 0 ? 'border-e lg:border-e-0' : ''} ${idx < trustStats.length - 1 ? 'lg:border-e-0' : ''} ${idx % 2 === 0 && idx < trustStats.length - 1 ? '' : ''}`}
               >
                 <div className="w-11 h-11 rounded-xl bg-pine-100 text-pine-800 mx-auto flex items-center justify-center">
-                  {idx === 0 && <CheckCircle2 className="w-5 h-5" />}
-                  {idx === 1 && <Building className="w-5 h-5" />}
-                  {idx === 2 && <ShieldCheck className="w-5 h-5" />}
-                  {idx === 3 && <Clock className="w-5 h-5" />}
+                  {stat.icon === 'Building' && <Building className="w-5 h-5" />}
+                  {stat.icon === 'ShieldCheck' && <ShieldCheck className="w-5 h-5" />}
+                  {stat.icon === 'Clock' && <Clock className="w-5 h-5" />}
+                  {stat.icon !== 'Building' && stat.icon !== 'ShieldCheck' && stat.icon !== 'Clock' && <CheckCircle2 className="w-5 h-5" />}
                 </div>
                 <p className="text-3xl sm:text-4xl font-extrabold text-pine-900 tracking-tight tnum">
                   {stat.value}

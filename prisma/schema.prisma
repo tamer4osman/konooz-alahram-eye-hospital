@@ -842,6 +842,20 @@ model NewsletterIssue {
   @@map("newsletter_issues")
 }
 
+model TrustStat {
+  id      String   @id @default(cuid())
+  value   String
+  labelAr String
+  labelEn String?
+  icon    String   @default("CheckCircle2")
+  isActive Boolean @default(true)
+  sortOrder Int    @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("trust_stats")
+}
+
 // ──────────────────────────────────────────────
 // NEWSLETTER — BCK-025
 // ──────────────────────────────────────────────
