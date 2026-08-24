@@ -515,12 +515,16 @@ enum AttendanceStatus {
   absent
   on_leave
   late
+  present_ontime
+  in_surgery
+  on_call
 }
 
 model StaffAttendanceRecord {
   id         String           @id @default(cuid())
-  staffName  String
   staffId    String?
+  staffNameAr String
+  staffNameEn String?
   shiftType  ShiftType
   date       DateTime
   status     AttendanceStatus @default(present)
@@ -530,6 +534,22 @@ model StaffAttendanceRecord {
   notesEn    String?
   createdAt  DateTime         @default(now())
   updatedAt  DateTime         @updatedAt
+
+  // Personnel board fields
+  roleAr      String  @default("")
+  roleEn      String?
+  avatar      String  @default("")
+  category    StaffCategory @default(consultant)
+  departmentAr String @default("")
+  departmentEn String?
+  shiftNameAr String  @default("")
+  shiftNameEn String?
+  shiftTiming String  @default("")
+  scheduledTime String @default("")
+  punctualityMinutes Int @default(0)
+  overtimeHours Float  @default(0)
+  monthlyAttendanceRate Float @default(100)
+  badgeCode   String  @default("")
 
   @@index([date])
   @@map("staff_attendance_records")

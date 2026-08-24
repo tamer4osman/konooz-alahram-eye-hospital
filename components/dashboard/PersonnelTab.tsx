@@ -1,9 +1,9 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { useLanguage } from '@/context/LanguageContext';
-import { HospitalStaff, StaffStatus, DUMMY_ATTENDANCE_RECORDS, StaffAttendanceRecord } from '@/data/dashboardData';
+import { HospitalStaff, StaffStatus, StaffAttendanceRecord } from '@/data/dashboardData';
 import { Users, Search, Phone, Mail, CheckCircle2, Clock, Activity, UserPlus, Building2, AlertCircle, Star, Trash2, Download, CalendarCheck2, ShieldCheck, Check, AlertTriangle, UserCheck, Timer } from 'lucide-react';
 
 interface PersonnelTabProps {
@@ -23,7 +23,21 @@ export default function PersonnelTab({
   const [selectedStatus, _setSelectedStatus] = useState<string>('all');
   const [selectedShiftFilter, setSelectedShiftFilter] = useState<string>('all');
   const [confirmingDeleteId, setConfirmingDeleteId] = useState<string | null>(null);
-  const [attendanceRecords, setAttendanceRecords] = useState<StaffAttendanceRecord[]>(DUMMY_ATTENDANCE_RECORDS);
+  const [attendanceRecords, setAttendanceRecords] = useState<StaffAttendanceRecord[]>([]);
+
+  useEffect(() => {
+    let cancelled = false;
+    fetch('/api/staff/attendance')
+      .then(async (res) => {
+        if (!res.ok) return;
+        const json = await res.json();
+        if (!cancelled && Array.isArray(json?.data)) setAttendanceRecords(json.data as StaffAttendanceRecord[]);
+      })
+      .catch(() => {});
+    return () => {
+      cancelled = true;
+    };
+  }, []);
   const [exportToast, setExportToast] = useState(false);
 
   const categories: { id: string; labelAr: string; labelEn: string }[] = [
@@ -72,6 +86,7 @@ export default function PersonnelTab({
   const onTimeRate = 96.4;
 
   const handleToggleClockIn = (recId: string) => {
+    let patchBody: Record<string, unknown> | null = null;
     setAttendanceRecords((prev) =>
       prev.map((rec) => {
         if (rec.id === recId) {
@@ -80,12 +95,14 @@ export default function PersonnelTab({
           if (isCurrentlyClockedIn) {
             // Clock out
             onUpdateStaffStatus(rec.staffId, 'off_duty');
+            patchBody = { checkOutTime: nowStr, status: 'absent', notesAr: `تم تسجيل الانصراف الساعة ${nowStr}` };
             return {
               ...rec, checkOutTime: nowStr, status: 'absent' as const, notesAr: `تم تسجيل الانصراف الساعة ${nowStr}`
             };
           } else {
             // Clock in
             onUpdateStaffStatus(rec.staffId, 'on_duty');
+            patchBody = { checkInTime: nowStr, checkOutTime: null, status: 'present_ontime', notesAr: `تم تسجيل الحضور الفعلي الساعة ${nowStr}` };
             return {
               ...rec, checkInTime: nowStr, checkOutTime: null, status: 'present_ontime' as const, notesAr: `تم تسجيل الحضور الفعلي الساعة ${nowStr}`
             };
@@ -93,7 +110,15 @@ export default function PersonnelTab({
         }
         return rec;
       })
-    ); };
+    );
+    if (patchBody) {
+      fetch(`/api/staff/attendance/${recId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(patchBody)
+      }).catch(() => {});
+    }
+  };
 
   const handleExportAttendance = () => {
     setExportToast(true);
@@ -512,7 +537,11 @@ export default function PersonnelTab({
                               <button
                                 onClick={() => {
                                   onRemoveStaff(record.staffId);
+                                  const removedIds = attendanceRecords.filter((r) => r.staffId === record.staffId).map((r) => r.id);
                                   setAttendanceRecords((prev) => prev.filter((r) => r.staffId !== record.staffId));
+                                  removedIds.forEach((rid) => {
+                                    fetch(`/api/staff/attendance/${rid}`, { method: 'DELETE' }).catch(() => {});
+                                  });
                                   setConfirmingDeleteId(null);
                                 }}
                                 className="px-2 py-0.5 bg-rose-600 text-white text-[9px] font-extrabold rounded cursor-pointer"
