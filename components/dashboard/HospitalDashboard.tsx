@@ -3,9 +3,6 @@
 import React, { useState, useEffect } from 'react';
 import { useLanguage } from '@/context/LanguageContext';
 import {
-  DUMMY_MANAGERS,
-  DUMMY_STAFF,
-  DashboardUser,
   HospitalStaff,
   HospitalRoom,
   HospitalEquipment,
@@ -37,10 +34,9 @@ export default function HospitalDashboard() {
   // Navigation & User State
   const [activeTab, setActiveTab] = useState<'overview' | 'clinical' | 'surgeries' | 'rooms' | 'beds' | 'personnel' | 'equipment' | 'billing' | 'analytics'>('overview');
   const [timeframe, setTimeframe] = useState<'day' | 'week' | 'month' | 'year'>('day');
-  const [currentUser, setCurrentUser] = useState<DashboardUser>(DUMMY_MANAGERS[0]);
 
-  // Live Hospital Operational State
-  const [staffList, setStaffList] = useState<HospitalStaff[]>(DUMMY_STAFF);
+  // Live Hospital Operational State — staff members are persisted via staff APIs.
+  const [staffList, setStaffList] = useState<HospitalStaff[]>([]);
   // Rooms are persisted in the database via staff APIs (single source of truth).
   const [roomsList, setRoomsList] = useState<HospitalRoom[]>([]);
   const [equipmentList, setEquipmentList] = useState<HospitalEquipment[]>([]);
@@ -83,6 +79,13 @@ export default function HospitalDashboard() {
         if (!res.ok) return;
         const json = await res.json();
         if (!cancelled && Array.isArray(json?.data)) setPatientFlowList(json.data as PatientFlowStage[]);
+      })
+      .catch(() => {});
+    fetch('/api/staff/staff-members')
+      .then(async (res) => {
+        if (!res.ok) return;
+        const json = await res.json();
+        if (!cancelled && Array.isArray(json?.data)) setStaffList(json.data as HospitalStaff[]);
       })
       .catch(() => {});
     return () => {
@@ -128,10 +131,17 @@ export default function HospitalDashboard() {
     setStaffList((prev) =>
       prev.map((s) => (s.id === staffId ? { ...s, status: newStatus } : s))
     );
+    fetch('/api/staff/staff-members', {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id: staffId, status: newStatus })
+    }).catch(() => {});
   };
 
   const handleRemoveStaff = (staffId: string) => {
-    setStaffList((prev) => prev.filter((s) => s.id !== staffId)); };
+    setStaffList((prev) => prev.filter((s) => s.id !== staffId));
+    fetch(`/api/staff/staff-members?id=${encodeURIComponent(staffId)}`, { method: 'DELETE' }).catch(() => {});
+  };
 
   const handleUpdateRoomStatus = (roomId: string, newStatus: RoomStatus) => {
     setRoomsList((prev) =>
@@ -181,33 +191,39 @@ export default function HospitalDashboard() {
     fetch(`/api/staff/surgeries/${surgeryId}`, { method: 'DELETE' }).catch(() => {});
   };
 
-  // Add New Staff Handler
+  // Add New Staff Handler — persisted via POST /api/staff/staff-members
   const handleAddStaffSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!newStaffForm.nameAr && !newStaffForm.nameEn) return;
 
-    const newStaffMember: HospitalStaff = {
-      id: `st-${Date.now()}`,
+    const payload = {
       nameAr: newStaffForm.nameAr || newStaffForm.nameEn,
       nameEn: newStaffForm.nameEn || newStaffForm.nameAr,
       roleAr: newStaffForm.roleAr || 'طبيب عيون ممارس',
       roleEn: newStaffForm.roleEn || 'Ophthalmology Practitioner',
-      category: newStaffForm.category as any,
+      category: newStaffForm.category,
       departmentAr: newStaffForm.departmentAr,
       departmentEn: newStaffForm.departmentEn,
       status: 'on_duty',
       roomAssignedAr: newStaffForm.roomAssignedAr,
       roomAssignedEn: newStaffForm.roomAssignedEn,
       shift: newStaffForm.shift,
-      patientCountToday: 0,
-      surgeriesCountToday: 0,
       phone: newStaffForm.phone,
-      email: newStaffForm.email || 'staff@konooz-hospital.ly',
-      avatar: '/avatars/photo-1559839734-2b71ea197ec2.jpg',
-      rating: 5.0
+      email: newStaffForm.email || 'staff@konooz-hospital.ly'
     };
 
-    setStaffList((prev) => [newStaffMember, ...prev]);
+    fetch('/api/staff/staff-members', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    })
+      .then(async (res) => {
+        if (!res.ok) return;
+        const json = await res.json();
+        if (json?.data) setStaffList((prev) => [json.data as HospitalStaff, ...prev]);
+      })
+      .catch(() => {});
+
     setIsAddStaffOpen(false);
     setNewStaffForm({
       nameAr: '',
@@ -490,8 +506,6 @@ export default function HospitalDashboard() {
 
       {/* Main Sticky Dashboard Header */}
       <DashboardHeader
-        currentUser={currentUser}
-        onSelectUser={setCurrentUser}
         timeframe={timeframe}
         onChangeTimeframe={setTimeframe}
         onOpenAddModal={(type) => {

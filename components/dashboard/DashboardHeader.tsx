@@ -1,29 +1,26 @@
 'use client';
 
 import React, { useState } from 'react';
-import Image from 'next/image';
 import { useLanguage } from '@/context/LanguageContext';
 import { usePatientAuth } from '@/context/PatientAuthContext';
-import { DashboardUser, DUMMY_MANAGERS } from '@/data/dashboardData';
 import { Activity, Calendar, ChevronDown, RefreshCw, Bell, ArrowRight, ArrowLeft, Building2, Plus, Users, Cpu, Radio, LogOut } from 'lucide-react';
 
 interface DashboardHeaderProps {
-  currentUser: DashboardUser;
-  onSelectUser: (user: DashboardUser) => void;
   timeframe: 'day' | 'week' | 'month' | 'year';
   onChangeTimeframe: (tf: 'day' | 'week' | 'month' | 'year') => void;
   onOpenAddModal: (type: 'staff' | 'surgery' | 'equipment' | 'room' | 'broadcast') => void;
 }
 
 export default function DashboardHeader({
-  currentUser, onSelectUser, timeframe, onChangeTimeframe, onOpenAddModal
+  timeframe, onChangeTimeframe, onOpenAddModal
 }: DashboardHeaderProps) {
-  const { lang, t, isRTL, setActiveView } = useLanguage();
+  const { t, isRTL, setActiveView } = useLanguage();
   const { serverUser, logoutServer } = usePatientAuth();
-  const [userDropdownOpen, setUserDropdownOpen] = useState(false);
   const [addMenuOpen, setAddMenuOpen] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
+
+  const adminInitial = (serverUser?.email ?? '?').charAt(0).toUpperCase();
 
   const handleRefresh = () => {
     setIsRefreshing(true);
@@ -200,76 +197,19 @@ export default function DashboardHeader({
               )}
             </div>
 
-            {/* User Profile & Role Switcher */}
-            <div className="relative">
-              <button
-                onClick={() => setUserDropdownOpen(!userDropdownOpen)}
-                className="flex items-center gap-2 bg-pine-800 hover:bg-pine-700 border border-ink-700 px-3 py-1.5 rounded-xl transition-all cursor-pointer"
-              >
-                <Image
-                  src={currentUser.avatar}
-                  alt={currentUser.nameEn}
-                  width={28}
-                  height={28}
-                  className="w-7 h-7 rounded-lg object-cover border border-brass-400"
-                />
-                <div className="text-start hidden sm:block">
-                  <div className="text-xs font-extrabold text-white leading-tight">
-                    {lang === 'ar' ? currentUser.nameAr : currentUser.nameEn}
-                  </div>
-                  <div className="text-[10px] text-brass-300 leading-tight">
-                    {lang === 'ar' ? currentUser.roleAr : currentUser.roleEn}
-                  </div>
+            {/* Session Identity — the signed-in ADMIN account */}
+            <div className="flex items-center gap-2 bg-pine-800 border border-ink-700 px-3 py-1.5 rounded-xl">
+              <div className="w-7 h-7 rounded-lg bg-brass-400 text-pine-950 flex items-center justify-center text-xs font-extrabold border border-brass-300">
+                {adminInitial}
+              </div>
+              <div className="text-start hidden sm:block">
+                <div dir="ltr" className="text-xs font-extrabold text-white leading-tight font-mono">
+                  {serverUser?.email ?? ''}
                 </div>
-                <ChevronDown className="w-3.5 h-3.5 text-ink-400 ml-1" />
-              </button>
-
-              {userDropdownOpen && (
-                <div className="absolute top-full mt-2 left-0 rtl:left-auto rtl:right-0 w-72 bg-ink-900 border border-ink-700 rounded-2xl shadow-2xl p-2 z-50 animate-fadeIn">
-                  <div className="px-3 py-2 border-b border-ink-700 mb-1">
-                    <span className="text-[11px] font-bold text-ink-400 block">
-                      {t('تبديل المستخدم والمنصب الإداري (حسابات تجريبية):', 'Switch Manager Profile (Mock Mode):')}
-                    </span>
-                  </div>
-
-                  <div className="space-y-1">
-                    {DUMMY_MANAGERS.map((mgr) => (
-                      <button
-                        key={mgr.id}
-                        onClick={() => {
-                          onSelectUser(mgr);
-                          setUserDropdownOpen(false);
-                        }}
-                        className={`w-full p-2 rounded-xl flex items-center gap-2.5 text-start transition-colors cursor-pointer ${
-                          currentUser.id === mgr.id
-                            ? 'bg-pine-900/60 border border-pine-500/40 text-white'
-                            : 'hover:bg-ink-700 text-ink-300'
-                        }`}
-                      >
-                        <Image
-                          src={mgr.avatar}
-                          alt={mgr.nameEn}
-                          width={32}
-                          height={32}
-                          className="w-8 h-8 rounded-lg object-cover border border-ink-700 flex-shrink-0"
-                        />
-                        <div className="overflow-hidden">
-                          <div className="text-xs font-bold truncate">
-                            {lang === 'ar' ? mgr.nameAr : mgr.nameEn}
-                          </div>
-                          <div className="text-[10px] text-ink-400 truncate">
-                            {lang === 'ar' ? mgr.roleAr : mgr.roleEn}
-                          </div>
-                        </div>
-                      </button>
-                    ))}
-                  </div>
-
-                  <div className="mt-2 pt-2 border-t border-ink-700 px-2 py-1 text-[10px] text-ink-500 text-center">
-                    {t('وضع المحاكاة: متصل كـ مدير العمليات', 'Simulation Mode: Operational Authority')}
-                  </div>
+                <div className="text-[10px] text-brass-300 leading-tight">
+                  {t('مدير النظام - صلاحيات كاملة', 'System Administrator - Full Access')}
                 </div>
-              )}
+              </div>
             </div>
 
             {/* Quick Action Button & Dropdown for All Resources */}

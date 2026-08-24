@@ -184,6 +184,33 @@ enum StaffCategory {
   admin
 }
 
+model StaffMember {
+  id            String       @id @default(cuid())
+  nameAr        String
+  nameEn        String?
+  roleAr        String       @default("")
+  roleEn        String?
+  category      StaffCategory @default(nurse)
+  departmentAr  String       @default("")
+  departmentEn  String?
+  status        String       @default("on_duty")
+  roomAssignedAr String      @default("")
+  roomAssignedEn String?
+  shift         String       @default("morning")
+  patientCountToday   Int    @default(0)
+  surgeriesCountToday Int    @default(0)
+  phone         String?
+  email         String?
+  avatar        String?
+  rating        Float        @default(4.5)
+  isActive      Boolean      @default(true)
+  sortOrder     Int          @default(0)
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+
+  @@map("staff_members")
+}
+
 enum DoctorType {
   VISITING
   LOCAL
