@@ -1,7 +1,8 @@
 'use client';
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { Specialty, DOCTORS } from '@/data/hospitalData';
+import { Specialty } from '@/data/hospitalData';
+import type { Doctor } from '@/data/hospitalData';
 
 type Language = 'ar' | 'en';
 type FontSize = 'sm' | 'base' | 'lg' | 'xl';
@@ -11,6 +12,7 @@ interface LanguageContextType {
   setLang: (lang: Language) => void;
   isRTL: boolean;
   t: (ar: string, en: string) => string;
+  doctors: Doctor[];
   fontSize: FontSize;
   setFontSize: (size: FontSize) => void;
   increaseFontSize: () => void;
@@ -86,6 +88,24 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
   const [isQueueModalOpen, setIsQueueModalOpen] = useState(false);
   const [isCostCalculatorModalOpen, setIsCostCalculatorModalOpen] = useState(false);
 
+  // Doctors are served from the database (single source of truth) via /api/public/doctors.
+  const [doctors, setDoctors] = useState<Doctor[]>([]);
+
+  useEffect(() => {
+    let cancelled = false;
+    fetch('/api/public/doctors')
+      .then((res) => res.json())
+      .then((json: { data?: Doctor[] }) => {
+        if (!cancelled && Array.isArray(json?.data)) setDoctors(json.data);
+      })
+      .catch(() => {
+        // offline/dev-db down — sections render empty rather than stale copies
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
   const isRTL = lang === 'ar';
 
   const applyLangToDocument = (newLang: Language) => {
@@ -134,7 +154,7 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
     if (specialtyId) setBookingSpecialtyId(specialtyId);
     if (doctorId) {
       setBookingDoctorId(doctorId);
-      const doc = DOCTORS.find((d) => d.id === doctorId);
+      const doc = doctors.find((d) => d.id === doctorId);
       if (doc && !specialtyId) {
         setBookingSpecialtyId(doc.specialtyId);
       }
@@ -222,6 +242,7 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
         setLang,
         isRTL,
         t,
+        doctors,
         fontSize,
         setFontSize,
         increaseFontSize,

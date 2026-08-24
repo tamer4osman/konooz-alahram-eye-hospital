@@ -31,6 +31,15 @@ export default [
     },
   },
   {
+    // Server-side surfaces (API routes, server libs, seed scripts) run in Node.
+    files: ['app/api/**/*.{ts,tsx}', 'lib/**/*.{ts,tsx}', 'scripts/**/*.ts', 'prisma/**/*.ts'],
+    languageOptions: {
+      globals: {
+        ...globals.node,
+      },
+    },
+  },
+  {
     files: ['**/*.{ts,tsx}'],
     languageOptions: {
       parser: tsParser,

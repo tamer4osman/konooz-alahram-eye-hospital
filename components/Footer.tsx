@@ -5,11 +5,11 @@ import Logo from './Logo';
 import Reveal from './Reveal';
 import { useLanguage } from '@/context/LanguageContext';
 import { usePatientAuth } from '@/context/PatientAuthContext';
-import { HOSPITAL_CONTACTS, SPECIALTIES, DOCTORS } from '@/data/hospitalData';
+import { HOSPITAL_CONTACTS, SPECIALTIES } from '@/data/hospitalData';
 import { MapPin, Clock, ExternalLink, ShieldCheck, Mail, Smartphone, CheckCircle2, Sparkles, User } from 'lucide-react';
 
 export default function Footer() {
-  const { lang, t, openBookingModal } = useLanguage();
+  const { lang, t, openBookingModal, doctors } = useLanguage();
   const { subscribeNewsletter, openPatientPortal } = usePatientAuth();
 
   const [newsletterEmail, setNewsletterEmail] = useState('');
@@ -174,7 +174,7 @@ export default function Footer() {
               {t('الاستشاريون الزائرون', 'Visiting Faculty')}
             </h4>
             <ul className="space-y-2 text-pine-300">
-              {DOCTORS.slice(0, 5).map((doc) => (
+              {doctors.slice(0, 5).map((doc) => (
                 <li key={doc.id}>
                   <a
                     href="#doctors"

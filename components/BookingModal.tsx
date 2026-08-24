@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import { useLanguage } from '@/context/LanguageContext';
 import { usePatientAuth } from '@/context/PatientAuthContext';
-import { SPECIALTIES, DOCTORS, HOSPITAL_CONTACTS, PATIENT_CONDITIONS, AFFECTED_EYE_OPTIONS, AGE_GROUP_OPTIONS, GENDER_OPTIONS, SYMPTOM_DURATION_OPTIONS, PatientCondition } from '@/data/hospitalData';
+import { SPECIALTIES, HOSPITAL_CONTACTS, PATIENT_CONDITIONS, AFFECTED_EYE_OPTIONS, AGE_GROUP_OPTIONS, GENDER_OPTIONS, SYMPTOM_DURATION_OPTIONS, PatientCondition } from '@/data/hospitalData';
 import Modal from '@/components/ui/Modal';
 import { X, Calendar, Clock, CheckCircle2, ExternalLink, ChevronDown, Sparkles, ShieldCheck, Activity, Eye, LogOut, UserPlus, FolderLock } from 'lucide-react';
 
@@ -29,7 +29,7 @@ function BookingModalContent({
   bookingDoctorId: string | null;
   onClose: () => void;
 }) {
-  const { lang, t } = useLanguage();
+  const { lang, t, doctors } = useLanguage();
   const {
     currentPatient, createLocalProfile, logout, sendNotification, addAppointmentToCurrentPatient, openPatientPortal
   } = usePatientAuth();
@@ -58,7 +58,7 @@ function BookingModalContent({
     bookingSpecialtyId || (SPECIALTIES.length > 0 ? SPECIALTIES[0].id : '')
   );
   
-  const initialSelectedDoc = DOCTORS.find((d) => d.id === bookingDoctorId);
+  const initialSelectedDoc = doctors.find((d) => d.id === bookingDoctorId);
   const [doctorTrack, setDoctorTrack] = useState<'visiting' | 'local'>(
     initialSelectedDoc?.doctorType || 'visiting'
   );
@@ -84,7 +84,7 @@ function BookingModalContent({
   const [confirmedBookingRef, setConfirmedBookingRef] = useState<string>('BK-8492');
 
   const activeSpecialtyObj = SPECIALTIES.find((s) => s.id === selectedSpecialty);
-  const activeDoctorObj = DOCTORS.find((d) => d.id === selectedDoctor);
+  const activeDoctorObj = doctors.find((d) => d.id === selectedDoctor);
   const activeConditionObj = PATIENT_CONDITIONS.find((c) => c.id === selectedCondition);
   const eyeObj = AFFECTED_EYE_OPTIONS.find((e) => e.id === affectedEye);
   const ageObj = AGE_GROUP_OPTIONS.find((a) => a.id === ageGroup);
@@ -92,7 +92,7 @@ function BookingModalContent({
   const durationObj = SYMPTOM_DURATION_OPTIONS.find((d) => d.id === symptomDuration);
 
   // Strictly filter doctors by specialty AND doctorTrack (Visiting vs Local)
-  const availableDoctors = DOCTORS.filter((d) => {
+  const availableDoctors = doctors.filter((d) => {
     const matchSpecialty = !selectedSpecialty || d.specialtyId === selectedSpecialty;
     const matchType = d.doctorType === doctorTrack;
     return matchSpecialty && matchType;
@@ -120,7 +120,7 @@ function BookingModalContent({
     }
   };
 
-  const handleSubmitBooking = (e: React.FormEvent) => {
+  const handleSubmitBooking = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!patientName.trim() || !patientPhone.trim()) {
       alert(t('يرجى إدخال اسم المريض ورقم الهاتف', 'Please enter your name and phone number'));
@@ -133,9 +133,40 @@ function BookingModalContent({
     }
 
     const newTicket = `Q-${Math.floor(100 + Math.random() * 900)}`;
-    const newRef = `BK-${Math.floor(1000 + Math.random() * 9000)}`;
+    const fallbackRef = `BK-${Math.floor(1000 + Math.random() * 9000)}`;
+
+    // Persist the request server-side; reception still confirms via WhatsApp.
+    // On failure the local flow continues unchanged (ref generated on-device).
+    let bookingRef = fallbackRef;
+    try {
+      const res = await fetch('/api/appointments', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          patientName: patientName.trim(),
+          phone: patientPhone.trim(),
+          email: patientEmail.trim() || undefined,
+          specialtyId: selectedSpecialty,
+          doctorId: selectedDoctor || undefined,
+          conditionTitleAr: activeConditionObj?.labelAr,
+          conditionTitleEn: activeConditionObj?.labelEn,
+          preferredDate: preferredDate || undefined,
+          preferredTime: preferredSlot === 'morning' ? '09:00' : '16:00',
+          ageGroup: ageGroup,
+          gender: gender,
+          affectedEye: affectedEye,
+          symptomDuration: symptomDuration,
+          notes: notes.trim() || undefined
+        })
+      });
+      const json = await res.json();
+      if (res.ok && json?.data?.ref) bookingRef = json.data.ref as string;
+    } catch {
+      // dev DB unreachable — keep on-device ref, WhatsApp handoff unaffected
+    }
+
     setConfirmedQueueTicket(newTicket);
-    setConfirmedBookingRef(newRef);
+    setConfirmedBookingRef(bookingRef);
 
     const conditionTitle = activeConditionObj
       ? lang === 'ar'
@@ -195,20 +226,20 @@ function BookingModalContent({
       'whatsapp',
       'تأكيد حجز موعد كشف العيون بنجاح',
       'Appointment Booking Confirmed',
-      `عزيزي ${patientName}، تم تأكيد تسجيل موعدك في مستشفى كنوز الأهرام بنغازي لدى ${doctorTitle} ليوم ${preferredDate || 'الأقرب'}. رقم الحجز هو #${newRef} ورقم دورك بالعيادة هو ${newTicket}.`
+      `عزيزي ${patientName}، تم تأكيد تسجيل موعدك في مستشفى كنوز الأهرام بنغازي لدى ${doctorTitle} ليوم ${preferredDate || 'الأقرب'}. رقم الحجز هو #${bookingRef} ورقم دورك بالعيادة هو ${newTicket}.`
     );
 
     sendNotification(
       'email',
       'تفاصيل وتأكيد موعد الكشف والتقرير الطبي المعتمد',
       'Consultation Booking Confirmation & Certified Report',
-      `السيد/ة ${patientName}، مرفق تفاصيل حجز موعدك لـ (${conditionTitle}) لدى ${doctorTitle}. رقم الحجز: #${newRef}، كود المريض: ${patientEmail}. يرجى الحضور قبل الموعد بـ 15 دقيقة مصطحباً بطاقتك الشخصية.`
+      `السيد/ة ${patientName}، مرفق تفاصيل حجز موعدك لـ (${conditionTitle}) لدى ${doctorTitle}. رقم الحجز: #${bookingRef}، كود المريض: ${patientEmail}. يرجى الحضور قبل الموعد بـ 15 دقيقة مصطحباً بطاقتك الشخصية.`
     );
 
     const msg = lang === 'ar'
       ? `*طلب حجز فوري ومباشر - مستشفى كنوز الأهرام للعيون (بنغازي)*
 ----------------------------------------
-🎟️ *رقم الحجز المرجعي:* #${newRef}
+🎟️ *رقم الحجز المرجعي:* #${bookingRef}
 🔢 *رقم التذكرة بالعيادة:* ${newTicket}
 👤 *اسم المريض:* ${patientName}
 📞 *رقم الهاتف:* ${patientPhone}
@@ -226,7 +257,7 @@ ${notes.trim() ? `📝 *تفاصيل وملاحظات إضافية:* ${notes}\n`
 *تم الإرسال عبر البوابة الإلكترونية لمستشفى كنوز الأهرام*`
       : `*Instant Direct Booking Request - Konooz Al-Ahram Eye Hospital (Benghazi)*
 ----------------------------------------
-🎟️ *Booking Ref:* #${newRef}
+🎟️ *Booking Ref:* #${bookingRef}
 🔢 *Clinic Queue Ticket:* ${newTicket}
 👤 *Patient Name:* ${patientName}
 📞 *Phone Number:* ${patientPhone}

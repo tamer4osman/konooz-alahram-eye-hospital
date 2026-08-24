@@ -6,7 +6,6 @@ import { useLanguage } from '@/context/LanguageContext';
 import { usePatientAuth } from '@/context/PatientAuthContext';
 import {
   SPECIALTIES,
-  DOCTORS,
   HOSPITAL_CONTACTS,
   HOSPITAL_IMAGES,
   PATIENT_CONDITIONS,
@@ -19,7 +18,7 @@ import {
 import { Calendar, CheckCircle2, Sparkles, Phone, ShieldCheck, Award, Clock, ArrowRight, ArrowLeft, Eye, MapPin, ExternalLink, ChevronDown, UserCheck, Stethoscope, Activity, User, Star, Hospital } from 'lucide-react';
 
 export default function Hero() {
-  const { lang, t, isRTL, openVisionTestModal } = useLanguage();
+  const { lang, t, isRTL, openVisionTestModal, doctors } = useLanguage();
   const {
     currentPatient, createLocalProfile, logout, addAppointmentToCurrentPatient, openPatientPortal } = usePatientAuth();
 
@@ -50,7 +49,7 @@ export default function Hero() {
   const effectiveAgeGroup = ageGroup;
 
   // Doctors matching selected specialty and consultation track (Visiting vs Local)
-  const availableDoctors = DOCTORS.filter((doc) => {
+  const availableDoctors = doctors.filter((doc) => {
     const matchSpecialty = !selectedSpecialty || doc.specialtyId === selectedSpecialty;
     const matchType = consultationType === 'consultant' ? doc.doctorType === 'visiting' : doc.doctorType === 'local';
     return matchSpecialty && matchType;
@@ -86,7 +85,7 @@ export default function Hero() {
 
     const conditionObj = PATIENT_CONDITIONS.find((c) => c.id === selectedCondition);
     const specialtyObj = SPECIALTIES.find((s) => s.id === selectedSpecialty);
-    const doctorObj = DOCTORS.find((d) => d.id === selectedDoctor);
+    const doctorObj = doctors.find((d) => d.id === selectedDoctor);
     const eyeObj = AFFECTED_EYE_OPTIONS.find((e) => e.id === affectedEye);
     const ageObj = AGE_GROUP_OPTIONS.find((a) => a.id === effectiveAgeGroup);
     const genderObj = GENDER_OPTIONS.find((g) => g.id === effectiveGender);

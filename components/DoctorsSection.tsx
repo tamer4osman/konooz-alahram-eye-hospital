@@ -3,18 +3,18 @@
 import React, { useState } from 'react';
 import Reveal from './Reveal';
 import { useLanguage } from '@/context/LanguageContext';
-import { DOCTORS, Doctor } from '@/data/hospitalData';
+import type { Doctor } from '@/data/hospitalData';
 import { Calendar, Award, GraduationCap, Clock, CheckCircle2, Star, Hospital } from 'lucide-react';
 
 export default function DoctorsSection() {
-  const { lang, t, openBookingModal } = useLanguage();
+  const { lang, t, openBookingModal, doctors } = useLanguage();
   const [doctorTypeFilter, setDoctorTypeFilter] = useState<'all' | 'visiting' | 'local'>('all');
   const [selectedFilter, setSelectedFilter] = useState('all');
 
   const filterOptions = [
     { id: 'all', labelAr: 'جميع التخصصات', labelEn: 'All Specialties' }, { id: 'retina-vitreous', labelAr: 'الشبكية والجسم الزجاجي', labelEn: 'Retina & Vitreous' }, { id: 'refractive-lasik', labelAr: 'الفيمتو ليزك وتصحيح الإبصار', labelEn: 'LASIK & Refractive' }, { id: 'cataract-phaco', labelAr: 'المياه البيضاء والفاكو', labelEn: 'Cataract & Phaco' }, { id: 'pediatric-strabismus', labelAr: 'حول وعيون الأطفال', labelEn: 'Pediatric Strabismus' }, { id: 'oculoplastics', labelAr: 'تجميل الجفون ومجرى الدموع', labelEn: 'Oculoplastics' }, { id: 'cornea-keratoconus', labelAr: 'القرنية المخروطية', labelEn: 'Cornea' }, ];
 
-  const filteredDoctors = DOCTORS.filter((doctor) => {
+  const filteredDoctors = doctors.filter((doctor) => {
     const matchType = doctorTypeFilter === 'all' || doctor.doctorType === doctorTypeFilter;
     const matchSpecialty = selectedFilter === 'all' || doctor.specialtyId === selectedFilter;
     return matchType && matchSpecialty; });
@@ -58,7 +58,7 @@ export default function DoctorsSection() {
                   : 'text-ink-500 hover:text-ink-900'
               }`}
             >
-              {t('جميع الأطباء', 'All Doctors')} ({DOCTORS.length})
+              {t('جميع الأطباء', 'All Doctors')} ({doctors.length})
             </button>
 
             <button

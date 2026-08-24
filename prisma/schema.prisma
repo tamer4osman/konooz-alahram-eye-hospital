@@ -115,8 +115,8 @@ enum AppointmentSource {
 
 model Appointment {
   id           String            @id @default(cuid())
-  patientId    String
-  patient      PatientProfile    @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  patientId    String?
+  patient      PatientProfile?   @relation(fields: [patientId], references: [id], onDelete: Cascade)
   doctorId     String?
   doctor       Doctor?           @relation(fields: [doctorId], references: [id])
   roomId       String?
@@ -183,6 +183,17 @@ enum StaffCategory {
   admin
 }
 
+enum DoctorType {
+  VISITING
+  LOCAL
+}
+
+enum PublicAvailability {
+  AVAILABLE_NOW
+  UPCOMING_VISIT
+  REGULAR
+}
+
 model Doctor {
   id           String        @id @default(cuid())
   fullNameAr   String
@@ -195,6 +206,24 @@ model Doctor {
   isAvailable  Boolean       @default(true)
   createdAt    DateTime      @default(now())
   updatedAt    DateTime      @updatedAt
+
+  // Public listing fields (BCK-095) — single source for marketing site
+  titleAr          String            @default("")
+  titleEn          String?
+  doctorType       DoctorType        @default(LOCAL)
+  specialtyId      String            @default("")
+  originAr         String            @default("")
+  originEn         String?
+  universityAr     String            @default("")
+  universityEn     String?
+  availability     PublicAvailability @default(REGULAR)
+  visitScheduleAr  String            @default("")
+  visitScheduleEn  String?
+  experienceYears  Int               @default(0)
+  surgeriesCount   String            @default("0")
+  photoSeed        String            @default("")
+  highlightsAr     String[]          @default([])
+  highlightsEn     String[]          @default([])
 
   appointments Appointment[]
   surgeries    ScheduledSurgery[] @relation("SurgeonSurgeries")

@@ -1,7 +1,9 @@
 import React from 'react';
-import { HOSPITAL_CONTACTS, SPECIALTIES, DOCTORS, FAQ_LIST } from '@/data/hospitalData';
+import { HOSPITAL_CONTACTS, SPECIALTIES, FAQ_LIST } from '@/data/hospitalData';
+import { getPublicDoctors } from '@/lib/doctors';
 
-export default function SEOStructuredData() {
+export default async function SEOStructuredData() {
+  const doctors = await getPublicDoctors();
   const hospitalSchema = {
     '@context': 'https://schema.org',
     '@type': ['Hospital', 'MedicalBusiness', 'MedicalClinic', 'EmergencyService'],
@@ -127,7 +129,7 @@ export default function SEOStructuredData() {
     '@context': 'https://schema.org',
     '@type': 'ItemList',
     name: 'استشاريو وأطباء جراحة العيون بمستشفى كنوز الأهرام',
-    itemListElement: DOCTORS.map((doc, idx) => ({
+    itemListElement: doctors.map((doc, idx) => ({
       '@type': 'ListItem',
       position: idx + 1,
       item: {

@@ -12,5 +12,10 @@ tsconfig.tsbuildinfo
 # agent/tooling workspace
 .zcode/
 
+# agent working notes (not part of the product)
+task_plan.md
+progress.md
+findings.md
+
 # legacy scaffold images superseded by public/images
 src/
