@@ -1,3 +1,7 @@
-:80 {
+konozealahram-eye.ly {
   reverse_proxy web:3000
+}
+
+www.konozealahram-eye.ly {
+  redir https://konozealahram-eye.ly{uri} permanent
 }
