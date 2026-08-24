@@ -339,6 +339,23 @@ model Equipment {
   createdAt     DateTime     @default(now())
   updatedAt     DateTime     @updatedAt
 
+  // Operational fields (dashboard) — single source of truth
+  brand             String  @default("")
+  serialNumber      String  @default("")
+  departmentAr      String  @default("")
+  departmentEn      String?
+  roomCode          String  @default("")
+  uptimePercentage  Float   @default(100)
+  totalProceduresRun Int    @default(0)
+  lastMaintenanceDate String?
+  nextServiceDue    String?
+  firmwareVersion   String  @default("")
+  technicianInChargeAr String @default("")
+  technicianInChargeEn String?
+  healthScore       Int     @default(100)
+  notesAr           String  @default("")
+  notesEn           String?
+
   @@map("equipment")
 }
 

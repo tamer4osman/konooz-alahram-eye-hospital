@@ -5,7 +5,6 @@ import { useLanguage } from '@/context/LanguageContext';
 import {
   DUMMY_MANAGERS,
   DUMMY_STAFF,
-  DUMMY_EQUIPMENT,
   DUMMY_SURGERIES_TODAY,
   DashboardUser,
   HospitalStaff,
@@ -43,7 +42,7 @@ export default function HospitalDashboard() {
   const [staffList, setStaffList] = useState<HospitalStaff[]>(DUMMY_STAFF);
   // Rooms are persisted in the database via staff APIs (single source of truth).
   const [roomsList, setRoomsList] = useState<HospitalRoom[]>([]);
-  const [equipmentList, setEquipmentList] = useState<HospitalEquipment[]>(DUMMY_EQUIPMENT);
+  const [equipmentList, setEquipmentList] = useState<HospitalEquipment[]>([]);
   const [surgeriesList, setSurgeriesList] = useState<ScheduledSurgery[]>(DUMMY_SURGERIES_TODAY);
 
   useEffect(() => {
@@ -53,6 +52,13 @@ export default function HospitalDashboard() {
         if (!res.ok) return;
         const json = await res.json();
         if (!cancelled && Array.isArray(json?.data)) setRoomsList(json.data as HospitalRoom[]);
+      })
+      .catch(() => {});
+    fetch('/api/staff/equipment')
+      .then(async (res) => {
+        if (!res.ok) return;
+        const json = await res.json();
+        if (!cancelled && Array.isArray(json?.data)) setEquipmentList(json.data as HospitalEquipment[]);
       })
       .catch(() => {});
     return () => {
@@ -123,10 +129,16 @@ export default function HospitalDashboard() {
     setEquipmentList((prev) =>
       prev.map((e) => (e.id === deviceId ? { ...e, status: newStatus } : e))
     );
+    fetch(`/api/staff/equipment/${deviceId}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ status: newStatus })
+    }).catch(() => {});
   };
 
   const handleRemoveEquipment = (deviceId: string) => {
     setEquipmentList((prev) => prev.filter((e) => e.id !== deviceId));
+    fetch(`/api/staff/equipment/${deviceId}`, { method: 'DELETE' }).catch(() => {});
   };
 
   const handleUpdateSurgeryStatus = (surgeryId: string, newStatus: ScheduledSurgery['status']) => {
@@ -270,30 +282,32 @@ export default function HospitalDashboard() {
     e.preventDefault();
     if (!newEquipmentForm.nameAr && !newEquipmentForm.nameEn) return;
 
-    const newEquipment: HospitalEquipment = {
-      id: `eq-${Date.now()}`,
-      nameAr: newEquipmentForm.nameAr || newEquipmentForm.nameEn,
-      nameEn: newEquipmentForm.nameEn || newEquipmentForm.nameAr,
+    const payload = {
+      nameAr: newEquipmentForm.nameAr || undefined,
+      nameEn: newEquipmentForm.nameEn || undefined,
       brand: newEquipmentForm.brand || 'Carl Zeiss (Germany)',
       model: newEquipmentForm.model || 'Advanced Medical Suite',
       serialNumber: newEquipmentForm.serialNumber || `SN-${Math.floor(10000 + Math.random() * 90000)}`,
       departmentAr: newEquipmentForm.departmentAr,
       departmentEn: newEquipmentForm.departmentEn,
       roomCode: newEquipmentForm.roomCode,
-      status: 'operational',
-      uptimePercentage: 100,
-      totalProceduresRun: 0,
-      lastMaintenanceDate: new Date().toISOString().split('T')[0],
       nextServiceDue: newEquipmentForm.nextServiceDue || '2026-12-01',
-      firmwareVersion: 'v2.4.0',
-      technicianInChargeAr: newEquipmentForm.technicianInChargeAr,
-      technicianInChargeEn: newEquipmentForm.technicianInChargeEn,
-      healthScore: 100,
       notesAr: newEquipmentForm.notesAr,
       notesEn: newEquipmentForm.notesEn
     };
 
-    setEquipmentList((prev) => [newEquipment, ...prev]);
+    fetch('/api/staff/equipment', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    })
+      .then(async (res) => {
+        if (!res.ok) return;
+        const json = await res.json();
+        if (json?.data) setEquipmentList((prev) => [json.data as HospitalEquipment, ...prev]);
+      })
+      .catch(() => {});
+
     setIsAddEquipmentOpen(false);
   };
 
@@ -302,13 +316,16 @@ export default function HospitalDashboard() {
     e.preventDefault();
     if (!selectedDeviceForMaintenance) return;
 
+    const deviceId = selectedDeviceForMaintenance.id;
+    const today = new Date().toISOString().split('T')[0];
+
     setEquipmentList((prev) =>
       prev.map((dev) =>
-        dev.id === selectedDeviceForMaintenance.id
+        dev.id === deviceId
           ? {
               ...dev,
               status: 'operational',
-              lastMaintenanceDate: new Date().toISOString().split('T')[0],
+              lastMaintenanceDate: today,
               nextServiceDue: nextServiceDue,
               notesAr: maintenanceNotes ? `تمت المعايرة: ${maintenanceNotes}` : dev.notesAr,
               healthScore: 100,
@@ -317,6 +334,19 @@ export default function HospitalDashboard() {
           : dev
       )
     );
+
+    fetch(`/api/staff/equipment/${deviceId}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        status: 'operational',
+        lastMaintenanceDate: today,
+        nextServiceDue: nextServiceDue,
+        notesAr: maintenanceNotes ? `تمت المعايرة: ${maintenanceNotes}` : undefined,
+        healthScore: 100,
+        uptimePercentage: 99.9
+      })
+    }).catch(() => {});
 
     setIsMaintenanceOpen(false);
     setSelectedDeviceForMaintenance(null);
