@@ -1,0 +1,57 @@
+import type { ClinicalConsultationRecord, OphthalmicPrescriptionItem } from '@prisma/client';
+import type { ClinicalConsultationRecord as ClinicalDTO, OphthalmicPrescriptionItem as RxDTO } from '@/data/dashboardData';
+
+type RowWithItems = ClinicalConsultationRecord & { items: OphthalmicPrescriptionItem[] };
+
+export function toClinicalDTO(row: RowWithItems): ClinicalDTO {
+  return {
+    id: row.id,
+    ticketNumber: row.ticketNumber,
+    patientId: row.patientId,
+    patientNameAr: row.patientNameAr,
+    patientNameEn: row.patientNameEn ?? '',
+    patientAge: row.patientAge ?? 0,
+    patientGender: row.patientGender === 'FEMALE' ? 'female' : 'male',
+    patientPhone: row.patientPhone,
+    doctorAr: row.doctorNameAr,
+    doctorEn: row.doctorNameEn ?? '',
+    clinicRoom: row.clinicRoom,
+    visitDate: row.visitDate ?? '',
+    visitTime: row.visitTime,
+    status: (row.status || 'completed') as ClinicalDTO['status'],
+    chiefComplaintAr: row.chiefComplaintAr ?? '',
+    chiefComplaintEn: row.chiefComplaintEn ?? '',
+    visualAcuityOD_Unaided: row.visualAcuityOD_Unaided,
+    visualAcuityOD_BCVA: row.visualAcuityOD_BCVA,
+    visualAcuityOS_Unaided: row.visualAcuityOS_Unaided,
+    visualAcuityOS_BCVA: row.visualAcuityOS_BCVA,
+    iopOD_mmHg: row.iopOD_mmHg ?? 0,
+    iopOS_mmHg: row.iopOS_mmHg ?? 0,
+    corneaAr: row.corneaAr ?? '',
+    corneaEn: row.corneaEn ?? '',
+    anteriorChamberAr: row.anteriorChamberAr ?? '',
+    anteriorChamberEn: row.anteriorChamberEn ?? '',
+    lensStatusAr: row.lensStatusAr ?? '',
+    lensStatusEn: row.lensStatusEn ?? '',
+    fundusMaculaAr: row.fundusMaculaAr ?? '',
+    fundusMaculaEn: row.fundusMaculaEn ?? '',
+    icdCode: row.icdCode,
+    diagnosisAr: row.diagnosisAr ?? '',
+    diagnosisEn: row.diagnosisEn ?? '',
+    surgicalPlan: row.surgicalPlan ?? undefined,
+    nextFollowUpDate: row.nextFollowUpDate ?? '',
+    prescriptions: row.items.map((rx): RxDTO => ({
+      id: rx.id,
+      drugNameAr: rx.drugNameAr,
+      drugNameEn: rx.drugNameEn ?? '',
+      category: rx.category as RxDTO['category'],
+      eye: rx.eye as RxDTO['eye'],
+      dosage: rx.dosage,
+      frequency: rx.frequency,
+      durationDays: rx.durationDays,
+      instructionsAr: rx.instructionsAr ?? '',
+      instructionsEn: rx.instructionsEn ?? '',
+      taperingSchedule: rx.taperingSchedule.length > 0 ? [...rx.taperingSchedule] : undefined,
+    })),
+  };
+}

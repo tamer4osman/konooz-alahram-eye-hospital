@@ -577,6 +577,33 @@ model ClinicalConsultationRecord {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
+  // EMR fields (ophthalmic consultation template)
+  ticketNumber String  @default("")
+  patientAge   Int?
+  patientGender Gender?
+  patientPhone String  @default("")
+  clinicRoom   String  @default("")
+  visitDate    String?
+  visitTime    String  @default("")
+  status       String  @default("completed")
+  visualAcuityOD_Unaided String @default("")
+  visualAcuityOD_BCVA    String @default("")
+  visualAcuityOS_Unaided String @default("")
+  visualAcuityOS_BCVA    String @default("")
+  iopOD_mmHg   Int?
+  iopOS_mmHg   Int?
+  corneaAr            String?
+  corneaEn            String?
+  anteriorChamberAr   String?
+  anteriorChamberEn   String?
+  lensStatusAr        String?
+  lensStatusEn        String?
+  fundusMaculaAr      String?
+  fundusMaculaEn      String?
+  icdCode             String  @default("")
+  surgicalPlan        String?
+  nextFollowUpDate    String?
+
   items OphthalmicPrescriptionItem[]
 
   @@index([patientId])
@@ -598,6 +625,18 @@ model OphthalmicPrescriptionItem {
   notesAr   String?
   notesEn   String?
   createdAt DateTime @default(now())
+
+  // e-Prescription fields
+  drugNameAr String  @default("")
+  drugNameEn String?
+  category   String  @default("lubricant")
+  eye        String  @default("OU")
+  dosage     String  @default("")
+  frequency  String  @default("")
+  durationDays Int   @default(0)
+  instructionsAr String?
+  instructionsEn String?
+  taperingSchedule String[] @default([])
 
   @@map("ophthalmic_prescription_items")
 }

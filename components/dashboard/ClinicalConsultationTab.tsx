@@ -1,8 +1,8 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useLanguage } from '@/context/LanguageContext';
-import { DUMMY_CLINICAL_RECORDS, ClinicalConsultationRecord } from '@/data/dashboardData';
+import { ClinicalConsultationRecord } from '@/data/dashboardData';
 import { Stethoscope, Eye, FileText, Plus, Printer, AlertCircle, ShieldCheck, Search, Calendar, Activity, Zap } from 'lucide-react';
 
 interface ClinicalConsultationTabProps {
@@ -12,8 +12,26 @@ interface ClinicalConsultationTabProps {
 export default function ClinicalConsultationTab(_: ClinicalConsultationTabProps) {
   const { lang, t, } = useLanguage();
 
-  const [records, setRecords] = useState<ClinicalConsultationRecord[]>(DUMMY_CLINICAL_RECORDS);
-  const [selectedRecordId, setSelectedRecordId] = useState<string>(DUMMY_CLINICAL_RECORDS[0].id);
+  const [records, setRecords] = useState<ClinicalConsultationRecord[]>([]);
+  const [selectedRecordId, setSelectedRecordId] = useState<string>('');
+
+  useEffect(() => {
+    let cancelled = false;
+    fetch('/api/staff/clinical-records')
+      .then(async (res) => {
+        if (!res.ok) return;
+        const json = await res.json();
+        if (!cancelled && Array.isArray(json?.data)) {
+          const list = json.data as ClinicalConsultationRecord[];
+          setRecords(list);
+          if (list.length > 0) setSelectedRecordId(list[0].id);
+        }
+      })
+      .catch(() => {});
+    return () => {
+      cancelled = true;
+    };
+  }, []);
   const [searchQuery, setSearchQuery] = useState('');
   const [isNewRecordModalOpen, setIsNewRecordModalOpen] = useState(false);
   const [isPrintSuccess, setIsPrintSuccess] = useState(false);
@@ -45,10 +63,8 @@ export default function ClinicalConsultationTab(_: ClinicalConsultationTabProps)
     e.preventDefault();
     if (!newConsultation.patientNameAr) return;
 
-    const created: ClinicalConsultationRecord = {
-      id: 'emr-' + Date.now(),
+    const payload = {
       ticketNumber: newConsultation.ticketNumber || 'KZ-9999',
-      patientId: 'PT-2026-' + Math.floor(1000 + Math.random() * 9000),
       patientNameAr: newConsultation.patientNameAr || '',
       patientNameEn: newConsultation.patientNameEn || newConsultation.patientNameAr || '',
       patientAge: Number(newConsultation.patientAge) || 30,
@@ -79,13 +95,38 @@ export default function ClinicalConsultationTab(_: ClinicalConsultationTabProps)
       icdCode: newConsultation.icdCode || 'H52.1',
       diagnosisAr: newConsultation.diagnosisAr || 'فحص سليم',
       diagnosisEn: newConsultation.diagnosisEn || 'Normal ocular exam',
-      surgicalPlan: newConsultation.surgicalPlan,
-      prescriptions: newConsultation.prescriptions || [],
-      nextFollowUpDate: newConsultation.nextFollowUpDate || '2026-09-18'
+      surgicalPlan: newConsultation.surgicalPlan || undefined,
+      nextFollowUpDate: newConsultation.nextFollowUpDate || '2026-09-18',
+      prescriptions: (newConsultation.prescriptions || []).map((rx) => ({
+        drugNameAr: rx.drugNameAr,
+        drugNameEn: rx.drugNameEn,
+        category: rx.category,
+        eye: rx.eye,
+        dosage: rx.dosage,
+        frequency: rx.frequency,
+        durationDays: rx.durationDays,
+        instructionsAr: rx.instructionsAr,
+        instructionsEn: rx.instructionsEn,
+        taperingSchedule: rx.taperingSchedule,
+      })),
     };
 
-    setRecords([created, ...records]);
-    setSelectedRecordId(created.id);
+    fetch('/api/staff/clinical-records', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    })
+      .then(async (res) => {
+        if (!res.ok) return;
+        const json = await res.json();
+        if (json?.data) {
+          const created = json.data as ClinicalConsultationRecord;
+          setRecords((prev) => [created, ...prev]);
+          setSelectedRecordId(created.id);
+        }
+      })
+      .catch(() => {});
+
     setIsNewRecordModalOpen(false);
   };
 
