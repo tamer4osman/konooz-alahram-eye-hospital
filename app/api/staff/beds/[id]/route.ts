@@ -66,7 +66,10 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
   }
 
   // Marking a bed ready_clean releases its occupant and clears vitals
-  const data = parsed.data.status === 'ready_clean' ? { ...OCCUPANT_FIELDS } : { ...parsed.data }
+  const data =
+    parsed.data.status === 'ready_clean'
+      ? { ...parsed.data, ...OCCUPANT_FIELDS }
+      : { ...parsed.data }
 
   try {
     const row = await prisma.bed.update({ where: { id }, data })
