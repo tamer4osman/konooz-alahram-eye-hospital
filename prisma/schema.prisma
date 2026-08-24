@@ -1,0 +1,593 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ──────────────────────────────────────────────
+// AUTHENTICATION & SESSIONS
+// ──────────────────────────────────────────────
+
+enum UserRole {
+  PATIENT
+  STAFF
+}
+
+model User {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  passwordHash String?  // null for Google-only accounts
+  googleId     String?  @unique
+  role         UserRole @default(PATIENT)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  patientProfile PatientProfile?
+  sessions       Session[]
+
+  @@map("users")
+}
+
+model Session {
+  id        String   @id @default(cuid())
+  tokenHash String   @unique
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+  @@map("sessions")
+}
+
+// ──────────────────────────────────────────────
+// PATIENT DATA
+// ──────────────────────────────────────────────
+
+enum Gender {
+  MALE
+  FEMALE
+  OTHER
+}
+
+model PatientProfile {
+  id        String @id @default(cuid())
+  userId    String @unique
+  user      User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // Personal — AR required, EN optional
+  fullNameAr     String
+  fullNameEn     String?
+  phone          String   // NON-UNIQUE: families share phones
+  whatsappNumber String?
+  dateOfBirth    String?
+  gender         Gender   @default(MALE)
+  bloodGroup     String?
+  cityAr         String?
+  cityEn         String?
+
+  // Clinical
+  allergiesAr          String[]   // Exception 3: arrays for tag-like lists; promotes to PatientAllergy table if structured metadata needed
+  allergiesEn          String[]
+  chronicConditionsAr  String[]
+  chronicConditionsEn  String[]
+
+  // Refractive data — Exception 2: JSON value object read/written as unit
+  refractiveData Json?
+
+  // Emergency contact
+  emergencyContact Json?  // { name, relationAr, relationEn, phone }
+
+  // Communication preferences — Exception 2: JSON value object
+  communicationPreferences Json?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  appointments  Appointment[]
+  prescriptions Prescription[]
+  scheduledSurgeries ScheduledSurgery[]
+  insurancePolicies InsurancePolicy[]
+
+  @@index([phone])
+  @@map("patient_profiles")
+}
+
+// ──────────────────────────────────────────────
+// APPOINTMENTS & PRESCRIPTIONS
+// ──────────────────────────────────────────────
+
+enum AppointmentStatus {
+  scheduled
+  confirmed
+  in_queue
+  completed
+  cancelled
+}
+
+enum AppointmentSource {
+  PATIENT_REQUEST
+  STAFF_ENTRY
+}
+
+model Appointment {
+  id           String            @id @default(cuid())
+  patientId    String
+  patient      PatientProfile    @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  doctorId     String?
+  doctor       Doctor?           @relation(fields: [doctorId], references: [id])
+  roomId       String?
+  room         Room?             @relation(fields: [roomId], references: [id])
+  ticketNumber String            @unique
+  // Snapshot at booking time (Exception 1: snapshot semantics)
+  doctorDisplayNameAr String?
+  doctorDisplayNameEn String?
+  specialtyAr  String?
+  specialtyEn  String?
+  date         DateTime
+  time         String
+  status       AppointmentStatus @default(scheduled)
+  source       AppointmentSource @default(PATIENT_REQUEST)
+  locationAr   String?
+  locationEn   String?
+  instructionsAr String?
+  instructionsEn String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([patientId])
+  @@index([doctorId])
+  @@index([date])
+  @@map("appointments")
+}
+
+model Prescription {
+  id        String         @id @default(cuid())
+  patientId String
+  patient   PatientProfile @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  doctorId  String?
+  doctor    Doctor?        @relation(fields: [doctorId], references: [id])
+  medicationNameAr String?
+  medicationNameEn String?
+  dosageAr  String?
+  dosageEn  String?
+  instructionsAr String?
+  instructionsEn String?
+  issuedDate DateTime
+  expiryDate DateTime?
+  notesAr   String?
+  notesEn   String?
+  createdBy String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([patientId])
+  @@map("prescriptions")
+}
+
+// ──────────────────────────────────────────────
+// HOSPITAL RESOURCES — Epic 4
+// ──────────────────────────────────────────────
+
+enum StaffCategory {
+  surgeon
+  consultant
+  resident
+  nurse
+  technician
+  admin
+}
+
+model Doctor {
+  id           String        @id @default(cuid())
+  fullNameAr   String
+  fullNameEn   String?
+  specialtyAr  String
+  specialtyEn  String?
+  category     StaffCategory @default(consultant)
+  phone        String?
+  email        String?
+  isAvailable  Boolean       @default(true)
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+
+  appointments Appointment[]
+  surgeries    ScheduledSurgery[] @relation("SurgeonSurgeries")
+  prescriptions Prescription[]
+
+  @@map("doctors")
+}
+
+enum RoomType {
+  operating_theater
+  outpatient_clinic
+  diagnostic_suite
+  recovery_ward
+  laser_room
+}
+
+enum RoomStatus {
+  occupied_surgery
+  in_consultation
+  ready_clean
+  sterilizing
+  maintenance
+}
+
+model Room {
+  id          String     @id @default(cuid())
+  nameAr      String
+  nameEn      String?
+  type        RoomType
+  status      RoomStatus @default(ready_clean)
+  floor       String?
+  capacity    Int        @default(1)
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+
+  appointments Appointment[]
+  surgeries    ScheduledSurgery[]
+
+  @@map("rooms")
+}
+
+// ──────────────────────────────────────────────
+// SURGERIES — Epic 4
+// ──────────────────────────────────────────────
+
+enum SurgeryStatus {
+  scheduled
+  in_progress
+  completed
+  cancelled
+}
+
+model ScheduledSurgery {
+  id          String         @id @default(cuid())
+  patientId   String?
+  patient     PatientProfile? @relation(fields: [patientId], references: [id])
+  surgeonId   String
+  surgeon     Doctor         @relation("SurgeonSurgeries", fields: [surgeonId], references: [id])
+  roomId      String?
+  room        Room?          @relation(fields: [roomId], references: [id])
+  procedureAr String
+  procedureEn String?
+  scheduledAt DateTime
+  durationMin Int            @default(60)
+  status      SurgeryStatus  @default(scheduled)
+  notesAr     String?
+  notesEn     String?
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+
+  consumables SurgeryConsumableUsage[]
+
+  @@index([surgeonId])
+  @@index([scheduledAt])
+  @@map("scheduled_surgeries")
+}
+
+// ──────────────────────────────────────────────
+// OPS DOMAINS — Epic 5
+// ──────────────────────────────────────────────
+
+enum DeviceStatus {
+  operational
+  in_use
+  under_calibration
+  maintenance_scheduled
+  offline_alert
+}
+
+model Equipment {
+  id            String       @id @default(cuid())
+  nameAr        String
+  nameEn        String?
+  modelNumber   String?
+  status        DeviceStatus @default(operational)
+  locationAr    String?
+  locationEn    String?
+  calibrationDue DateTime?
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+
+  @@map("equipment")
+}
+
+enum WardType {
+  pacu_recovery
+  daycare_suite
+  vip_inpatient
+}
+
+enum BedStatus {
+  occupied
+  ready_clean
+  dirty_cleaning
+  reserved
+}
+
+model Bed {
+  id        String     @id @default(cuid())
+  wardType  WardType
+  label     String
+  status    BedStatus  @default(ready_clean)
+  patientId String?
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+
+  @@map("beds")
+}
+
+enum PatientFlowStageType {
+  reception
+  triage
+  consultation
+  procedure
+  waiting_discharge
+  discharged
+}
+
+model PatientFlowStage {
+  id          String              @id @default(cuid())
+  patientId   String
+  stageType   PatientFlowStageType
+  enteredAt   DateTime            @default(now())
+  exitedAt    DateTime?
+  notesAr     String?
+  notesEn     String?
+  createdAt   DateTime            @default(now())
+  updatedAt   DateTime            @updatedAt
+
+  @@index([patientId])
+  @@map("patient_flow_stages")
+}
+
+enum ConsumableCategory {
+  iol_lens
+  viscoelastic
+  laser_pack
+  surgical_gas
+  microsuture
+  phaco_pack
+}
+
+model ConsumableType {
+  id         String            @id @default(cuid())
+  nameAr     String
+  nameEn     String?
+  category   ConsumableCategory
+  unitAr     String
+  unitEn     String?
+  stockLevel Int               @default(0)
+  lowStockThreshold Int        @default(10)
+  createdAt  DateTime          @default(now())
+  updatedAt  DateTime          @updatedAt
+
+  usages SurgeryConsumableUsage[]
+
+  @@map("consumable_types")
+}
+
+model SurgeryConsumableUsage {
+  id              String         @id @default(cuid())
+  surgeryId       String
+  surgery         ScheduledSurgery @relation(fields: [surgeryId], references: [id], onDelete: Cascade)
+  consumableTypeId String
+  consumableType  ConsumableType  @relation(fields: [consumableTypeId], references: [id])
+  quantityUsed    Int            @default(1)
+  createdAt       DateTime       @default(now())
+
+  @@unique([surgeryId, consumableTypeId])
+  @@map("surgery_consumable_usage")
+}
+
+// ──────────────────────────────────────────────
+// PEOPLE & CLINICAL — Epic 6
+// ──────────────────────────────────────────────
+
+enum ShiftType {
+  morning
+  evening
+  night_call
+  full_day
+}
+
+enum AttendanceStatus {
+  present
+  absent
+  on_leave
+  late
+}
+
+model StaffAttendanceRecord {
+  id         String           @id @default(cuid())
+  staffName  String
+  staffId    String?
+  shiftType  ShiftType
+  date       DateTime
+  status     AttendanceStatus @default(present)
+  checkInTime String?
+  checkOutTime String?
+  notesAr    String?
+  notesEn    String?
+  createdAt  DateTime         @default(now())
+  updatedAt  DateTime         @updatedAt
+
+  @@index([date])
+  @@map("staff_attendance_records")
+}
+
+model ClinicalConsultationRecord {
+  id          String   @id @default(cuid())
+  patientId   String
+  patientNameAr String
+  patientNameEn String?
+  doctorNameAr String
+  doctorNameEn String?
+  date        DateTime
+  chiefComplaintAr String?
+  chiefComplaintEn String?
+  diagnosisAr String?
+  diagnosisEn String?
+  notesAr     String?
+  notesEn     String?
+  createdBy   String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  items OphthalmicPrescriptionItem[]
+
+  @@index([patientId])
+  @@map("clinical_consultation_records")
+}
+
+model OphthalmicPrescriptionItem {
+  id             String   @id @default(cuid())
+  consultationId String
+  consultation   ClinicalConsultationRecord @relation(fields: [consultationId], references: [id], onDelete: Cascade)
+  odSphere  String?
+  odCyl     String?
+  odAxis    String?
+  osSphere  String?
+  osCyl     String?
+  osAxis    String?
+  addition  String?
+  ipd       String?
+  notesAr   String?
+  notesEn   String?
+  createdAt DateTime @default(now())
+
+  @@map("ophthalmic_prescription_items")
+}
+
+// ──────────────────────────────────────────────
+// MONEY & IMAGING — Epic 7
+// ──────────────────────────────────────────────
+
+model InsuranceProvider {
+  id        String   @id @default(cuid())
+  nameAr    String
+  nameEn    String?
+  phone     String?
+  email     String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  policies InsurancePolicy[]
+
+  @@map("insurance_providers")
+}
+
+model InsurancePolicy {
+  id         String   @id @default(cuid())
+  patientId  String
+  patient    PatientProfile @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  providerId String
+  provider   InsuranceProvider @relation(fields: [providerId], references: [id])
+  policyNo   String
+  expiryDate DateTime?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@unique([patientId, providerId])
+  @@map("insurance_policies")
+}
+
+enum InvoiceStatus {
+  pending
+  paid
+  partially_paid
+  cancelled
+}
+
+model HospitalBillingInvoice {
+  id         String        @id @default(cuid())
+  patientId  String
+  patientNameAr String?
+  patientNameEn String?
+  serviceAr  String
+  serviceEn  String?
+  amount     Decimal
+  currency   String        @default("LYD")
+  status     InvoiceStatus @default(pending)
+  issuedDate DateTime
+  paidDate   DateTime?
+  notesAr    String?
+  notesEn    String?
+  createdBy  String?
+  createdAt  DateTime      @default(now())
+  updatedAt  DateTime      @updatedAt
+
+  @@index([patientId])
+  @@map("hospital_billing_invoices")
+}
+
+enum PacsOrderStatus {
+  ordered
+  in_progress
+  completed
+  cancelled
+}
+
+model DiagnosticPacsOrder {
+  id          String          @id @default(cuid())
+  patientId   String
+  patientNameAr String
+  patientNameEn String?
+  examTypeAr  String
+  examTypeEn  String?
+  bodyPartAr  String?
+  bodyPartEn  String?
+  status      PacsOrderStatus @default(ordered)
+  orderedByAr String
+  orderedByEn String?
+  orderedAt   DateTime        @default(now())
+  completedAt DateTime?
+  notesAr     String?
+  notesEn     String?
+  createdBy   String?
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+
+  @@index([patientId])
+  @@map("diagnostic_pacs_orders")
+}
+
+// ──────────────────────────────────────────────
+// NEWSLETTER — BCK-025
+// ──────────────────────────────────────────────
+
+model NewsletterSubscriber {
+  id        String   @id @default(cuid())
+  email     String
+  whatsapp  String?
+  nameAr    String?
+  nameEn    String?
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("newsletter_subscribers")
+}
+
+// ──────────────────────────────────────────────
+// CONSENT — BCK-026
+// ──────────────────────────────────────────────
+
+model ConsentRecord {
+  id        String   @id @default(cuid())
+  userId    String
+  consentType String  // "data_collection", "privacy_policy"
+  consented Boolean @default(false)
+  ipAddress String?
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+  @@map("consent_records")
+}
