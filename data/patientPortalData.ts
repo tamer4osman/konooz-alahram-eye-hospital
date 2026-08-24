@@ -92,3 +92,25 @@ export interface PatientProfile {
   }>;
 }
 
+
+export interface NewsletterTopic {
+  id: string;
+  titleAr: string;
+  titleEn: string;
+  icon: string;
+  frequencyAr: string;
+  frequencyEn: string;
+}
+
+export interface NewsletterIssue {
+  id: string;
+  date: string;
+  titleAr: string;
+  titleEn: string;
+  categoryAr: string;
+  categoryEn: string;
+  readTimeAr: string;
+  readTimeEn: string;
+  summaryAr: string;
+  summaryEn: string;
+}
