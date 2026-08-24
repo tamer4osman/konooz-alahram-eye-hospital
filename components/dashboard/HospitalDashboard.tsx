@@ -1,11 +1,10 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useLanguage } from '@/context/LanguageContext';
 import {
   DUMMY_MANAGERS,
   DUMMY_STAFF,
-  DUMMY_ROOMS,
   DUMMY_EQUIPMENT,
   DUMMY_SURGERIES_TODAY,
   DashboardUser,
@@ -42,9 +41,24 @@ export default function HospitalDashboard() {
 
   // Live Hospital Operational State
   const [staffList, setStaffList] = useState<HospitalStaff[]>(DUMMY_STAFF);
-  const [roomsList, setRoomsList] = useState<HospitalRoom[]>(DUMMY_ROOMS);
+  // Rooms are persisted in the database via staff APIs (single source of truth).
+  const [roomsList, setRoomsList] = useState<HospitalRoom[]>([]);
   const [equipmentList, setEquipmentList] = useState<HospitalEquipment[]>(DUMMY_EQUIPMENT);
   const [surgeriesList, setSurgeriesList] = useState<ScheduledSurgery[]>(DUMMY_SURGERIES_TODAY);
+
+  useEffect(() => {
+    let cancelled = false;
+    fetch('/api/staff/rooms')
+      .then(async (res) => {
+        if (!res.ok) return;
+        const json = await res.json();
+        if (!cancelled && Array.isArray(json?.data)) setRoomsList(json.data as HospitalRoom[]);
+      })
+      .catch(() => {});
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   // Modal States
   const [isAddStaffOpen, setIsAddStaffOpen] = useState(false);
@@ -93,10 +107,16 @@ export default function HospitalDashboard() {
     setRoomsList((prev) =>
       prev.map((r) => (r.id === roomId ? { ...r, status: newStatus } : r))
     );
+    fetch(`/api/staff/rooms/${roomId}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ status: newStatus })
+    }).catch(() => {});
   };
 
   const handleRemoveRoom = (roomId: string) => {
     setRoomsList((prev) => prev.filter((r) => r.id !== roomId));
+    fetch(`/api/staff/rooms/${roomId}`, { method: 'DELETE' }).catch(() => {});
   };
 
   const handleUpdateDeviceStatus = (deviceId: string, newStatus: DeviceStatus) => {
@@ -216,26 +236,32 @@ export default function HospitalDashboard() {
     e.preventDefault();
     if (!newRoomForm.nameAr && !newRoomForm.nameEn) return;
 
-    const newRoom: HospitalRoom = {
-      id: `room-${Date.now()}`,
+    const payload = {
       code: newRoomForm.code || `OR-${Math.floor(100 + Math.random() * 900)}`,
-      nameAr: newRoomForm.nameAr || newRoomForm.nameEn,
-      nameEn: newRoomForm.nameEn || newRoomForm.nameAr,
-      type: newRoomForm.type as any,
+      nameAr: newRoomForm.nameAr || undefined,
+      nameEn: newRoomForm.nameEn || undefined,
+      type: newRoomForm.type as HospitalRoom['type'],
       floorAr: newRoomForm.floorAr,
       floorEn: newRoomForm.floorEn,
-      status: 'ready_clean',
-      sterilizationStatus: 'sterile_verified',
-      airPressureHepa: 'positive_optimal',
       tempCelsius: Number(newRoomForm.tempCelsius) || 20,
       humidityPercent: Number(newRoomForm.humidityPercent) || 45,
       capacity: Number(newRoomForm.capacity) || 1,
-      occupiedCount: 0,
       mainDeviceAssignedAr: newRoomForm.mainDeviceAssignedAr || 'طاقم جراحي متكامل',
       mainDeviceAssignedEn: newRoomForm.mainDeviceAssignedEn || 'Complete Surgical Setup'
     };
 
-    setRoomsList((prev) => [newRoom, ...prev]);
+    fetch('/api/staff/rooms', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    })
+      .then(async (res) => {
+        if (!res.ok) return;
+        const json = await res.json();
+        if (json?.data) setRoomsList((prev) => [json.data as HospitalRoom, ...prev]);
+      })
+      .catch(() => {});
+
     setIsAddRoomOpen(false);
   };
 
