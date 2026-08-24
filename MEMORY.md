@@ -24,3 +24,4 @@ Persistent notes for AI agents across sessions. Update this file when a durable 
 
 - Add git remote when repo is published → then add repo link to `public/llms.txt` Optional section and CHANGELOG link references.
 - Roadmap items pending backend work (see README): real accounts, live queue sync, test infrastructure.
+- 2026-08-24 — Authorization model: ADMIN = full dashboard permission (single admin today); STAFF = DB member without dashboard access. Future: admin changes own password and assigns staff permissions (UI pending). Gate is \getStaffUser()\ requiring \ole === 'ADMIN'\; seed account staff@konooz.test promoted to ADMIN.
