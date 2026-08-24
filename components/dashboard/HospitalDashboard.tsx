@@ -11,6 +11,7 @@ import {
   HospitalEquipment,
   ScheduledSurgery,
   SurgicalConsumable,
+  PatientFlowStage,
   StaffStatus,
   RoomStatus,
   RoomType,
@@ -45,6 +46,7 @@ export default function HospitalDashboard() {
   const [equipmentList, setEquipmentList] = useState<HospitalEquipment[]>([]);
   const [surgeriesList, setSurgeriesList] = useState<ScheduledSurgery[]>([]);
   const [consumablesList, setConsumablesList] = useState<SurgicalConsumable[]>([]);
+  const [patientFlowList, setPatientFlowList] = useState<PatientFlowStage[]>([]);
 
   useEffect(() => {
     let cancelled = false;
@@ -74,6 +76,13 @@ export default function HospitalDashboard() {
         if (!res.ok) return;
         const json = await res.json();
         if (!cancelled && Array.isArray(json?.data)) setConsumablesList(json.data as SurgicalConsumable[]);
+      })
+      .catch(() => {});
+    fetch('/api/staff/patient-flow')
+      .then(async (res) => {
+        if (!res.ok) return;
+        const json = await res.json();
+        if (!cancelled && Array.isArray(json?.data)) setPatientFlowList(json.data as PatientFlowStage[]);
       })
       .catch(() => {});
     return () => {
@@ -611,6 +620,7 @@ export default function HospitalDashboard() {
               equipmentList={equipmentList}
               surgeriesList={surgeriesList}
               consumablesList={consumablesList}
+              patientFlowList={patientFlowList}
             />
           )}
         </div>

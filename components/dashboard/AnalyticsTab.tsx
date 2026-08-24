@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { useLanguage } from '@/context/LanguageContext';
-import { ANALYTICS_DATA, HospitalStaff, HospitalRoom, HospitalEquipment, ScheduledSurgery, SurgicalConsumable, DUMMY_PATIENT_FLOW } from '@/data/dashboardData';
+import { ANALYTICS_DATA, HospitalStaff, HospitalRoom, HospitalEquipment, ScheduledSurgery, SurgicalConsumable, PatientFlowStage } from '@/data/dashboardData';
 import { ResponsiveContainer, ComposedChart, Line, Bar, XAxis, YAxis, Tooltip, Legend, CartesianGrid } from 'recharts';
 import { Activity, Award, ShieldCheck, Zap, Download, Building2, Users, Gauge, Package, Timer, Workflow } from 'lucide-react';
 
@@ -14,10 +14,11 @@ interface AnalyticsTabProps {
   equipmentList?: HospitalEquipment[];
   surgeriesList?: ScheduledSurgery[];
   consumablesList?: SurgicalConsumable[];
+  patientFlowList?: PatientFlowStage[];
 }
 
 export default function AnalyticsTab({
-  timeframe, onChangeTimeframe, staffList = [], roomsList = [], equipmentList = [], surgeriesList: _surgeriesList = [], consumablesList = []
+  timeframe, onChangeTimeframe, staffList = [], roomsList = [], equipmentList = [], surgeriesList: _surgeriesList = [], consumablesList = [], patientFlowList = []
 }: AnalyticsTabProps) {
   const { lang, t } = useLanguage();
   const [downloadSuccess, setDownloadSuccess] = useState(false);
@@ -360,7 +361,7 @@ export default function AnalyticsTab({
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-7 gap-3">
-            {DUMMY_PATIENT_FLOW.map((stage, idx) => (
+            {patientFlowList.map((stage, idx) => (
               <div key={stage.id} className="p-3.5 rounded-2xl bg-bone-50 border border-pine-200 flex flex-col justify-between space-y-2">
                 <div>
                   <div className="flex items-center justify-between mb-1">

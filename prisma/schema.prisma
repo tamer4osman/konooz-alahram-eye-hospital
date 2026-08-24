@@ -430,7 +430,11 @@ model Bed {
 enum PatientFlowStageType {
   reception
   triage
+  diagnostics
   consultation
+  pre_op
+  in_or
+  pacu
   procedure
   waiting_discharge
   discharged
