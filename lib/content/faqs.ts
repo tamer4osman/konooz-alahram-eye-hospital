@@ -9,7 +9,7 @@ export interface FaqDTO {
   aEn: string
 }
 
-export function toFaqDTO(row: Faq): FaqDTO {
+function toFaqDTO(row: Faq): FaqDTO {
   return {
     id: row.id,
     qAr: row.qAr,

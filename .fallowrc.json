@@ -1,0 +1,15 @@
+{
+  "$schema": "./node_modules/fallow/schema.json",
+  "entry": ["app/**/*.ts{,x}", "scripts/*.ts", "*.config.{mjs,js,ts}"],
+  "ignoreDependencies": [
+    "@eslint/js",
+    "@next/eslint-plugin-next",
+    "@typescript-eslint/eslint-plugin",
+    "@typescript-eslint/parser",
+    "eslint-plugin-jsx-a11y",
+    "eslint-plugin-react-hooks",
+    "globals",
+    "postcss-load-config",
+    "tailwindcss"
+  ]
+}

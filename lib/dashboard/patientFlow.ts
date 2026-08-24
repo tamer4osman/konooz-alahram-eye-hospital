@@ -3,7 +3,7 @@ import type { PatientFlowStage as FlowStageDTO } from '@/data/dashboardData';
 
 // Presentation + clinical-benchmark config stays in code; counts and
 // average times are computed live from PatientFlowStage events.
-export const FLOW_STAGE_META: Array<{
+const FLOW_STAGE_META: Array<{
   stageCode: FlowStageDTO['stageCode'];
   stageType: FlowEvent['stageType'];
   titleAr: string;

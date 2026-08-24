@@ -17,4 +17,3 @@ export const appointmentRequestSchema = z.object({
   notes: z.string().max(2000).optional(),
 })
 
-export type AppointmentRequestInput = z.infer<typeof appointmentRequestSchema>

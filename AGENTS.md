@@ -13,9 +13,22 @@ Use **npm**: `npm install`, `npm run dev`, `npm run build`
 | Lint whole project | `npx eslint .` |
 | Lint single file | `npx eslint path/to/file.tsx` |
 | Typecheck | `npx tsc --noEmit` |
+| Dead-code scan (changed files) | `npm run intel -- dead-code --changed-since main --format json` |
+| Full analysis pass | `npx fallow --format json` |
 | Production build (includes lint + typecheck) | `npm run build` |
 
 No test suite exists yet — lint (0 errors, 0 warnings) + typecheck (0 errors) are the verification gate for every change.
+
+## Codebase Intelligence (Fallow)
+
+[Fallow](https://fallow.tools) (`fallow` devDependency) provides deterministic module-graph analysis: unused files/exports/dependencies, duplication, complexity hotspots, Next.js framework checks. Config: `.fallowrc.json`.
+
+- **After any edit that adds/removes imports or files**, run `npm run intel -- dead-code --changed-since <base-ref> --format json`. Fix orphans your change created before committing.
+- Always use `--format json` when an agent parses output; human format is fine interactively.
+- Before deleting a flagged export, verify it first: `npx fallow dead-code --trace FILE:EXPORT --format json`.
+- `scripts/*.ts` seeds are declared entry points in `.fallowrc.json` — never delete them as "unused".
+- Extend `ignoreDependencies` only with a one-line reason in the commit message (build-tooling deps imported by configs are the usual case).
+- Duplication baseline is ~8% (mostly admin-gate boilerplate across staff API routes); refactor opportunistically into shared helpers when touching those files anyway.
 
 ## Commit Attribution
 
