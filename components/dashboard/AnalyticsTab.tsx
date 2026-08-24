@@ -1,33 +1,11 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { useLanguage } from '@/context/LanguageContext';
+import { useAnalytics } from '@/hooks/use-analytics';
 import { HospitalStaff, HospitalRoom, HospitalEquipment, ScheduledSurgery, SurgicalConsumable, PatientFlowStage } from '@/data/dashboardData';
 import { ResponsiveContainer, ComposedChart, Line, Bar, XAxis, YAxis, Tooltip, Legend, CartesianGrid } from 'recharts';
 import { Activity, Award, ShieldCheck, Zap, Download, Building2, Users, Gauge, Package, Timer, Workflow } from 'lucide-react';
-
-interface AnalyticsKpis {
-  surgeriesCount: number;
-  surgeriesGrowth: string;
-  consultationsCount: number;
-  consultationsGrowth: string;
-  diagnosticScans: number;
-  scansGrowth: string;
-  orUtilizationRate: number;
-  orUtilizationGrowth: string;
-  patientSatisfaction: number | null;
-  averageWaitTimeMin: number | null;
-  revenueLYD: number;
-  revenueGrowth: string;
-}
-interface AnalyticsPayload {
-  periodLabelAr: string;
-  periodLabelEn: string;
-  kpis: AnalyticsKpis;
-  timeline: Array<{ labelAr: string; labelEn: string; consultations: number; surgeries: number; scans: number; revenue: number; orOccupancy?: number }>;
-  departmentWorkload: Array<{ nameAr: string; nameEn: string; count: number; color: string }>;
-  surgeonWorkload: Array<{ nameAr: string; nameEn: string; cases: number; avgDurationMin: number }>;
-}
 
 interface AnalyticsTabProps {
   timeframe: 'day' | 'week' | 'month' | 'year';
@@ -48,23 +26,7 @@ export default function AnalyticsTab({
   const [activeAnalyticsSubTab, setActiveAnalyticsSubTab] = useState<'kpis' | 'resources' | 'flow' | 'stock'>('kpis');
 
   // KPIs are computed server-side from live database records.
-  const [analytics, setAnalytics] = useState<AnalyticsPayload | null>(null);
-
-  useEffect(() => {
-    let cancelled = false;
-    fetch(`/api/staff/analytics?timeframe=${timeframe}`)
-      .then(async (res) => {
-        if (!res.ok) return;
-        const json = await res.json();
-        if (!cancelled && json?.data) setAnalytics(json.data as AnalyticsPayload);
-      })
-      .catch(() => {});
-    return () => {
-      cancelled = true;
-    };
-  }, [timeframe]);
-
-  const currentAnalytics = analytics;
+  const currentAnalytics = useAnalytics(timeframe);
   const kpis = currentAnalytics?.kpis ?? {
     surgeriesCount: 0, surgeriesGrowth: '+0.0%', consultationsCount: 0, consultationsGrowth: '+0.0%',
     diagnosticScans: 0, scansGrowth: '+0.0%', orUtilizationRate: 0, orUtilizationGrowth: '+0.0%',

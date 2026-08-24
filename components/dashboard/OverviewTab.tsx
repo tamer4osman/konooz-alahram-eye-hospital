@@ -1,7 +1,8 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { useLanguage } from '@/context/LanguageContext';
+import { useAnalytics } from '@/hooks/use-analytics';
 import {
   HospitalStaff,
   HospitalRoom,
@@ -10,28 +11,6 @@ import {
 } from '@/data/dashboardData';
 import { ResponsiveContainer, AreaChart, Area, BarChart, Bar, XAxis, YAxis, Tooltip, PieChart, Pie, Cell } from 'recharts';
 import { Activity, Users, Building2, Cpu, Calendar, TrendingUp, Stethoscope, HeartPulse, Eye, ShieldCheck, Zap, ArrowUpRight } from 'lucide-react';
-
-interface AnalyticsKpis {
-  surgeriesCount: number;
-  surgeriesGrowth: string;
-  consultationsCount: number;
-  consultationsGrowth: string;
-  diagnosticScans: number;
-  scansGrowth: string;
-  orUtilizationRate: number;
-  orUtilizationGrowth: string;
-  patientSatisfaction: number | null;
-  averageWaitTimeMin: number | null;
-  revenueLYD: number;
-  revenueGrowth: string;
-}
-interface AnalyticsPayload {
-  periodLabelAr: string;
-  periodLabelEn: string;
-  kpis: AnalyticsKpis;
-  timeline: Array<{ labelAr: string; labelEn: string; consultations: number; surgeries: number; scans: number; revenue: number; orOccupancy?: number }>;
-  departmentWorkload: Array<{ nameAr: string; nameEn: string; count: number; color: string }>;
-}
 
 interface OverviewTabProps {
   timeframe: 'day' | 'week' | 'month' | 'year';
@@ -49,23 +28,7 @@ export default function OverviewTab({
   const { lang, t, } = useLanguage();
 
   // KPIs and timelines are computed server-side from live database records.
-  const [analytics, setAnalytics] = useState<AnalyticsPayload | null>(null);
-
-  useEffect(() => {
-    let cancelled = false;
-    fetch(`/api/staff/analytics?timeframe=${timeframe}`)
-      .then(async (res) => {
-        if (!res.ok) return;
-        const json = await res.json();
-        if (!cancelled && json?.data) setAnalytics(json.data as AnalyticsPayload);
-      })
-      .catch(() => {});
-    return () => {
-      cancelled = true;
-    };
-  }, [timeframe]);
-
-  const currentAnalytics = analytics;
+  const currentAnalytics = useAnalytics(timeframe);
   const kpis = currentAnalytics?.kpis ?? {
     surgeriesCount: 0, surgeriesGrowth: '+0.0%', consultationsCount: 0, consultationsGrowth: '+0.0%',
     diagnosticScans: 0, scansGrowth: '+0.0%', orUtilizationRate: 0, orUtilizationGrowth: '+0.0%',
