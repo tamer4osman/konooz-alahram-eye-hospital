@@ -597,7 +597,7 @@ ${notes.trim() ? `📝 *Additional Notes:* ${notes}\n` : ''}--------------------
                   {!currentPatient && (
                     <p className="text-[11px] text-ink-500 bg-white border border-pine-200 rounded-xl p-3 flex items-start gap-1.5">
                       <ShieldCheck className="w-3.5 h-3.5 text-pine-700 mt-0.5 flex-shrink-0" />
-                      <span>{t('سيتم حفظ بيانات حجزك محلياً على هذا الجهاز فقط. الحسابات السحابية بكلمات مرور ستُفعّل قريباً عند اكتمال ربط النظام الطبي.', 'Your booking details will be saved locally on this device only. Password-protected online accounts activate soon after hospital system integration.')}</span>
+                      <span>{t('يُسجَّل طلب الحجز في خادم المستشفى، ويؤكد موظف الاستقبال الموعد عبر الواتساب.', 'Your booking request is recorded on the hospital server; reception confirms the slot via WhatsApp.')}</span>
                     </p>
                   )}
                 </div>

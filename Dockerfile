@@ -6,8 +6,6 @@ ARG NODE_ENV=production
 FROM node:20-alpine AS deps
 WORKDIR /app
 COPY package.json package-lock.json ./
-# argon2 builds native bindings from source on musl — toolchain needed here only
-RUN apk add --no-cache python3 make g++
 RUN npm ci
 
 # ── Stage 2: build application ────────────────────────────────

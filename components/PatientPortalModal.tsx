@@ -11,7 +11,7 @@ import { X, User, Calendar, Pill, Bell, Mail, Phone, ShieldCheck, CheckCircle2, 
 export default function PatientPortalModal() {
   const { lang, t, isRTL, openQueueModal } = useLanguage();
   const {
-    currentPatient, createLocalProfile, logout, updateProfile, toggleNotificationPref, toggleNewsletterTopic, sendLiveNotificationSimulation, isPatientPortalOpen, closePatientPortal, activePortalTab, setActivePortalTab, openWhatsAppAlert } = usePatientAuth();
+    currentPatient, createLocalProfile, logout, updateProfile, toggleNotificationPref, toggleNewsletterTopic, sendLiveNotificationSimulation, isPatientPortalOpen, closePatientPortal, activePortalTab, setActivePortalTab, openWhatsAppAlert, serverUser, isServerAuthenticated, loginWithServer, registerWithServer, logoutServer } = usePatientAuth();
 
   // Local form state for editing profile
   const [isEditingProfile, setIsEditingProfile] = useState(false);
@@ -26,9 +26,41 @@ export default function PatientPortalModal() {
   const [createGender, setCreateGender] = useState<'male' | 'female'>('male');
   const [createError, setCreateError] = useState<string | null>(null);
 
+  // Server account form state (email + password, httpOnly session)
+  const [authMode, setAuthMode] = useState<'login' | 'register'>('login');
+  const [authEmail, setAuthEmail] = useState('');
+  const [authPassword, setAuthPassword] = useState('');
+  const [authName, setAuthName] = useState('');
+  const [authPhone, setAuthPhone] = useState('');
+  const [authBusy, setAuthBusy] = useState(false);
+  const [authError, setAuthError] = useState<string | null>(null);
+  const [authSuccess, setAuthSuccess] = useState<string | null>(null);
+
   // Notification simulation state
   const [simulationSentMessage, setSimulationSentMessage] = useState<string | null>(null);
   const [activeNewsletterIssue, setActiveNewsletterIssue] = useState<string>(NEWSLETTER_ISSUES[0].id);
+
+  const handleServerAuthSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setAuthError(null);
+    setAuthSuccess(null);
+    setAuthBusy(true);
+    const res = authMode === 'login'
+      ? await loginWithServer(authEmail, authPassword)
+      : await registerWithServer({ fullNameAr: authName, email: authEmail, password: authPassword, phone: authPhone || undefined });
+    setAuthBusy(false);
+    if (res.success) {
+      setAuthSuccess(t(res.messageAr, res.messageEn));
+      setAuthPassword('');
+    } else {
+      setAuthError(t(res.messageAr, res.messageEn));
+    }
+  };
+
+  const handleServerLogout = async () => {
+    await logoutServer();
+    setAuthSuccess(t('تم تسجيل الخروج من الحساب السحابي', 'Signed out of the cloud account'));
+  };
 
   if (!isPatientPortalOpen) return null;
 
@@ -1192,6 +1224,136 @@ export default function PatientPortalModal() {
           {activePortalTab === 'auth' && (
             <div className="space-y-6">
 
+              {/* Server cloud account (email + password) */}
+              <div className="bg-white rounded-2xl p-5 sm:p-7 border border-pine-200 shadow-xs max-w-xl mx-auto space-y-4 animate-in fade-in">
+                <div className="text-center space-y-1.5">
+                  <div className="w-12 h-12 rounded-2xl bg-pine-700 text-white mx-auto flex items-center justify-center border border-pine-800">
+                    <Lock className="w-6 h-6" />
+                  </div>
+                  <h4 className="text-base font-extrabold text-ink-900">
+                    {t('الحساب السحابي الآمن', 'Secure Cloud Account')}
+                  </h4>
+                  <p className="text-xs text-ink-500">
+                    {t('بريد إلكتروني وكلمة مرور — تُحفظ بياناتك في خادم المستشفى وتتبعك على أي جهاز.', 'Email and password — your data lives on the hospital server and follows you across devices.')}
+                  </p>
+                </div>
+
+                {isServerAuthenticated ? (
+                  <div className="space-y-3 text-center">
+                    <div className="p-3 bg-emerald-50 border border-emerald-200 rounded-xl text-emerald-800 text-xs font-bold flex items-center justify-center gap-2">
+                      <CheckCircle2 className="w-4 h-4 flex-shrink-0" />
+                      <span>
+                        {t('مسجل الدخول:', 'Signed in as:')} <span dir="ltr" className="font-mono">{serverUser?.email}</span>
+                      </span>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={handleServerLogout}
+                      className="px-5 py-2.5 bg-rose-50 hover:bg-rose-100 text-rose-800 border border-rose-200 font-bold text-xs rounded-xl transition-colors cursor-pointer"
+                    >
+                      {t('تسجيل الخروج من الحساب السحابي', 'Sign Out of Cloud Account')}
+                    </button>
+                  </div>
+                ) : (
+                  <form onSubmit={handleServerAuthSubmit} className="space-y-3.5 text-xs">
+                    <div className="flex rounded-xl bg-bone-100 p-1 gap-1">
+                      <button
+                        type="button"
+                        onClick={() => { setAuthMode('login'); setAuthError(null); }}
+                        className={`flex-1 py-2 rounded-lg font-extrabold transition-all cursor-pointer ${authMode === 'login' ? 'bg-white text-pine-900 shadow-sm' : 'text-ink-500 hover:text-ink-900'}`}
+                      >
+                        {t('تسجيل الدخول', 'Sign In')}
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => { setAuthMode('register'); setAuthError(null); }}
+                        className={`flex-1 py-2 rounded-lg font-extrabold transition-all cursor-pointer ${authMode === 'register' ? 'bg-white text-pine-900 shadow-sm' : 'text-ink-500 hover:text-ink-900'}`}
+                      >
+                        {t('حساب جديد', 'Create Account')}
+                      </button>
+                    </div>
+
+                    {authMode === 'register' && (
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div>
+                          <label className="block text-ink-700 font-bold mb-1">{t('الاسم الكامل *', 'Full Name *')}</label>
+                          <input
+                            type="text"
+                            required
+                            minLength={2}
+                            value={authName}
+                            onChange={(e) => setAuthName(e.target.value)}
+                            className="w-full p-3 bg-bone-50 border border-ink-300 rounded-xl font-bold text-ink-900 focus:ring-2 focus:ring-pine-500 outline-hidden"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-ink-700 font-bold mb-1">{t('الهاتف (اختياري)', 'Phone (optional)')}</label>
+                          <input
+                            type="tel"
+                            dir="ltr"
+                            value={authPhone}
+                            onChange={(e) => setAuthPhone(e.target.value)}
+                            placeholder="091XXXXXXX"
+                            className="w-full p-3 bg-bone-50 border border-ink-300 rounded-xl font-bold text-ink-900 focus:ring-2 focus:ring-pine-500 outline-hidden"
+                          />
+                        </div>
+                      </div>
+                    )}
+
+                    <div>
+                      <label className="block text-ink-700 font-bold mb-1">{t('البريد الإلكتروني *', 'Email Address *')}</label>
+                      <input
+                        type="email"
+                        required
+                        dir="ltr"
+                        value={authEmail}
+                        onChange={(e) => setAuthEmail(e.target.value)}
+                        placeholder="patient@example.com"
+                        className="w-full p-3 bg-bone-50 border border-ink-300 rounded-xl font-bold text-ink-900 focus:ring-2 focus:ring-pine-500 outline-hidden"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-ink-700 font-bold mb-1">{t('كلمة المرور * (8 أحرف على الأقل)', 'Password * (min 8 characters)')}</label>
+                      <input
+                        type="password"
+                        required
+                        minLength={8}
+                        dir="ltr"
+                        value={authPassword}
+                        onChange={(e) => setAuthPassword(e.target.value)}
+                        className="w-full p-3 bg-bone-50 border border-ink-300 rounded-xl font-bold text-ink-900 focus:ring-2 focus:ring-pine-500 outline-hidden"
+                      />
+                    </div>
+
+                    {authError && (
+                      <div className="p-3 bg-rose-50 border border-rose-200 rounded-xl text-rose-800 text-xs font-bold flex items-center gap-2">
+                        <AlertCircle className="w-4 h-4 text-rose-600 flex-shrink-0" />
+                        <span>{authError}</span>
+                      </div>
+                    )}
+                    {authSuccess && (
+                      <div className="p-3 bg-emerald-50 border border-emerald-200 rounded-xl text-emerald-800 text-xs font-bold flex items-center gap-2">
+                        <CheckCircle2 className="w-4 h-4 text-emerald-600 flex-shrink-0" />
+                        <span>{authSuccess}</span>
+                      </div>
+                    )}
+
+                    <button
+                      type="submit"
+                      disabled={authBusy}
+                      className="w-full py-3 bg-pine-700 hover:bg-pine-800 disabled:opacity-60 text-white font-extrabold text-xs rounded-xl shadow-sm transition-all cursor-pointer"
+                    >
+                      {authBusy
+                        ? t('جارٍ المعالجة…', 'Processing…')
+                        : authMode === 'login'
+                          ? t('دخول إلى حسابي', 'Sign In to My Account')
+                          : t('إنشاء الحساب السحابي', 'Create Cloud Account')}
+                    </button>
+                  </form>
+                )}
+              </div>
+
               {currentPatient ? (
                 /* Existing device-local profile */
                 <div className="bg-white rounded-2xl p-5 sm:p-7 border border-pine-200 shadow-xs max-w-xl mx-auto space-y-5 animate-in fade-in text-center">
@@ -1211,8 +1373,8 @@ export default function PatientPortalModal() {
 
                   <p className="text-[11px] text-brass-600 bg-brass-50 ring-1 ring-brass-300 rounded-xl p-3 leading-relaxed text-start">
                     {t(
-                      'بياناتك تُخزَّن محلياً في متصفح هذا الجهاز فقط ولا تُرسل إلى أي خادم. الحسابات السحابية بكلمات مرور ستُفعّل عند اكتمال ربط النظام الطبي.',
-                      'Your data is stored locally in this browser only and is never sent to a server. Password-protected online accounts will activate once hospital system integration completes.'
+                      'بياناتك تُخزَّن محلياً في متصفح هذا الجهاز فقط ولا تُرسل إلى أي خادم. للحساب السحابي المتزامن عبر الأجهزة استخدم نموذج الحساب الآمن أعلاه.',
+                      'Your data is stored locally in this browser only and is never sent to a server. For a cross-device synced account, use the Secure Cloud Account form above.'
                     )}
                   </p>
 
@@ -1244,7 +1406,7 @@ export default function PatientPortalModal() {
                       {t('إنشاء ملف طبي محلي', 'Create Your Medical Profile')}
                     </h4>
                     <p className="text-xs text-ink-500">
-                      {t('بدون كلمات مرور حالياً — بياناتك تُحفظ على هذا الجهاز فقط حتى تشغيل الحسابات السحابية.', 'No passwords for now — your data is saved on this device only until online accounts launch.')}
+                      {t('بدون كلمات مرور — بياناتك تُحفظ على هذا الجهاز فقط. للحساب المتزامن استخدم النموذج الآمن أعلاه.', 'No passwords — your data is saved on this device only. For a synced account use the Secure Cloud form above.')}
                     </p>
                   </div>
 
@@ -1342,7 +1504,7 @@ export default function PatientPortalModal() {
         <div className="bg-bone-100 border-t border-pine-200 px-4 sm:px-6 py-3 flex items-center justify-between text-xs text-ink-500">
           <div className="flex items-center gap-2">
             <ShieldCheck className="w-4 h-4 text-pine-700 flex-shrink-0" />
-            <span>{t('بياناتك محفوظة على هذا الجهاز فقط — الحسابات السحابية قيد التشغيل قريباً', 'Your data stays on this device only — secure online accounts are coming soon')}</span>
+            <span>{t('الملف المحلي على هذا الجهاز — والحساب السحابي الآمن متاح من تبويب الحساب', 'Local profile on this device — Secure Cloud Account available in the Account tab')}</span>
           </div>
 
           <button

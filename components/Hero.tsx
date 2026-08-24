@@ -510,7 +510,7 @@ ${symptomDetails.trim() ? `📝 *Additional Notes:* ${symptomDetails}\n` : ''}�
                     {!currentPatient && (
                       <p className="text-[10px] text-ink-500 bg-bone-100 border border-pine-900/20 rounded-lg p-2 flex items-start gap-1.5">
                         <ShieldCheck className="w-3 h-3 text-pine-700 mt-0.5 flex-shrink-0" />
-                        <span>{t('تُحفظ بيانات حجزك محلياً على هذا الجهاز فقط — الحسابات السحابية بكلمات مرور قريباً.', 'Your booking details are saved locally on this device only — password-protected online accounts are coming soon.')}</span>
+                        <span>{t('يُحفظ طلب الحجز في خادم المستشفى ويُفتح واتساب للتأكيد مع الاستقبال.', 'Your booking request is saved on the hospital server; WhatsApp opens for reception confirmation.')}</span>
                       </p>
                     )}
                   </div>

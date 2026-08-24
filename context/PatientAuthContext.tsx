@@ -1,8 +1,9 @@
 'use client';
 
-import React, { createContext, useContext, useState, useMemo, useSyncExternalStore } from 'react';
+import React, { createContext, useContext, useState, useMemo, useEffect, useSyncExternalStore } from 'react';
 import { PatientProfile } from '@/data/patientPortalData';
 import { HOSPITAL_CONTACTS } from '@/data/hospitalData';
+import { AUTH_MESSAGES } from '@/data/authMessages';
 
 type PortalTab = 'profile' | 'appointments' | 'prescriptions' | 'notifications' | 'newsletter' | 'auth';
 
@@ -39,7 +40,14 @@ interface PatientAuthContextType {
   currentPatient: PatientProfile | null;
   isLoggedIn: boolean;
 
-  // Device-local profile: no server accounts exist yet. Data never leaves this browser.
+  // Server account (email + password, httpOnly session cookie)
+  serverUser: { id: string; email: string } | null;
+  isServerAuthenticated: boolean;
+  loginWithServer: (email: string, password: string) => Promise<{ success: boolean; messageAr: string; messageEn: string }>;
+  registerWithServer: (params: { fullNameAr: string; email: string; password: string; phone?: string; gender?: 'male' | 'female' }) => Promise<{ success: boolean; messageAr: string; messageEn: string }>;
+  logoutServer: () => Promise<void>;
+
+  // Device-local profile: no server round-trip. Complements the server account.
   createLocalProfile: (params: {
     fullNameAr: string;
     email: string;
@@ -169,6 +177,68 @@ export function PatientAuthProvider({ children }: { children: React.ReactNode })
   const [isPatientPortalOpen, setIsPatientPortalOpen] = useState<boolean>(false);
   const [activePortalTab, setActivePortalTab] = useState<PortalTab>('profile');
   const [newsletterSubscribers, setNewsletterSubscribers] = useState<Array<{ email: string; whatsapp: string; name: string; date: string }>>([]);
+  const [serverUser, setServerUser] = useState<{ id: string; email: string } | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    fetch('/api/auth/me')
+      .then(async (res) => {
+        if (!res.ok) return;
+        const json = await res.json();
+        if (!cancelled && json?.data?.user) setServerUser({ id: json.data.user.id, email: json.data.user.email });
+      })
+      .catch(() => {});
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const loginWithServer = async (email: string, password: string) => {
+    try {
+      const res = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: email.trim().toLowerCase(), password })
+      });
+      const json = await res.json();
+      if (res.ok && json?.data?.user) {
+        setServerUser({ id: json.data.user.id, email: json.data.user.email });
+        return { success: true, messageAr: AUTH_MESSAGES.loginSuccess.ar, messageEn: AUTH_MESSAGES.loginSuccess.en };
+      }
+      const err = json?.error;
+      return { success: false, messageAr: err?.messageAr ?? AUTH_MESSAGES.invalidCredentials.ar, messageEn: err?.messageEn ?? AUTH_MESSAGES.invalidCredentials.en };
+    } catch {
+      return { success: false, messageAr: 'تعذر الاتصال بالخادم، حاول مجدداً', messageEn: 'Could not reach the server, please retry' };
+    }
+  };
+
+  const registerWithServer = async ({ fullNameAr, email, password, phone, gender }: { fullNameAr: string; email: string; password: string; phone?: string; gender?: 'male' | 'female' }) => {
+    try {
+      const res = await fetch('/api/auth/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ fullNameAr: fullNameAr.trim(), email: email.trim().toLowerCase(), password, phone: phone || undefined, gender })
+      });
+      const json = await res.json();
+      if (res.ok && json?.data?.user) {
+        setServerUser({ id: json.data.user.id, email: json.data.user.email });
+        return { success: true, messageAr: AUTH_MESSAGES.registerSuccess.ar, messageEn: AUTH_MESSAGES.registerSuccess.en };
+      }
+      const err = json?.error;
+      return { success: false, messageAr: err?.messageAr ?? 'تعذر إنشاء الحساب', messageEn: err?.messageEn ?? 'Could not create account' };
+    } catch {
+      return { success: false, messageAr: 'تعذر الاتصال بالخادم، حاول مجدداً', messageEn: 'Could not reach the server, please retry' };
+    }
+  };
+
+  const logoutServer = async () => {
+    try {
+      await fetch('/api/auth/logout', { method: 'POST' });
+    } catch {
+      // cookie cleared client-side regardless
+    }
+    setServerUser(null);
+  };
 
   const savePatient = (patient: PatientProfile | null) => {
     try {
@@ -235,8 +305,8 @@ export function PatientAuthProvider({ children }: { children: React.ReactNode })
 
     return {
       success: true,
-      messageAr: 'تم إنشاء ملفك المحلي. بياناتك محفوظة على هذا الجهاز فقط حتى تشغيل الحسابات السحابية.',
-      messageEn: 'Local profile created. Your data is stored on this device only until online accounts launch.'
+      messageAr: 'تم إنشاء ملفك المحلي على هذا الجهاز. يمكنك أيضاً إنشاء حساب سحابي بكلمة مرور من تبويب الحساب.',
+      messageEn: 'Local profile created on this device. You can also create a password-protected cloud account from the Account tab.'
     };
   };
 
@@ -403,6 +473,11 @@ export function PatientAuthProvider({ children }: { children: React.ReactNode })
       value={{
         currentPatient,
         isLoggedIn: !!currentPatient,
+        serverUser,
+        isServerAuthenticated: !!serverUser,
+        loginWithServer,
+        registerWithServer,
+        logoutServer,
         createLocalProfile,
         logout,
         updateProfile,
