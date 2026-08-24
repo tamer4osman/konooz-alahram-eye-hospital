@@ -9,7 +9,7 @@ import Modal from '@/components/ui/Modal';
 import { X, User, Calendar, Pill, Bell, Mail, Phone, ShieldCheck, CheckCircle2, AlertCircle, Sparkles, Send, Eye, Clock, Printer, FileText, Lock, LogOut, ChevronRight, Smartphone, Check, Bookmark } from 'lucide-react';
 
 export default function PatientPortalModal() {
-  const { lang, t, isRTL, openQueueModal } = useLanguage();
+  const { lang, t, isRTL, openQueueModal, setActiveView } = useLanguage();
   const {
     currentPatient, createLocalProfile, logout, updateProfile, toggleNotificationPref, toggleNewsletterTopic, sendLiveNotificationSimulation, isPatientPortalOpen, closePatientPortal, activePortalTab, setActivePortalTab, openWhatsAppAlert, serverUser, isServerAuthenticated, loginWithServer, registerWithServer, logoutServer } = usePatientAuth();
 
@@ -1253,6 +1253,15 @@ export default function PatientPortalModal() {
                     >
                       {t('تسجيل الخروج من الحساب السحابي', 'Sign Out of Cloud Account')}
                     </button>
+                    {serverUser?.role === 'STAFF' && (
+                      <button
+                        type="button"
+                        onClick={() => { closePatientPortal(); setActiveView('dashboard'); }}
+                        className="w-full py-3 bg-pine-700 hover:bg-pine-800 text-white font-extrabold text-xs rounded-xl shadow-sm transition-all cursor-pointer"
+                      >
+                        {t('فتح لوحة تحكم المستشفى', 'Open Hospital Operations Dashboard')}
+                      </button>
+                    )}
                   </div>
                 ) : (
                   <form onSubmit={handleServerAuthSubmit} className="space-y-3.5 text-xs">

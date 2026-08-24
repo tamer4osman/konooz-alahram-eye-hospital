@@ -41,7 +41,7 @@ interface PatientAuthContextType {
   isLoggedIn: boolean;
 
   // Server account (email + password, httpOnly session cookie)
-  serverUser: { id: string; email: string } | null;
+  serverUser: { id: string; email: string; role: 'PATIENT' | 'STAFF' } | null;
   isServerAuthenticated: boolean;
   loginWithServer: (email: string, password: string) => Promise<{ success: boolean; messageAr: string; messageEn: string }>;
   registerWithServer: (params: { fullNameAr: string; email: string; password: string; phone?: string; gender?: 'male' | 'female' }) => Promise<{ success: boolean; messageAr: string; messageEn: string }>;
@@ -177,7 +177,7 @@ export function PatientAuthProvider({ children }: { children: React.ReactNode })
   const [isPatientPortalOpen, setIsPatientPortalOpen] = useState<boolean>(false);
   const [activePortalTab, setActivePortalTab] = useState<PortalTab>('profile');
   const [newsletterSubscribers, setNewsletterSubscribers] = useState<Array<{ email: string; whatsapp: string; name: string; date: string }>>([]);
-  const [serverUser, setServerUser] = useState<{ id: string; email: string } | null>(null);
+  const [serverUser, setServerUser] = useState<{ id: string; email: string; role: 'PATIENT' | 'STAFF' } | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -185,7 +185,7 @@ export function PatientAuthProvider({ children }: { children: React.ReactNode })
       .then(async (res) => {
         if (!res.ok) return;
         const json = await res.json();
-        if (!cancelled && json?.data?.user) setServerUser({ id: json.data.user.id, email: json.data.user.email });
+        if (!cancelled && json?.data?.user) setServerUser({ id: json.data.user.id, email: json.data.user.email, role: json.data.user.role });
       })
       .catch(() => {});
     return () => {
@@ -202,7 +202,7 @@ export function PatientAuthProvider({ children }: { children: React.ReactNode })
       });
       const json = await res.json();
       if (res.ok && json?.data?.user) {
-        setServerUser({ id: json.data.user.id, email: json.data.user.email });
+        setServerUser({ id: json.data.user.id, email: json.data.user.email, role: json.data.user.role });
         return { success: true, messageAr: AUTH_MESSAGES.loginSuccess.ar, messageEn: AUTH_MESSAGES.loginSuccess.en };
       }
       const err = json?.error;
@@ -221,7 +221,7 @@ export function PatientAuthProvider({ children }: { children: React.ReactNode })
       });
       const json = await res.json();
       if (res.ok && json?.data?.user) {
-        setServerUser({ id: json.data.user.id, email: json.data.user.email });
+        setServerUser({ id: json.data.user.id, email: json.data.user.email, role: 'PATIENT' });
         return { success: true, messageAr: AUTH_MESSAGES.registerSuccess.ar, messageEn: AUTH_MESSAGES.registerSuccess.en };
       }
       const err = json?.error;

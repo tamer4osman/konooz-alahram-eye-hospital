@@ -2,6 +2,7 @@
 
 import React from 'react';
 import dynamic from 'next/dynamic';
+import { Lock } from 'lucide-react';
 import { LanguageProvider, useLanguage } from '@/context/LanguageContext';
 import { PatientAuthProvider, usePatientAuth } from '@/context/PatientAuthContext';
 import Navbar from '@/components/Navbar';
@@ -43,9 +44,33 @@ function MainAppContent() {
     closeCostCalculatorModal,
     openBookingModal
   } = useLanguage();
-  const { isPatientPortalOpen } = usePatientAuth();
+  const { isPatientPortalOpen, serverUser, openPatientPortal } = usePatientAuth();
 
   if (activeView === 'dashboard') {
+    if (serverUser?.role !== 'STAFF') {
+      return (
+        <div className="min-h-screen flex items-center justify-center bg-slate-950 px-4">
+          <div className="max-w-md w-full bg-slate-900 border border-slate-700 rounded-2xl p-8 text-center space-y-4">
+            <div className="w-14 h-14 rounded-2xl bg-rose-950 text-rose-400 mx-auto flex items-center justify-center border border-rose-900">
+              <Lock className="w-7 h-7" aria-hidden="true" />
+            </div>
+            <h1 className="text-lg font-extrabold text-white">
+              لوحة التحكم للطاقم المصرح لهم فقط
+            </h1>
+            <p className="text-sm text-slate-400 leading-relaxed" dir="ltr">
+              The operations dashboard requires a staff account. Patients can sign in from the patient portal.
+            </p>
+            <button
+              type="button"
+              onClick={() => openPatientPortal('auth')}
+              className="px-5 py-2.5 bg-pine-600 hover:bg-pine-500 text-white font-extrabold text-xs rounded-xl transition-colors cursor-pointer"
+            >
+              تسجيل الدخول كطاقم / Staff Sign In
+            </button>
+          </div>
+        </div>
+      );
+    }
     return (
       <>
         <HospitalDashboard />

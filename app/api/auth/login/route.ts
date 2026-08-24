@@ -32,5 +32,5 @@ export async function POST(req: NextRequest) {
   }
 
   await createSession(user.id)
-  return apiSuccess({ user: { id: user.id, email: user.email } })
+  return apiSuccess({ user: { id: user.id, email: user.email, role: user.role } })
 }

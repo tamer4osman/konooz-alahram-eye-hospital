@@ -13,7 +13,7 @@ export default function Navbar() {
   const {
     lang, setLang, t, openBookingModal, openVisionTestModal, setActiveView, openQueueModal, openCostCalculatorModal
   } = useLanguage();
-  const { currentPatient, openPatientPortal } = usePatientAuth();
+  const { currentPatient, openPatientPortal, serverUser } = usePatientAuth();
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
@@ -110,9 +110,15 @@ export default function Navbar() {
 
               <button
                 id="btn-nav-dashboard"
-                onClick={() => setActiveView('dashboard')}
+                onClick={() => {
+                  if (serverUser?.role === 'STAFF') {
+                    setActiveView('dashboard');
+                  } else {
+                    openPatientPortal('auth');
+                  }
+                }}
                 className="flex items-center gap-1 px-2 py-0.5 rounded-md bg-white/10 hover:bg-white/20 ring-1 ring-brass-400/40 text-pine-100 hover:text-white text-[11px] font-bold transition-colors cursor-pointer whitespace-nowrap"
-                title={t('لوحة التحكم وإدارة العمليات الطبية (Bahmni Hub)', 'Hospital Operations Command Hub')}
+                title={t('لوحة التحكم — للطاقم المصرح لهم فقط', 'Operations Hub — authorized staff only')}
               >
                 <span className="w-1.5 h-1.5 rounded-full bg-brass-400 inline-block" aria-hidden="true" />
                 <span className="hidden xl:inline">{t('إدارة المستشفى', 'Operations Hub')}</span>
@@ -257,7 +263,11 @@ export default function Navbar() {
             <button
               onClick={() => {
                 setMobileMenuOpen(false);
-                setActiveView('dashboard');
+                if (serverUser?.role === 'STAFF') {
+                  setActiveView('dashboard');
+                } else {
+                  openPatientPortal('auth');
+                }
               }}
               className="w-full py-2.5 px-4 bg-bone-100 hover:bg-bone-200 border border-pine-900/15 text-ink-900 rounded-lg text-sm font-bold flex items-center justify-center gap-2 transition-colors"
             >

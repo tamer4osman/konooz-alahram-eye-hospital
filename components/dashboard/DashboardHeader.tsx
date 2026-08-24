@@ -3,8 +3,9 @@
 import React, { useState } from 'react';
 import Image from 'next/image';
 import { useLanguage } from '@/context/LanguageContext';
+import { usePatientAuth } from '@/context/PatientAuthContext';
 import { DashboardUser, DUMMY_MANAGERS } from '@/data/dashboardData';
-import { Activity, Calendar, ChevronDown, RefreshCw, Bell, ArrowRight, ArrowLeft, Building2, Plus, Users, Cpu, Radio } from 'lucide-react';
+import { Activity, Calendar, ChevronDown, RefreshCw, Bell, ArrowRight, ArrowLeft, Building2, Plus, Users, Cpu, Radio, LogOut } from 'lucide-react';
 
 interface DashboardHeaderProps {
   currentUser: DashboardUser;
@@ -18,6 +19,7 @@ export default function DashboardHeader({
   currentUser, onSelectUser, timeframe, onChangeTimeframe, onOpenAddModal
 }: DashboardHeaderProps) {
   const { lang, t, isRTL, setActiveView } = useLanguage();
+  const { serverUser, logoutServer } = usePatientAuth();
   const [userDropdownOpen, setUserDropdownOpen] = useState(false);
   const [addMenuOpen, setAddMenuOpen] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
@@ -61,6 +63,23 @@ export default function DashboardHeader({
 
           {/* Switch back to Public Hospital Portal */}
           <div className="flex items-center gap-3">
+            {serverUser && (
+              <span
+                dir="ltr"
+                className="hidden sm:inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-pine-900/40 border border-pine-700/40 text-pine-200 text-[11px] font-bold font-mono"
+                title={t('حساب الطاقم المسجل دخوله', 'Signed-in staff account')}
+              >
+                {serverUser.email}
+              </span>
+            )}
+            <button
+              onClick={async () => { await logoutServer(); setActiveView('portal'); }}
+              className="flex items-center gap-1.5 px-3 py-1 bg-rose-950/40 hover:bg-rose-900/50 text-rose-300 hover:text-white border border-rose-800/40 rounded-lg text-xs font-bold transition-colors cursor-pointer"
+              title={t('تسجيل خروج الطاقم', 'Staff sign out')}
+            >
+              <LogOut className="w-3.5 h-3.5" />
+              <span>{t('خروج', 'Sign Out')}</span>
+            </button>
             <button
               onClick={() => setActiveView('portal')}
               className="flex items-center gap-1.5 px-3 py-1 bg-pine-900/40 hover:bg-pine-800/60 text-brass-300 hover:text-white border border-pine-700/40 rounded-lg text-xs font-bold transition-colors cursor-pointer"
