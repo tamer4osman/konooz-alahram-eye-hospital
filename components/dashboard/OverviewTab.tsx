@@ -1,9 +1,8 @@
 'use client';
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useLanguage } from '@/context/LanguageContext';
 import {
-  ANALYTICS_DATA,
   HospitalStaff,
   HospitalRoom,
   HospitalEquipment,
@@ -11,6 +10,28 @@ import {
 } from '@/data/dashboardData';
 import { ResponsiveContainer, AreaChart, Area, BarChart, Bar, XAxis, YAxis, Tooltip, PieChart, Pie, Cell } from 'recharts';
 import { Activity, Users, Building2, Cpu, Calendar, TrendingUp, Stethoscope, HeartPulse, Eye, ShieldCheck, Zap, ArrowUpRight } from 'lucide-react';
+
+interface AnalyticsKpis {
+  surgeriesCount: number;
+  surgeriesGrowth: string;
+  consultationsCount: number;
+  consultationsGrowth: string;
+  diagnosticScans: number;
+  scansGrowth: string;
+  orUtilizationRate: number;
+  orUtilizationGrowth: string;
+  patientSatisfaction: number | null;
+  averageWaitTimeMin: number | null;
+  revenueLYD: number;
+  revenueGrowth: string;
+}
+interface AnalyticsPayload {
+  periodLabelAr: string;
+  periodLabelEn: string;
+  kpis: AnalyticsKpis;
+  timeline: Array<{ labelAr: string; labelEn: string; consultations: number; surgeries: number; scans: number; revenue: number; orOccupancy?: number }>;
+  departmentWorkload: Array<{ nameAr: string; nameEn: string; count: number; color: string }>;
+}
 
 interface OverviewTabProps {
   timeframe: 'day' | 'week' | 'month' | 'year';
@@ -27,8 +48,29 @@ export default function OverviewTab({
 }: OverviewTabProps) {
   const { lang, t, } = useLanguage();
 
-  const currentAnalytics = ANALYTICS_DATA[timeframe];
-  const kpis = currentAnalytics.kpis;
+  // KPIs and timelines are computed server-side from live database records.
+  const [analytics, setAnalytics] = useState<AnalyticsPayload | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    fetch(`/api/staff/analytics?timeframe=${timeframe}`)
+      .then(async (res) => {
+        if (!res.ok) return;
+        const json = await res.json();
+        if (!cancelled && json?.data) setAnalytics(json.data as AnalyticsPayload);
+      })
+      .catch(() => {});
+    return () => {
+      cancelled = true;
+    };
+  }, [timeframe]);
+
+  const currentAnalytics = analytics;
+  const kpis = currentAnalytics?.kpis ?? {
+    surgeriesCount: 0, surgeriesGrowth: '+0.0%', consultationsCount: 0, consultationsGrowth: '+0.0%',
+    diagnosticScans: 0, scansGrowth: '+0.0%', orUtilizationRate: 0, orUtilizationGrowth: '+0.0%',
+    patientSatisfaction: null, averageWaitTimeMin: null, revenueLYD: 0, revenueGrowth: '+0.0%'
+  };
 
   // Real-time Counts
   const onDutyStaff = staffList.filter((s) => s.status === 'on_duty' || s.status === 'in_surgery').length;
@@ -38,26 +80,15 @@ export default function OverviewTab({
   const _inUseEquipment = equipmentList.filter((e) => e.status === 'in_use').length;
   const operationalEquipment = equipmentList.filter((e) => e.status === 'operational' || e.status === 'in_use').length;
 
-  // Dynamic Chart Data based on timeframe
-  const getTimelineData = () => {
-    if (timeframe === 'day') {
-      return (currentAnalytics as any).hourlyTimeline;
-    }
-    if (timeframe === 'week') {
-      return (currentAnalytics as any).daysTimeline.map((item: any) => ({
-        label: lang === 'ar' ? item.dayAr : item.dayEn, consultations: item.consultations, surgeries: item.surgeries, scans: item.scans, revenue: item.revenue
-      })); }
-    if (timeframe === 'month') {
-      return (currentAnalytics as any).weeksTimeline.map((item: any) => ({
-        label: lang === 'ar' ? item.weekAr : item.weekEn, consultations: item.consultations, surgeries: item.surgeries, scans: item.scans, revenue: item.revenue
-      }));
-    }
-    return (currentAnalytics as any).monthsTimeline.map((item: any) => ({
-      label: lang === 'ar' ? item.monthAr : item.monthEn, consultations: item.consultations, surgeries: item.surgeries, scans: item.scans, revenue: item.revenue
-    })); };
-
-  const timelineData = getTimelineData();
-  const departmentData = currentAnalytics.departmentWorkload.map((d: any) => ({
+  const timelineData: Array<{ label: string; consultations: number; surgeries: number; scans: number; revenue: number }> =
+    (currentAnalytics?.timeline ?? []).map((item) => ({
+      label: lang === 'ar' ? item.labelAr : item.labelEn,
+      consultations: item.consultations,
+      surgeries: item.surgeries,
+      scans: item.scans,
+      revenue: item.revenue
+    }));
+  const departmentData = (currentAnalytics?.departmentWorkload ?? []).map((d) => ({
     name: lang === 'ar' ? d.nameAr : d.nameEn,
     value: d.count,
     color: d.color
@@ -73,7 +104,7 @@ export default function OverviewTab({
         <div>
           <div className="flex items-center gap-2 mb-1">
             <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-pine-500/20 text-brass-300 border border-brass-400/30">
-              {t(currentAnalytics.periodLabelAr, currentAnalytics.periodLabelEn)}
+              {currentAnalytics ? t(currentAnalytics.periodLabelAr, currentAnalytics.periodLabelEn) : t('جارٍ الحساب…', 'Computing…')}
             </span>
             <span className="text-xs text-ink-400">
               {t('تحديث فوري متزامن مع شبكة غرف العمليات', 'Live Sync with OR Telemetry')}
@@ -201,10 +232,10 @@ export default function OverviewTab({
               <ShieldCheck className="w-4 h-4" />
             </span>
             <span className="text-[10px] font-extrabold text-pine-800 bg-pine-50 px-1.5 py-0.5 rounded-md">
-              {kpis.averageWaitTimeMin} {t('دقيقة انتظار', 'min wait')}
+              {kpis.averageWaitTimeMin ?? '—'} {t('دقيقة انتظار', 'min wait')}
             </span>
           </div>
-          <div className="text-2xl font-extrabold text-pine-900 tracking-tight">{kpis.patientSatisfaction}%</div>
+          <div className="text-2xl font-extrabold text-pine-900 tracking-tight">{kpis.patientSatisfaction ?? '—'}{kpis.patientSatisfaction !== null ? '%' : ''}</div>
           <div className="text-xs font-bold text-ink-500 mt-0.5">{t('رضا المرضى وجودة الرعاية', 'Patient Satisfaction')}</div>
           <div className="text-[10px] text-ink-400 mt-1">{t('مؤشر التعافي بعد الجراحة', 'Post-Op Recovery Index')}</div>
         </div>

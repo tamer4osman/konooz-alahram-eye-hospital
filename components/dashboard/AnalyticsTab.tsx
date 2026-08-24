@@ -1,10 +1,33 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useLanguage } from '@/context/LanguageContext';
-import { ANALYTICS_DATA, HospitalStaff, HospitalRoom, HospitalEquipment, ScheduledSurgery, SurgicalConsumable, PatientFlowStage } from '@/data/dashboardData';
+import { HospitalStaff, HospitalRoom, HospitalEquipment, ScheduledSurgery, SurgicalConsumable, PatientFlowStage } from '@/data/dashboardData';
 import { ResponsiveContainer, ComposedChart, Line, Bar, XAxis, YAxis, Tooltip, Legend, CartesianGrid } from 'recharts';
 import { Activity, Award, ShieldCheck, Zap, Download, Building2, Users, Gauge, Package, Timer, Workflow } from 'lucide-react';
+
+interface AnalyticsKpis {
+  surgeriesCount: number;
+  surgeriesGrowth: string;
+  consultationsCount: number;
+  consultationsGrowth: string;
+  diagnosticScans: number;
+  scansGrowth: string;
+  orUtilizationRate: number;
+  orUtilizationGrowth: string;
+  patientSatisfaction: number | null;
+  averageWaitTimeMin: number | null;
+  revenueLYD: number;
+  revenueGrowth: string;
+}
+interface AnalyticsPayload {
+  periodLabelAr: string;
+  periodLabelEn: string;
+  kpis: AnalyticsKpis;
+  timeline: Array<{ labelAr: string; labelEn: string; consultations: number; surgeries: number; scans: number; revenue: number; orOccupancy?: number }>;
+  departmentWorkload: Array<{ nameAr: string; nameEn: string; count: number; color: string }>;
+  surgeonWorkload: Array<{ nameAr: string; nameEn: string; cases: number; avgDurationMin: number }>;
+}
 
 interface AnalyticsTabProps {
   timeframe: 'day' | 'week' | 'month' | 'year';
@@ -24,8 +47,29 @@ export default function AnalyticsTab({
   const [downloadSuccess, setDownloadSuccess] = useState(false);
   const [activeAnalyticsSubTab, setActiveAnalyticsSubTab] = useState<'kpis' | 'resources' | 'flow' | 'stock'>('kpis');
 
-  const currentAnalytics = ANALYTICS_DATA[timeframe];
-  const kpis = currentAnalytics.kpis;
+  // KPIs are computed server-side from live database records.
+  const [analytics, setAnalytics] = useState<AnalyticsPayload | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    fetch(`/api/staff/analytics?timeframe=${timeframe}`)
+      .then(async (res) => {
+        if (!res.ok) return;
+        const json = await res.json();
+        if (!cancelled && json?.data) setAnalytics(json.data as AnalyticsPayload);
+      })
+      .catch(() => {});
+    return () => {
+      cancelled = true;
+    };
+  }, [timeframe]);
+
+  const currentAnalytics = analytics;
+  const kpis = currentAnalytics?.kpis ?? {
+    surgeriesCount: 0, surgeriesGrowth: '+0.0%', consultationsCount: 0, consultationsGrowth: '+0.0%',
+    diagnosticScans: 0, scansGrowth: '+0.0%', orUtilizationRate: 0, orUtilizationGrowth: '+0.0%',
+    patientSatisfaction: null, averageWaitTimeMin: null, revenueLYD: 0, revenueGrowth: '+0.0%'
+  };
 
   // Dynamic calculations based on live resource arrays
   const totalRooms = roomsList.length || 4;
@@ -47,36 +91,23 @@ export default function AnalyticsTab({
     }, 2500); };
 
   const getTimelineData = () => {
-    if (timeframe === 'day') {
-      return (currentAnalytics as any).hourlyTimeline;
-    }
-    if (timeframe === 'week') {
-      return (currentAnalytics as any).daysTimeline.map((item: any) => ({
-        label: lang === 'ar' ? item.dayAr : item.dayEn, consultations: item.consultations, surgeries: item.surgeries, scans: item.scans, revenue: item.revenue
-      }));
-    }
-    if (timeframe === 'month') {
-      return (currentAnalytics as any).weeksTimeline.map((item: any) => ({
-        label: lang === 'ar' ? item.weekAr : item.weekEn, consultations: item.consultations, surgeries: item.surgeries, scans: item.scans, revenue: item.revenue
-      })); }
-    return (currentAnalytics as any).monthsTimeline.map((item: any) => ({
-      label: lang === 'ar' ? item.monthAr : item.monthEn, consultations: item.consultations, surgeries: item.surgeries, scans: item.scans, revenue: item.revenue
+    return (currentAnalytics?.timeline ?? []).map((item) => ({
+      label: lang === 'ar' ? item.labelAr : item.labelEn, consultations: item.consultations, surgeries: item.surgeries, scans: item.scans, revenue: item.revenue
     }));
   };
 
   const timelineData = getTimelineData();
 
-  // Egyptian Visiting Consultants vs Resident Surgeons Data
-  const consultantPerformance = [
-    {
-      nameAr: 'أ.د. محمود الحسيني (الشبكية)', nameEn: 'Prof. Dr. Mahmoud Al-Husseini', cases: timeframe === 'day' ? 6 : timeframe === 'week' ? 34 : timeframe === 'month' ? 142 : 1480, successRate: '99.6%', avgDuration: '65 min', satisfaction: '99.8%'
-    }, {
-      nameAr: 'أ.د. طارق قطامش (القرنية والليزك)', nameEn: 'Prof. Dr. Tarek Katamish', cases: timeframe === 'day' ? 7 : timeframe === 'week' ? 38 : timeframe === 'month' ? 165 : 1720, successRate: '99.8%', avgDuration: '18 min', satisfaction: '99.9%' }, {
-      nameAr: 'أ.د. حسام زيادة (عيون الأطفال والحول)', nameEn: 'Prof. Dr. Hossam Ziada', cases: timeframe === 'day' ? 3 : timeframe === 'week' ? 16 : timeframe === 'month' ? 62 : 640, successRate: '99.2%', avgDuration: '40 min', satisfaction: '99.4%'
-    }, {
-      nameAr: 'أ.د. طارق عبد الرازق (تجميل العيون)', nameEn: 'Prof. Dr. Tarek Abdelrazek', cases: timeframe === 'day' ? 2 : timeframe === 'week' ? 12 : timeframe === 'month' ? 48 : 490, successRate: '99.0%', avgDuration: '50 min', satisfaction: '99.1%'
-    }
-  ];
+  // Surgeon workload is computed server-side from scheduled surgeries.
+  // Success rate and patient satisfaction have no recorded data source yet,
+  // so they render as an honest em-dash rather than fabricated percentages.
+  interface SurgeonRow {
+    nameAr: string;
+    nameEn: string;
+    cases: number;
+    avgDurationMin: number;
+  }
+  const consultantPerformance: SurgeonRow[] = currentAnalytics?.surgeonWorkload ?? [];
 
   return (
     <div className="space-y-6 animate-fadeIn">
@@ -85,7 +116,7 @@ export default function AnalyticsTab({
         <div>
           <div className="flex items-center gap-2 mb-1">
             <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-[#0B3D33] text-white">
-              {t(currentAnalytics.periodLabelAr, currentAnalytics.periodLabelEn)}
+              {currentAnalytics ? t(currentAnalytics.periodLabelAr, currentAnalytics.periodLabelEn) : t('جارٍ الحساب…', 'Computing…')}
             </span>
             <span className="px-2.5 py-0.5 rounded-full text-[10px] font-extrabold bg-pine-50 text-pine-800 border border-pine-200">
               {t('مؤشرات متزامنة مع الموارد اللحظية', 'Synchronized Live Indicators')}
@@ -502,7 +533,7 @@ export default function AnalyticsTab({
 
           <div className="p-4 rounded-xl bg-ink-700/80 border border-ink-700 text-center">
             <span className="text-[11px] font-bold text-ink-400 block mb-1">{t('معدل رضا ومراجعة المرضى', 'Patient Net Promoter Score')}</span>
-            <span className="text-2xl font-extrabold text-brass-400">{kpis.patientSatisfaction}%</span>
+            <span className="text-2xl font-extrabold text-brass-400">{kpis.patientSatisfaction ?? '—'}{kpis.patientSatisfaction !== null ? '%' : ''}</span>
             <span className="text-[10px] text-ink-400 block mt-1">{t('تقييم استثنائي وموثق', 'Consistently Rated Outstanding')}</span>
           </div>
         </div>
@@ -534,7 +565,13 @@ export default function AnalyticsTab({
               </tr>
             </thead>
             <tbody className="divide-y divide-bone-100 font-semibold">
-              {consultantPerformance.map((c, idx) => (
+              {consultantPerformance.length === 0 ? (
+                <tr>
+                  <td colSpan={5} className="py-6 px-4 text-center text-sm text-ink-400 font-semibold">
+                    {t('لا توجد جراحات مسجلة في هذه الفترة', 'No surgeries recorded in this period')}
+                  </td>
+                </tr>
+              ) : consultantPerformance.map((c, idx) => (
                 <tr key={idx} className="hover:bg-bone-50 transition-colors">
                   <td className="py-3 px-4 font-bold text-pine-900">
                     {lang === 'ar' ? c.nameAr : c.nameEn}
@@ -543,15 +580,15 @@ export default function AnalyticsTab({
                     {c.cases}
                   </td>
                   <td className="py-3 px-4 text-center font-mono text-ink-500">
-                    {c.avgDuration}
+                    {c.avgDurationMin} min
                   </td>
                   <td className="py-3 px-4 text-center">
-                    <span className="px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-pine-50 text-emerald-700 border border-pine-200">
-                      {c.successRate}
+                    <span className="px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-bone-100 text-ink-400 border border-bone-200">
+                      —
                     </span>
                   </td>
                   <td className="py-3 px-4 text-center font-bold text-ink-900">
-                    {c.satisfaction}
+                    —
                   </td>
                 </tr>
               ))}
