@@ -65,7 +65,7 @@ const LANG_STORAGE_KEY = 'konooz_lang';
 const normalizeLang = (value: string | null | undefined): Language | null =>
   value === 'ar' || value === 'en' ? value : null;
 
-export function LanguageProvider({ children }: { children: React.ReactNode }) {
+export function LanguageProvider({ children, initialDoctors = [] }: { children: React.ReactNode; initialDoctors?: Doctor[] }) {
   const [lang, setLangState] = useState<Language>('ar');
   const [fontSize, setFontSize] = useState<FontSize>('base');
   const [highContrast, setHighContrast] = useState<boolean>(false);
@@ -88,23 +88,9 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
   const [isQueueModalOpen, setIsQueueModalOpen] = useState(false);
   const [isCostCalculatorModalOpen, setIsCostCalculatorModalOpen] = useState(false);
 
-  // Doctors are served from the database (single source of truth) via /api/public/doctors.
-  const [doctors, setDoctors] = useState<Doctor[]>([]);
-
-  useEffect(() => {
-    let cancelled = false;
-    fetch('/api/public/doctors')
-      .then((res) => res.json())
-      .then((json: { data?: Doctor[] }) => {
-        if (!cancelled && Array.isArray(json?.data)) setDoctors(json.data);
-      })
-      .catch(() => {
-        // offline/dev-db down — sections render empty rather than stale copies
-      });
-    return () => {
-      cancelled = true;
-    };
-  }, []);
+  // Doctors come from the server component tree (ISR-revalidated homepage) —
+  // no client-side fetch waterfall for content that rarely changes.
+  const [doctors] = useState<Doctor[]>(initialDoctors ?? []);
 
   const isRTL = lang === 'ar';
 

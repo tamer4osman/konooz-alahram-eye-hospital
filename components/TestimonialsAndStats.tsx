@@ -1,9 +1,10 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import Reveal from './Reveal';
 import { useLanguage } from '@/context/LanguageContext';
 import { Testimonial } from '@/data/hospitalData';
+import type { TrustStatDTO } from '@/lib/content/public-content';
 import {
   Star,
   Quote,
@@ -20,41 +21,18 @@ import {
   Lightbulb
 } from 'lucide-react';
 
-export default function TestimonialsAndStats() {
+export default function TestimonialsAndStats({
+  initialTestimonials = [],
+  initialTrustStats = [],
+}: {
+  initialTestimonials?: Testimonial[];
+  initialTrustStats?: TrustStatDTO[];
+}) {
   const { lang, t, isRTL } = useLanguage();
   const [activeTestimonialIdx, setActiveTestimonialIdx] = useState(0);
-  // Testimonials are managed content served from the database.
-  const [testimonials, setTestimonials] = useState<Testimonial[]>([]);
-
-  interface TrustStatDTO {
-    id: string;
-    value: string;
-    labelAr: string;
-    labelEn: string;
-    icon: string;
-  }
-  const [trustStats, setTrustStats] = useState<TrustStatDTO[]>([]);
-
-  useEffect(() => {
-    let cancelled = false;
-    fetch('/api/public/testimonials')
-      .then(async (res) => {
-        if (!res.ok) return;
-        const json = await res.json();
-        if (!cancelled && Array.isArray(json?.data)) setTestimonials(json.data as Testimonial[]);
-      })
-      .catch(() => {});
-    fetch('/api/public/trust-stats')
-      .then(async (res) => {
-        if (!res.ok) return;
-        const json = await res.json();
-        if (!cancelled && Array.isArray(json?.data)) setTrustStats(json.data as TrustStatDTO[]);
-      })
-      .catch(() => {});
-    return () => {
-      cancelled = true;
-    };
-  }, []);
+  // Managed content arrives from the ISR-revalidated homepage — no client fetch.
+  const [testimonials] = useState<Testimonial[]>(initialTestimonials);
+  const [trustStats] = useState<TrustStatDTO[]>(initialTrustStats);
 
   const safeIdx = testimonials.length > 0 ? activeTestimonialIdx % testimonials.length : 0;
 

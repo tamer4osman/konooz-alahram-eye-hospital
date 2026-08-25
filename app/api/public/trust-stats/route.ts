@@ -1,16 +1,13 @@
-import { prisma } from '@/lib/prisma'
 import { apiSuccess, apiError } from '@/lib/api/response'
+import { getTrustStats } from '@/lib/content/public-content'
 
-export const dynamic = 'force-dynamic'
+export const revalidate = 300
 
 export async function GET() {
   try {
-    const rows = await prisma.trustStat.findMany({
-      where: { isActive: true },
-      orderBy: { sortOrder: 'asc' },
-    })
-    return apiSuccess(rows)
+    const stats = await getTrustStats()
+    return apiSuccess(stats)
   } catch {
-    return apiError(500, 'TRUST_STATS_FAILED', 'تعذر تحميل مؤشرات الثقة', 'Failed to load trust stats')
+    return apiError(500, 'TRUST_STATS_FAILED', 'تعذر تحميل إحصائيات الثقة', 'Failed to load trust stats')
   }
 }

@@ -1,16 +1,13 @@
-import { prisma } from '@/lib/prisma'
 import { apiSuccess, apiError } from '@/lib/api/response'
+import { getPublicTestimonials } from '@/lib/content/public-content'
 
-export const dynamic = 'force-dynamic'
+export const revalidate = 300
 
 export async function GET() {
   try {
-    const rows = await prisma.testimonial.findMany({
-      where: { isActive: true },
-      orderBy: { sortOrder: 'asc' },
-    })
-    return apiSuccess(rows)
+    const testimonials = await getPublicTestimonials()
+    return apiSuccess(testimonials)
   } catch {
-    return apiError(500, 'TESTIMONIALS_FAILED', 'تعذر تحميل قصص النجاح', 'Failed to load testimonials')
+    return apiError(500, 'TESTIMONIALS_FAILED', 'تعذر تحميل الشهادات', 'Failed to load testimonials')
   }
 }

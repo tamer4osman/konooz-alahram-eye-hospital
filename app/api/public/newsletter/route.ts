@@ -1,16 +1,13 @@
-import { prisma } from '@/lib/prisma'
 import { apiSuccess, apiError } from '@/lib/api/response'
+import { getNewsletterContent } from '@/lib/content/public-content'
 
-export const dynamic = 'force-dynamic'
+export const revalidate = 300
 
 export async function GET() {
   try {
-    const [topics, issues] = await Promise.all([
-      prisma.newsletterTopic.findMany({ where: { isActive: true }, orderBy: { sortOrder: 'asc' } }),
-      prisma.newsletterIssue.findMany({ where: { isPublished: true }, orderBy: { sortOrder: 'asc' } }),
-    ])
-    return apiSuccess({ topics, issues })
+    const content = await getNewsletterContent()
+    return apiSuccess(content)
   } catch {
-    return apiError(500, 'NEWSLETTER_FAILED', 'تعذر تحميل نشرة العيون', 'Failed to load newsletter content')
+    return apiError(500, 'NEWSLETTER_FAILED', 'تعذر تحميل محتوى النشرة', 'Failed to load newsletter content')
   }
 }
