@@ -916,3 +916,22 @@ model ConsentRecord {
   @@index([userId])
   @@map("consent_records")
 }
+
+// ──────────────────────────────────────────────
+// CLIENT ERROR REPORTS — self-hosted telemetry
+// ──────────────────────────────────────────────
+
+model ClientErrorReport {
+  id        String   @id @default(cuid())
+  message   String
+  digest    String?
+  stack     String?
+  locale    String?
+  path      String?
+  userAgent String?
+  createdAt DateTime @default(now())
+
+  @@index([createdAt])
+  @@index([digest])
+  @@map("client_error_reports")
+}

@@ -1,11 +1,20 @@
 'use client';
 
+import { useReportClientError } from '@/hooks/use-report-client-error';
+
 export default function Error({
+  error,
   reset,
 }: {
   error: Error & { digest?: string };
   reset: () => void;
 }) {
+  useReportClientError({
+    message: error?.message ?? 'Unknown client error',
+    digest: error?.digest,
+    stack: error?.stack,
+  });
+
   return (
     <main className="min-h-screen flex flex-col items-center justify-center px-6 text-center bg-bone-50">
       <h1 className="text-3xl md:text-4xl font-bold text-ink-900">
