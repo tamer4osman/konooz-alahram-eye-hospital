@@ -7,7 +7,6 @@ import { useLanguage } from '@/context/LanguageContext';
 import { usePatientAuth } from '@/context/PatientAuthContext';
 import Navbar from '@/components/Navbar';
 import Hero from '@/components/Hero';
-import ServicesGrid from '@/components/ServicesGrid';
 import DoctorsSection from '@/components/DoctorsSection';
 import TechnologySection from '@/components/TechnologySection';
 import VisionTestInteractive from '@/components/VisionTestInteractive';
@@ -15,6 +14,7 @@ import TestimonialsAndStats from '@/components/TestimonialsAndStats';
 import LocationAndContact from '@/components/LocationAndContact';
 import FloatingWidgets from '@/components/FloatingWidgets';
 import Footer from '@/components/Footer';
+import type { ReactNode } from 'react';
 import type { FaqDTO } from '@/lib/content/faqs';
 
 // Heavy / rarely-used surfaces are code-split and only fetched when first shown.
@@ -38,9 +38,10 @@ interface HomePageClientProps {
   testimonials: Awaited<ReturnType<typeof import('@/lib/content/public-content').getPublicTestimonials>>;
   trustStats: Awaited<ReturnType<typeof import('@/lib/content/public-content').getTrustStats>>;
   faqs: FaqDTO[];
+  servicesSlot: ReactNode;
 }
 
-export default function HomePageClient({ testimonials, trustStats, faqs }: HomePageClientProps) {
+export default function HomePageClient({ testimonials, trustStats, faqs, servicesSlot }: HomePageClientProps) {
   const {
     activeView,
     isSpecialtyModalOpen,
@@ -97,7 +98,7 @@ export default function HomePageClient({ testimonials, trustStats, faqs }: HomeP
         <Hero />
 
         {/* 6 Core Clinical Specialties Grid */}
-        <ServicesGrid />
+        {servicesSlot}
 
         {/* Visiting Consultants & Medical Team */}
         <DoctorsSection />
