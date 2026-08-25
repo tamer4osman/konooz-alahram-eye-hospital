@@ -12,7 +12,7 @@ cp .env.example .env.local
 npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000). Arabic renders by default; append `?lang=en` or use the header switcher for English.
+Open [http://localhost:3000](http://localhost:3000) — you are redirected to `/ar` or `/en`. Use the header switcher or edit the URL to change language.
 
 ## Before every pull request
 

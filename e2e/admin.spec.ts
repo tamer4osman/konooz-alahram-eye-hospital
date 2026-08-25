@@ -34,7 +34,7 @@ test('admin session unlocks the operations dashboard', async ({
     },
   ]);
 
-  await page.goto('/');
+  await page.goto('/en');
   await page.locator('#btn-nav-dashboard').click();
 
   await expect(page.getByText(ADMIN_EMAIL).first()).toBeVisible({
@@ -43,7 +43,7 @@ test('admin session unlocks the operations dashboard', async ({
 });
 
 test('non-admin cannot reach the dashboard', async ({ page }) => {
-  await page.goto('/');
+  await page.goto('/en');
 
   await page.locator('#btn-nav-dashboard').click();
 

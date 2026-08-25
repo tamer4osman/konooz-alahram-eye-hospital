@@ -3,7 +3,7 @@ import { expect, test } from '@playwright/test';
 test('patient can submit a booking request and receive a ticket', async ({
   page,
 }) => {
-  await page.goto('/?lang=en');
+  await page.goto('/en');
 
   await page.locator('#btn-nav-book-appointment').click();
   const dialog = page.getByRole('dialog');

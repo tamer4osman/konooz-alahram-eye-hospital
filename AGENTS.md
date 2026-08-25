@@ -45,7 +45,7 @@ Use conventional commit format (`feat: …`, `fix: …`, `docs: …`, `refactor:
 
 - **Bilingual content**: every user-facing string needs AR and EN variants in `data/`. Never hardcode copy inside components.
 - **RTL-first**: Arabic is the default language. Use logical Tailwind properties (`ms-*`, `me-*`, `ps-*`, `pe-*`, `text-start/end`) — never physical `ml/mr/pl/pr/left/right`.
-- **Language state** lives only in `context/LanguageContext.tsx` (localStorage persistence + `?lang=` deep link). Do not add competing i18n mechanisms.
+- **Language state** is path-based: `/ar` and `/en` are the source of truth. `middleware.ts` redirects bare paths (cookie `konooz_lang` > `Accept-Language` > `ar`) and keeps legacy `?lang=` links working. `context/LanguageContext.tsx` receives the locale as a prop and switching navigates to the sibling path — no localStorage, no competing i18n mechanisms.
 - **Modals**: all dialogs use the shared `components/ui/Modal.tsx` primitive (focus trap, Escape, scroll lock, `aria-modal`). Register new modals with conditional render **and** `next/dynamic` so their JS stays out of the first load.
 - **Honest data model**: patient data is device-local only (`context/PatientAuthContext.tsx`). Never add server calls or describe anything as automatic delivery — backend integration is explicitly future work and the UI must say so.
 - **Accessibility**: jsx-a11y rules run at error severity; zero violations allowed.

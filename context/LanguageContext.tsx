@@ -1,6 +1,7 @@
 'use client';
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { Specialty } from '@/data/hospitalData';
 import type { Doctor } from '@/data/hospitalData';
 
@@ -60,13 +61,22 @@ interface LanguageContextType {
 
 const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
 
-const LANG_STORAGE_KEY = 'konooz_lang';
+const LOCALE_COOKIE = 'konooz_lang';
 
-const normalizeLang = (value: string | null | undefined): Language | null =>
-  value === 'ar' || value === 'en' ? value : null;
-
-export function LanguageProvider({ children, initialDoctors = [] }: { children: React.ReactNode; initialDoctors?: Doctor[] }) {
-  const [lang, setLangState] = useState<Language>('ar');
+export function LanguageProvider({
+  children,
+  initialLocale = 'ar',
+  initialDoctors = [],
+}: {
+  children: React.ReactNode;
+  initialLocale?: Language;
+  initialDoctors?: Doctor[];
+}) {
+  const router = useRouter();
+  // The URL segment is the single source of truth for language. The server
+  // renders <html lang dir> from it; switching locales navigates to the
+  // sibling path and this provider remounts (keyed by locale upstream).
+  const [lang] = useState<Language>(initialLocale);
   const [fontSize, setFontSize] = useState<FontSize>('base');
   const [highContrast, setHighContrast] = useState<boolean>(false);
   const [readingRuler, setReadingRuler] = useState<boolean>(false);
@@ -94,21 +104,14 @@ export function LanguageProvider({ children, initialDoctors = [] }: { children: 
 
   const isRTL = lang === 'ar';
 
-  const applyLangToDocument = (newLang: Language) => {
-    if (typeof document !== 'undefined') {
-      document.documentElement.lang = newLang;
-      document.documentElement.dir = newLang === 'ar' ? 'rtl' : 'ltr';
-    }
-  };
-
   const setLang = (newLang: Language) => {
-    setLangState(newLang);
-    applyLangToDocument(newLang);
+    if (newLang === lang) return;
     try {
-      window.localStorage.setItem(LANG_STORAGE_KEY, newLang);
+      document.cookie = `${LOCALE_COOKIE}=${newLang}; path=/; max-age=31536000; samesite=lax`;
     } catch {
-      // storage unavailable — language still applies for this session
+      // cookie blocked - navigation still switches the visible locale
     }
+    router.push(`/${newLang}`);
   };
 
   const t = (ar: string, en: string) => (lang === 'ar' ? ar : en);
@@ -184,23 +187,10 @@ export function LanguageProvider({ children, initialDoctors = [] }: { children: 
     return () => window.removeEventListener('mousemove', handleMouseMove);
   }, [readingRuler]);
 
-  // Resolve language once on mount: ?lang= param > stored preference > default 'ar'.
-  // Server always renders 'ar', so this runs post-hydration to avoid mismatch.
+  // Progressive-enhancement hook previously set by an inline <head> script:
+  // CSS gates reveal/animation styles behind html.js
   useEffect(() => {
-    try {
-      const paramLang = normalizeLang(new URLSearchParams(window.location.search).get('lang'));
-      const storedLang = normalizeLang(window.localStorage.getItem(LANG_STORAGE_KEY));
-      const resolved = paramLang ?? storedLang;
-      if (!resolved || resolved === lang) return;
-      applyLangToDocument(resolved);
-      setLangState(resolved);
-      if (paramLang) {
-        window.localStorage.setItem(LANG_STORAGE_KEY, paramLang);
-      }
-    } catch {
-      // storage/URL parsing unavailable — keep server-rendered language
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    document.documentElement.classList.add('js');
   }, []);
 
   // Sync document root attributes
