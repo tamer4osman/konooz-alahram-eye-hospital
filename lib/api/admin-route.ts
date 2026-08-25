@@ -69,7 +69,7 @@ export function prismaFailure(
     failure: FailureMessages
   },
 ): Response {
-  const code = (err as { code?: string }).code
+  const code = (err as { code?: string } | null | undefined)?.code
   if (code === 'P2025' && options.notFound) {
     return apiError(404, options.notFound.code, options.notFound.ar, options.notFound.en)
   }

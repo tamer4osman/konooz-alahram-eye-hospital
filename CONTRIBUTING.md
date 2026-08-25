@@ -16,14 +16,15 @@ Open [http://localhost:3000](http://localhost:3000). Arabic renders by default; 
 
 ## Before every pull request
 
-Both checks must pass with zero output:
+All checks must pass with zero output:
 
 ```bash
 npm run lint      # 0 errors, 0 warnings
 npx tsc --noEmit  # 0 errors
+npm test          # all tests green
 ```
 
-There is no test suite yet; lint + typecheck are the verification gate.
+There is a Vitest unit suite covering the pure logic layer (`tests/*.test.ts`) — run it with `npm test` and add tests for new pure functions in `lib/`.
 
 ## Project conventions
 

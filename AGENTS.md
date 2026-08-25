@@ -13,11 +13,12 @@ Use **npm**: `npm install`, `npm run dev`, `npm run build`
 | Lint whole project | `npx eslint .` |
 | Lint single file | `npx eslint path/to/file.tsx` |
 | Typecheck | `npx tsc --noEmit` |
+| Test suite (unit) | `npm test` |
 | Dead-code scan (changed files) | `npm run intel -- dead-code --changed-since main --format json` |
 | Full analysis pass | `npx fallow --format json` |
 | Production build (includes lint + typecheck) | `npm run build` |
 
-No test suite exists yet — lint (0 errors, 0 warnings) + typecheck (0 errors) are the verification gate for every change.
+Verification gate for every change: **lint (0 errors, 0 warnings) + typecheck (0 errors) + tests (all green)**. Tests live in `tests/*.test.ts` (Vitest, node env, `@/` alias); they cover the pure logic layer — DTO mappers, validation schemas, API helpers, analytics engine, password hashing. New pure functions in `lib/` should ship with tests; mock `@/lib/prisma` via `vi.mock` when needed.
 
 ## Codebase Intelligence (Fallow)
 
