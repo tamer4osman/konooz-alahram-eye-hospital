@@ -19,3 +19,7 @@ findings.md
 
 # legacy scaffold images superseded by public/images
 src/
+
+# Playwright
+.playwright-mcp/
+test-results/

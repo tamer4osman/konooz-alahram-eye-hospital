@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { Specialty } from '@/data/hospitalData';
 import type { Doctor } from '@/data/hospitalData';
 
-type Language = 'ar' | 'en';
+export type Language = 'ar' | 'en';
 type FontSize = 'sm' | 'base' | 'lg' | 'xl';
 
 interface LanguageContextType {
