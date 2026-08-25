@@ -5,8 +5,16 @@ import { hashPassword } from '@/lib/auth/password'
 import { createSession } from '@/lib/auth/session'
 import { apiSuccess, apiError } from '@/lib/api/response'
 import { AUTH_MESSAGES } from '@/data/authMessages'
+import {
+  registerRateLimiter,
+  getClientIp,
+  tooManyRequests,
+} from '@/lib/api/rate-limit'
 
 export async function POST(req: NextRequest) {
+  const limiter = registerRateLimiter(getClientIp(req))
+  if (!limiter.allowed) return tooManyRequests(limiter.retryAfterSeconds)
+
   let body: unknown
   try {
     body = await req.json()

@@ -1,6 +1,11 @@
 import { prisma } from '@/lib/prisma';
 import { apiSuccess, apiError } from '@/lib/api/response';
 import { appointmentRequestSchema } from '@/lib/validation/appointments';
+import {
+  bookingRateLimiter,
+  getClientIp,
+  tooManyRequests,
+} from '@/lib/api/rate-limit';
 
 export const dynamic = 'force-dynamic';
 
@@ -9,6 +14,9 @@ function generateTicket(): string {
 }
 
 export async function POST(request: Request) {
+  const limiter = bookingRateLimiter(getClientIp(request));
+  if (!limiter.allowed) return tooManyRequests(limiter.retryAfterSeconds);
+
   let body: unknown;
   try {
     body = await request.json();
