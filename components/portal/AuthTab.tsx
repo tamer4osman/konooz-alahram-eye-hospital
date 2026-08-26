@@ -37,11 +37,16 @@ export default function AuthTab({ notify, onProfileCreated }: AuthTabProps) {
   const [authBusy, setAuthBusy] = useState(false);
   const [authError, setAuthError] = useState<string | null>(null);
   const [authSuccess, setAuthSuccess] = useState<string | null>(null);
+  const [authConsent, setAuthConsent] = useState(false);
 
   const handleServerAuthSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setAuthError(null);
     setAuthSuccess(null);
+    if (authMode === 'register' && !authConsent) {
+      setAuthError(t('يجب الموافقة على سياسة الخصوصية أولاً', 'You must agree to the Privacy Policy first'));
+      return;
+    }
     setAuthBusy(true);
     const res = authMode === 'login'
       ? await loginWithServer(authEmail, authPassword)
@@ -206,6 +211,33 @@ export default function AuthTab({ notify, onProfileCreated }: AuthTabProps) {
                 <CheckCircle2 className="w-4 h-4 text-emerald-600 flex-shrink-0" />
                 <span>{authSuccess}</span>
               </div>
+            )}
+
+            {authMode === 'register' && (
+              <label className="flex items-start gap-2 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={authConsent}
+                  onChange={(e) => setAuthConsent(e.target.checked)}
+                  className="mt-0.5 h-4 w-4 rounded border-ink-300 text-pine-700 focus:ring-pine-500"
+                  required
+                />
+                <span className="text-[11px] text-ink-500 leading-tight">
+                  {t(
+                    'أقر بمتابعة إنشاء حسابي وأوافق على ',
+                    'I agree to the '
+                  )}
+                  <a
+                    href={`/${lang}/privacy`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-pine-700 underline hover:text-pine-900"
+                  >
+                    {t('سياسة الخصوصية وحماية البيانات', 'Privacy Policy')}
+                  </a>
+                  {t(' procedures.', ' procedures.')}
+                </span>
+              </label>
             )}
 
             <button

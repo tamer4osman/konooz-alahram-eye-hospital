@@ -65,5 +65,15 @@ export async function POST(req: NextRequest) {
   })
 
   await createSession(user.id)
+
+  // Log consent (BCK-026)
+  await prisma.consentRecord.create({
+    data: {
+      userId: user.id,
+      consentType: 'privacy_policy',
+      consented: true,
+    },
+  })
+
   return apiSuccess({ user }, 201)
 }

@@ -217,7 +217,7 @@ export function PatientAuthProvider({ children }: { children: React.ReactNode })
       const res = await fetch('/api/auth/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ fullNameAr: fullNameAr.trim(), email: email.trim().toLowerCase(), password, phone: phone || undefined, gender })
+        body: JSON.stringify({ fullNameAr: fullNameAr.trim(), email: email.trim().toLowerCase(), password, phone: phone || undefined, gender, consent: true })
       });
       const json = await res.json();
       if (res.ok && json?.data?.user) {

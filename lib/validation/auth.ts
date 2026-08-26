@@ -7,6 +7,8 @@ export const registerSchema = z.object({
   phone: z.string().min(8).optional(),
   cityAr: z.string().optional(),
   gender: z.enum(['male', 'female']).optional(),
+  /** Patient must consent to data collection before account creation (BCK-026) */
+  consent: z.literal(true, { message: 'يجب الموافقة على سياسة الخصوصية' }),
 })
 
 export const loginSchema = z.object({
