@@ -32,6 +32,7 @@ import AddEquipmentModal from './modals/AddEquipmentModal';
 import BroadcastModal, { type BroadcastLevel } from './modals/BroadcastModal';
 
 import { Activity, Users, Building2, Cpu, Calendar, BarChart3, X, Radio, Stethoscope, Bed, Receipt } from 'lucide-react';
+import { hasModuleAccess, type DashboardModule } from '@/lib/permissions';
 
 type DashboardTab = 'overview' | 'clinical' | 'surgeries' | 'rooms' | 'beds' | 'personnel' | 'equipment' | 'billing' | 'analytics';
 
@@ -41,6 +42,17 @@ export default function HospitalDashboard() {
   // Navigation & User State
   const [activeTab, setActiveTab] = useState<DashboardTab>('overview');
   const [timeframe, setTimeframe] = useState<'day' | 'week' | 'month' | 'year'>('day');
+  const [userRole, setUserRole] = useState<string>('ADMIN');
+  const [userPermissions, setUserPermissions] = useState<unknown>(null);
+
+  useEffect(() => {
+    fetch('/api/auth/me').then((r) => r.json()).then((json) => {
+      if (json?.data) {
+        setUserRole(json.data.role ?? 'STAFF');
+        setUserPermissions(json.data.permissions ?? null);
+      }
+    }).catch(() => {});
+  }, []);
 
   // Live Hospital Operational State — staff members are persisted via staff APIs.
   const [staffList, setStaffList] = useState<HospitalStaff[]>([]);
@@ -185,7 +197,7 @@ export default function HospitalDashboard() {
     setActiveBroadcastBanner(message);
   };
 
-  const navTabs = [
+  const allNavTabs = [
     {
       id: 'overview',
       labelAr: 'لوحة التحكم والعمليات',
@@ -250,6 +262,11 @@ export default function HospitalDashboard() {
       count: null
     }
   ];
+
+  // Filter tabs based on user permissions (ADMIN sees all)
+  const navTabs = allNavTabs.filter((tab) =>
+    hasModuleAccess(userRole, userPermissions, tab.id as DashboardModule)
+  );
 
   return (
     <div className="min-h-screen bg-bone-100 text-ink-900 pb-16">

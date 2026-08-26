@@ -3,6 +3,7 @@ import type { z } from 'zod'
 import type { User } from '@prisma/client'
 import { getStaffUser } from '@/lib/auth/guards'
 import { apiError } from '@/lib/api/response'
+import { hasModuleAccess, type DashboardModule, type ModuleAccess } from '@/lib/permissions'
 
 // Shared plumbing for /api/staff/* route handlers. Every dashboard endpoint
 // must pass through requireAdmin() before touching data: only ADMIN holds
@@ -21,6 +22,32 @@ export async function requireAdmin(): Promise<AdminGate> {
     }
   }
   return { ok: true, user }
+}
+
+/**
+ * Like requireAdmin(), but also verifies the user has access to a specific
+ * dashboard module. ADMIN role always passes; STAFF role checks permissions.
+ */
+// fallow-ignore-next-line
+export async function requireModuleAccess(
+  module: DashboardModule,
+  level: ModuleAccess = 'read',
+): Promise<AdminGate> {
+  const gate = await requireAdmin()
+  if (!gate.ok) return gate
+  const { user } = gate
+  if (!hasModuleAccess(user.role, user.permissions, module, level)) {
+    return {
+      ok: false,
+      response: apiError(
+        403,
+        'MODULE_FORBIDDEN',
+        `وصول مرفوض: ${module}`,
+        `Access denied: ${module}`,
+      ),
+    }
+  }
+  return gate
 }
 
 export type JsonBody<T> =
