@@ -1,7 +1,8 @@
 import { MetadataRoute } from 'next';
+import { tenantConfig } from '@/config/tenant';
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const baseUrl = 'https://konozealahram-eye.ly';
+  const baseUrl = tenantConfig.urls.baseUrl;
   const currentDate = new Date().toISOString();
 
   // Section anchors are intentionally omitted: '#' fragments are not valid sitemap URLs.

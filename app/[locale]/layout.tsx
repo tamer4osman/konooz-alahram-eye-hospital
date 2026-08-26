@@ -3,6 +3,7 @@ import type { ReactNode } from 'react';
 import { notFound } from 'next/navigation';
 import { Alexandria } from 'next/font/google';
 import SEOStructuredData from '@/components/SEOStructuredData';
+import { tenantConfig } from '@/config/tenant';
 import '../globals.css';
 
 const LOCALES = ['ar', 'en'] as const;
@@ -19,25 +20,19 @@ const alexandria = Alexandria({
   weight: ['300', '400', '500', '600', '700', '800'],
 });
 
-const SITE_COPY: Record<
-  Locale,
-  { title: string; description: string; ogLocale: string }
-> = {
-  ar: {
-    title: 'مستشفى كنوز الأهرام لطب وجراحة العيون | بنغازي - ليبيا',
-    description:
-      'أكثر من عشرين عاماً من التميز في طب وجراحة العيون في بنغازي. فريق من كبار الاستشاريين، أحدث التقنيات، ورعاية شاملة للشبكية والقرنية والجلوكوما وتصحيح الإبصار.',
-    ogLocale: 'ar_LY',
-  },
-  en: {
-    title: 'Konooz Al-Ahram Eye Hospital | Ophthalmology - Benghazi, Libya',
-    description:
-      'Over twenty years of excellence in eye care and surgery in Benghazi. Senior consultants, advanced technology, and comprehensive care for retina, cornea, glaucoma, and vision correction.',
-    ogLocale: 'en_US',
-  },
-};
-
-const BASE_URL = 'https://konozealahram-eye.ly';
+function siteCopy(locale: Locale) {
+  const { seo, geo } = tenantConfig;
+  return {
+    title: locale === 'ar' ? seo.titleAr : seo.titleEn,
+    description: locale === 'ar' ? seo.descriptionAr : seo.descriptionEn,
+    ogLocale: locale === 'ar' ? 'ar_LY' : 'en_US',
+    applicationName:
+      locale === 'ar' ? seo.applicationNameAr : seo.applicationNameEn,
+    keywords: seo.keywords,
+    geoPosition: `${geo.lat};${geo.lng}`,
+    icbm: `${geo.lat},${geo.lng}`,
+  };
+}
 
 export async function generateMetadata({
   params,
@@ -48,76 +43,56 @@ export async function generateMetadata({
   const locale = (LOCALES as readonly string[]).includes(raw)
     ? (raw as Locale)
     : 'ar';
-  const copy = SITE_COPY[locale];
+  const copy = siteCopy(locale);
+  const { baseUrl } = tenantConfig.urls;
 
   return {
-    metadataBase: new URL(BASE_URL),
+    metadataBase: new URL(baseUrl),
     title: copy.title,
     description: copy.description,
-    applicationName:
-      locale === 'ar'
-        ? 'مستشفى كنوز الأهرام الطبي'
-        : 'Konooz Al-Ahram Medical Complex',
-    keywords: [
-      'مستشفى كنوز الأهرام',
-      'مستشفى كنوز العيون',
-      'عيون بنغازي',
-      'ليزك بنغازي',
-      'فمتو ليزك بنغازي',
-      'جراحة الشبكية بنغازي',
-      'Konooz Al-Ahram Eye Hospital',
-      'Benghazi Eye Hospital',
-      'Ophthalmology Libya',
-      'Femto LASIK Benghazi',
-    ],
+    applicationName: copy.applicationName,
+    keywords: copy.keywords,
     authors: [
       {
-        name: 'مستشفى كنوز الأهرام لطب وجراحة العيون',
-        url: BASE_URL,
+        name: tenantConfig.identity.nameAr,
+        url: baseUrl,
       },
     ],
-    creator: 'Konooz Al-Ahram Eye Hospital',
-    publisher: 'Konooz Al-Ahram Medical Complex',
+    creator: tenantConfig.identity.nameEn,
+    publisher: tenantConfig.seo.applicationNameEn,
     formatDetection: {
       email: false,
       address: true,
       telephone: true,
     },
     alternates: {
-      canonical: `${BASE_URL}/${locale}`,
+      canonical: `${baseUrl}/${locale}`,
       languages: {
-        'ar-LY': `${BASE_URL}/ar`,
-        'en-US': `${BASE_URL}/en`,
-        ar: `${BASE_URL}/ar`,
-        en: `${BASE_URL}/en`,
+        'ar-LY': `${baseUrl}/ar`,
+        'en-US': `${baseUrl}/en`,
+        ar: `${baseUrl}/ar`,
+        en: `${baseUrl}/en`,
       },
     },
     openGraph: {
       title: copy.title,
       description: copy.description,
-      url: `${BASE_URL}/${locale}`,
-      siteName: SITE_COPY.ar.title.split(' | ')[0],
+      url: `${baseUrl}/${locale}`,
+      siteName: tenantConfig.identity.nameAr,
       locale: copy.ogLocale,
       alternateLocale: [copy.ogLocale === 'ar_LY' ? 'en_US' : 'ar_LY'],
       type: 'website',
-      images: [
-        {
-          url: '/images/hospital_hero_surgery_1787188107940.webp',
-          width: 1200,
-          height: 630,
-        },
-        {
-          url: '/images/hospital_exterior_facade_1787188119953.webp',
-          width: 1200,
-          height: 630,
-        },
-      ],
+      images: tenantConfig.seo.ogImages.map((img) => ({
+        url: img.path,
+        width: img.width,
+        height: img.height,
+      })),
     },
     twitter: {
       card: 'summary_large_image',
       title: copy.title,
       description: copy.description,
-      images: ['/images/hospital_hero_surgery_1787188107940.webp'],
+      images: [tenantConfig.seo.ogImages[0].path],
     },
     robots: {
       index: true,
@@ -131,15 +106,33 @@ export async function generateMetadata({
       },
     },
     other: {
-      'geo.region': 'LY-BA',
-      'geo.placename': 'Benghazi',
-      'geo.position': '32.0367625;20.0567031',
-      'ICBM': '32.0367625, 20.0567031',
-      'medical-specialty':
-        'Ophthalmology, Refractive Surgery, Vitreoretinal, Cataract',
+      'geo.region': tenantConfig.geo.regionCode,
+      'geo.placename': tenantConfig.geo.placename,
+      'geo.position': copy.geoPosition,
+      'ICBM': copy.icbm,
+      'medical-specialty': tenantConfig.geo.medicalSpecialty,
     },
   };
 }
+
+function buildTenantThemeCss(): string {
+  const { primary, surface, text, accent } = tenantConfig.theme;
+  const groups: Array<[string, Record<string, string>]> = [
+    ['primary', primary],
+    ['surface', surface],
+    ['text', text],
+    ['accent', accent],
+  ];
+  const decls: string[] = [];
+  for (const [name, steps] of groups) {
+    for (const [step, hex] of Object.entries(steps)) {
+      decls.push(`--tc-${name}-${step}:${hex}`);
+    }
+  }
+  return `:root{${decls.join(';')}}`;
+}
+
+const TENANT_THEME_CSS = buildTenantThemeCss();
 
 export default async function LocaleLayout({
   children,
@@ -163,6 +156,11 @@ export default async function LocaleLayout({
         className="font-sans antialiased bg-bone-50 text-ink-900 selection:bg-pine-900 selection:text-bone-50"
         suppressHydrationWarning
       >
+        <style
+          href="tenant-theme"
+          precedence="high"
+          dangerouslySetInnerHTML={{ __html: TENANT_THEME_CSS }}
+        />
         <SEOStructuredData />
         {children}
       </body>

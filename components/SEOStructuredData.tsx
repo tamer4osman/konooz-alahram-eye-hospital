@@ -1,14 +1,22 @@
 import React from 'react';
-import { HOSPITAL_CONTACTS, SPECIALTIES } from '@/data/hospitalData';
+import { HOSPITAL_CONTACTS } from '@/data/hospitalData';
+import { tenantConfig } from '@/config/tenant';
 import { getFaqs } from '@/lib/content/faqs';
 import { getPublicDoctors } from '@/lib/doctors';
+import { getDepartments } from '@/lib/departments';
 
 export default async function SEOStructuredData() {
-  const [doctors, faqs] = await Promise.all([getPublicDoctors(), getFaqs()]);
+  const [doctors, faqs, specialties] = await Promise.all([
+    getPublicDoctors(),
+    getFaqs(),
+    getDepartments(),
+  ]);
+  const BASE = tenantConfig.urls.baseUrl;
+  const { contacts, geo, seo, identity } = tenantConfig;
   const hospitalSchema = {
     '@context': 'https://schema.org',
     '@type': ['Hospital', 'MedicalBusiness', 'MedicalClinic', 'EmergencyService'],
-    '@id': 'https://konozealahram-eye.ly/#hospital',
+    '@id': `${BASE}/#hospital`,
     name: HOSPITAL_CONTACTS.nameAr,
     alternateName: [
       HOSPITAL_CONTACTS.nameEn,
@@ -17,36 +25,36 @@ export default async function SEOStructuredData() {
       'Konooz Al-Ahram Eye Hospital',
       'Pyramid Eye Hospital Benghazi'
     ],
-    url: 'https://konozealahram-eye.ly',
-    logo: 'https://konozealahram-eye.ly/images/hospital_hero_surgery_1787188107940.webp',
-    image: [
-      'https://konozealahram-eye.ly/images/hospital_exterior_facade_1787188119953.webp',
-      'https://konozealahram-eye.ly/images/hospital_hero_surgery_1787188107940.webp',
-      'https://konozealahram-eye.ly/images/femto_laser_tech_1787188144731.webp'
-    ],
-    description: 'المستشفى التخصصي الرائد لطب وجراحة العيون في بنغازي - ليبيا. يقدم أحدث عمليات تصحيح الإبصار بالفيمتو ليزك والفيمتو سمايل، علاج المياه البيضاء بالفاكو والعدسات متعددة البؤر، جراحة الشبكية والجسم الزجاجي، وزراعة وتثبيت القرنية المخروطية.',
-    telephone: '+218915299170',
+    url: BASE,
+    logo: `${BASE}${seo.ogImages[0].path}`,
+    image: seo.ogImages.map((img) => `${BASE}${img.path}`),
+    description: seo.descriptionAr,
+    telephone: contacts.primaryWhatsApp,
     contactPoint: [
       {
         '@type': 'ContactPoint',
-        telephone: '+218915299170',
+        telephone: contacts.primaryWhatsApp,
         contactType: 'reservations',
         areaServed: 'LY',
         availableLanguage: ['Arabic', 'English']
       },
-      {
-        '@type': 'ContactPoint',
-        telephone: '+218945006886',
-        contactType: 'emergency',
-        areaServed: 'LY',
-        availableLanguage: ['Arabic', 'English']
-      }
+      ...(contacts.emergencyPhone
+        ? [
+            {
+              '@type': 'ContactPoint',
+              telephone: contacts.emergencyPhone,
+              contactType: 'emergency',
+              areaServed: 'LY',
+              availableLanguage: ['Arabic', 'English']
+            },
+          ]
+        : []),
     ],
     address: {
       '@type': 'PostalAddress',
-      streetAddress: 'طريق طرابلس، بجانب قوس معهد الكهرباء، مقابل أول مدخل بوصنيب',
-      addressLocality: 'بنغازي',
-      addressRegion: 'Benghazi District',
+      streetAddress: contacts.addressAr,
+      addressLocality: contacts.cityAr,
+      addressRegion: geo.placename,
       addressCountry: 'LY'
     },
     geo: {
@@ -99,7 +107,7 @@ export default async function SEOStructuredData() {
       'Glaucoma & Intraocular Pressure',
       'Oculoplastics & Orbital Surgery'
     ],
-    availableService: SPECIALTIES.map((s) => ({
+    availableService: specialties.map((s) => ({
       '@type': 'MedicalProcedure',
       name: s.titleAr,
       alternateName: s.titleEn,
@@ -129,7 +137,7 @@ export default async function SEOStructuredData() {
   const doctorsSchema = {
     '@context': 'https://schema.org',
     '@type': 'ItemList',
-    name: 'استشاريو وأطباء جراحة العيون بمستشفى كنوز الأهرام',
+    name: `استشاريو وأطباء ${identity.orgTypeAr} ${identity.shortNameAr}`,
     itemListElement: doctors.map((doc, idx) => ({
       '@type': 'ListItem',
       position: idx + 1,
@@ -139,7 +147,7 @@ export default async function SEOStructuredData() {
         alternateName: doc.nameEn,
         medicalSpecialty: doc.titleAr,
         worksFor: {
-          '@id': 'https://konozealahram-eye.ly/#hospital'
+          '@id': `${BASE}/#hospital`
         },
         description: `${doc.titleAr} - ${doc.titleEn}`
       }
@@ -149,8 +157,8 @@ export default async function SEOStructuredData() {
   const medicalWebPageSchema = {
     '@context': 'https://schema.org',
     '@type': 'MedicalWebPage',
-    name: 'مستشفى كنوز الأهرام لطب وجراحة العيون | بنغازي ليبيا',
-    url: 'https://konozealahram-eye.ly',
+    name: seo.titleAr,
+    url: BASE,
     about: {
       '@type': 'MedicalCondition',
       name: 'أمراض وجراحات العيون وتصحيح البصر'

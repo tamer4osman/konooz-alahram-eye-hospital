@@ -1,7 +1,8 @@
 import { MetadataRoute } from 'next';
+import { tenantConfig } from '@/config/tenant';
 
 export default function robots(): MetadataRoute.Robots {
-  const baseUrl = 'https://konozealahram-eye.ly';
+  const baseUrl = tenantConfig.urls.baseUrl;
 
   return {
     rules: [

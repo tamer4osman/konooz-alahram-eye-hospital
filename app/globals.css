@@ -1,35 +1,40 @@
 @import "tailwindcss";
 
+/* ── Tenant theme contract ──────────────────────────────────────────────
+   Utilities (bg-pine-*, text-bone-*, …) resolve through --tc-* custom
+   properties. Authoritative values are injected server-side from
+   config/tenant.ts by the root layout <style id="tenant-theme">.
+   Literals below are Konooz defaults / no-JS safety net only — do NOT edit
+   them to rebrand; edit config/tenant.ts instead. */
 @theme {
-  /* ── Pine & Bone — Konooz Al-Ahram 2026 identity ───────────────── */
-  --color-pine-50: #f2f6f4;
-  --color-pine-100: #e4ede9;
-  --color-pine-200: #c9dbd5;
-  --color-pine-300: #a3c2b9;
-  --color-pine-400: #74a096;
-  --color-pine-500: #4f8076;
-  --color-pine-600: #3b6860;
-  --color-pine-700: #30544d;
-  --color-pine-800: #1f4a40;
-  --color-pine-900: #0b3d33;
-  --color-pine-950: #08211c;
+  --color-pine-50: var(--tc-primary-50, #f2f6f4);
+  --color-pine-100: var(--tc-primary-100, #e4ede9);
+  --color-pine-200: var(--tc-primary-200, #c9dbd5);
+  --color-pine-300: var(--tc-primary-300, #a3c2b9);
+  --color-pine-400: var(--tc-primary-400, #74a096);
+  --color-pine-500: var(--tc-primary-500, #4f8076);
+  --color-pine-600: var(--tc-primary-600, #3b6860);
+  --color-pine-700: var(--tc-primary-700, #30544d);
+  --color-pine-800: var(--tc-primary-800, #1f4a40);
+  --color-pine-900: var(--tc-primary-900, #0b3d33);
+  --color-pine-950: var(--tc-primary-950, #08211c);
 
-  --color-bone-50: #faf8f4;
-  --color-bone-100: #f4f1ea;
-  --color-bone-200: #e9e4d8;
+  --color-bone-50: var(--tc-surface-50, #faf8f4);
+  --color-bone-100: var(--tc-surface-100, #f4f1ea);
+  --color-bone-200: var(--tc-surface-200, #e9e4d8);
 
-  --color-ink-900: #16211d;
-  --color-ink-700: #37443f;
-  --color-ink-500: #5b6b65;
-  --color-ink-400: #7d8a84;
-  --color-ink-300: #9aa6a0;
+  --color-ink-900: var(--tc-text-900, #16211d);
+  --color-ink-700: var(--tc-text-700, #37443f);
+  --color-ink-500: var(--tc-text-500, #5b6b65);
+  --color-ink-400: var(--tc-text-400, #7d8a84);
+  --color-ink-300: var(--tc-text-300, #9aa6a0);
 
-  --color-brass-50: #fbf3e4;
-  --color-brass-100: #f6e8cc;
-  --color-brass-300: #eec98a;
-  --color-brass-400: #e8a33d;
-  --color-brass-500: #d99430;
-  --color-brass-600: #b87a22;
+  --color-brass-50: var(--tc-accent-50, #fbf3e4);
+  --color-brass-100: var(--tc-accent-100, #f6e8cc);
+  --color-brass-300: var(--tc-accent-300, #eec98a);
+  --color-brass-400: var(--tc-accent-400, #e8a33d);
+  --color-brass-500: var(--tc-accent-500, #d99430);
+  --color-brass-600: var(--tc-accent-600, #b87a22);
 
   /* Typography — Alexandria covers Arabic + Latin */
   --font-sans: var(--font-alexandria), ui-sans-serif, system-ui, sans-serif;
