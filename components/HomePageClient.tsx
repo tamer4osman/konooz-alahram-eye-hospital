@@ -5,6 +5,7 @@ import dynamic from 'next/dynamic';
 import { Lock } from 'lucide-react';
 import { useLanguage } from '@/context/LanguageContext';
 import { usePatientAuth } from '@/context/PatientAuthContext';
+import { tenantConfig } from '@/config/tenant';
 import Navbar from '@/components/Navbar';
 import Hero from '@/components/Hero';
 import DoctorsSection from '@/components/DoctorsSection';
@@ -107,7 +108,7 @@ export default function HomePageClient({ testimonials, trustStats, faqs, service
         <TechnologySection />
 
         {/* Interactive Vision Acuity & Amsler Grid Self-Screener */}
-        <VisionTestInteractive />
+        {tenantConfig.capabilities.visionTest && <VisionTestInteractive />}
 
         {/* Testimonials, Trust Stats & Visual Clarity Simulator — server-provided content */}
         <TestimonialsAndStats initialTestimonials={testimonials} initialTrustStats={trustStats} />
@@ -123,7 +124,7 @@ export default function HomePageClient({ testimonials, trustStats, faqs, service
       {isSpecialtyModalOpen && <SpecialtyDetailModal />}
       {isBookingModalOpen && <BookingModal />}
       {isQueueModalOpen && <LiveQueueTrackerModal isOpen={isQueueModalOpen} onClose={closeQueueModal} />}
-      {isCostCalculatorModalOpen && (
+      {isCostCalculatorModalOpen && tenantConfig.capabilities.costCalculator && (
         <SurgicalCostCalculatorModal
           isOpen={isCostCalculatorModalOpen}
           onClose={closeCostCalculatorModal}
