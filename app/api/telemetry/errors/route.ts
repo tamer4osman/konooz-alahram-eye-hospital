@@ -8,7 +8,7 @@ import {
 } from '@/lib/api/rate-limit';
 
 const errorReportSchema = z.object({
-  message: z.string().min(1).max(1000),
+  message: z.string().max(1000).optional().default(''),
   digest: z.string().max(100).optional(),
   stack: z.string().max(5000).optional(),
   locale: z.enum(['ar', 'en']).optional(),
