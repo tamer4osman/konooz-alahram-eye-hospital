@@ -23,6 +23,9 @@ model User {
   passwordHash String?  // null for Google-only accounts
   googleId     String?  @unique
   role         UserRole @default(PATIENT)
+  /// Granular module permissions for STAFF users. Shape: { [moduleId]: 'read' | 'write' }
+  /// ADMIN role bypasses this — always has full access.
+  permissions  Json?
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 
@@ -136,6 +139,10 @@ model Appointment {
   locationEn   String?
   instructionsAr String?
   instructionsEn String?
+  /// Dynamic intake data collected via department intakeSchema.
+  /// Base fields (name/phone/email/specialty/date/time) live in
+  /// dedicated columns above; this holds the schema-driven extras.
+  intakeData    Json?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -834,6 +841,41 @@ model Faq {
   updatedAt DateTime @updatedAt
 
   @@map("faqs")
+}
+
+/// Clinical department / specialty shown on the public site.
+/// `id` doubles as the slug used by Doctor.specialtyId references
+/// (e.g. "refractive-lasik"). `intakeSchema` drives the per-department
+/// booking form fields (Phase 2 — null means platform defaults).
+model Department {
+  id             String   @id
+  iconName       String   @default("Sparkles")
+  image          String?
+  titleAr        String
+  titleEn        String
+  shortDescAr    String   @default("")
+  shortDescEn    String   @default("")
+  fullDescAr     String   @default("")
+  fullDescEn     String   @default("")
+  badgeAr        String   @default("")
+  badgeEn        String   @default("")
+  proceduresAr   String[] @default([])
+  proceduresEn   String[] @default([])
+  technologiesAr String[] @default([])
+  technologiesEn String[] @default([])
+  durationAr     String   @default("")
+  durationEn     String   @default("")
+  recoveryAr     String   @default("")
+  recoveryEn     String   @default("")
+  suitableForAr  String[] @default([])
+  suitableForEn  String[] @default([])
+  intakeSchema   Json?
+  isActive       Boolean  @default(true)
+  sortOrder      Int      @default(0)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@map("departments")
 }
 
 model NewsletterTopic {
