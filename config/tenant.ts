@@ -83,6 +83,8 @@ export interface TenantTheme {
   surface: Record<'50' | '100' | '200', string>;
   text: Record<'900' | '700' | '500' | '400' | '300', string>;
   accent: Record<'50' | '100' | '300' | '400' | '500' | '600', string>;
+  /** Google Font family name (e.g. "Cairo", "Tajawal", "Inter"). Falls back to Alexandria. */
+  fontFamily?: string;
 }
 
 export interface TenantCapabilities {
@@ -92,6 +94,12 @@ export interface TenantCapabilities {
   costCalculator: boolean;
   /** Staff dashboard at /dashboard */
   dashboard: boolean;
+  /** Show the technology/equipment showcase section */
+  showTechnologies?: boolean;
+  /** Show the testimonials section */
+  showTestimonials?: boolean;
+  /** Show the FAQ section */
+  showFaq?: boolean;
 }
 
 export interface TenantConfig {
@@ -236,5 +244,8 @@ export const tenantConfig: TenantConfig = {
     visionTest: true,
     costCalculator: true,
     dashboard: true,
+    showTechnologies: true,
+    showTestimonials: true,
+    showFaq: true,
   },
 };

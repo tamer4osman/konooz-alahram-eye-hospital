@@ -36,9 +36,9 @@
   --color-brass-500: var(--tc-accent-500, #d99430);
   --color-brass-600: var(--tc-accent-600, #b87a22);
 
-  /* Typography — Alexandria covers Arabic + Latin */
-  --font-sans: var(--font-alexandria), ui-sans-serif, system-ui, sans-serif;
-  --font-display: var(--font-alexandria), ui-sans-serif, system-ui, sans-serif;
+  /* Typography — Alexandria covers Arabic + Latin; overridden via --tc-font-family */
+  --font-sans: var(--tc-font-family, var(--font-alexandria)), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--tc-font-family, var(--font-alexandria)), ui-sans-serif, system-ui, sans-serif;
 
   /* Motion */
   --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);

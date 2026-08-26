@@ -116,7 +116,7 @@ export async function generateMetadata({
 }
 
 function buildTenantThemeCss(): string {
-  const { primary, surface, text, accent } = tenantConfig.theme;
+  const { primary, surface, text, accent, fontFamily } = tenantConfig.theme;
   const groups: Array<[string, Record<string, string>]> = [
     ['primary', primary],
     ['surface', surface],
@@ -128,6 +128,9 @@ function buildTenantThemeCss(): string {
     for (const [step, hex] of Object.entries(steps)) {
       decls.push(`--tc-${name}-${step}:${hex}`);
     }
+  }
+  if (fontFamily) {
+    decls.push(`--tc-font-family:${fontFamily}`);
   }
   return `:root{${decls.join(';')}}`;
 }

@@ -106,13 +106,17 @@ export default function HomePageClient({ testimonials, trustStats, faqs, technol
         <DoctorsSection />
 
         {/* State-of-the-Art Technology & Diagnostics */}
-        <TechnologySection technologies={technologies} />
+        {tenantConfig.capabilities.showTechnologies !== false && (
+          <TechnologySection technologies={technologies} />
+        )}
 
         {/* Interactive Vision Acuity & Amsler Grid Self-Screener */}
         {tenantConfig.capabilities.visionTest && <VisionTestInteractive />}
 
         {/* Testimonials, Trust Stats & Visual Clarity Simulator — server-provided content */}
-        <TestimonialsAndStats initialTestimonials={testimonials} initialTrustStats={trustStats} />
+        {tenantConfig.capabilities.showTestimonials !== false && (
+          <TestimonialsAndStats initialTestimonials={testimonials} initialTrustStats={trustStats} />
+        )}
 
         {/* Location, Spitar Booking, Phone Directory & FAQ — server-provided content */}
         <LocationAndContact initialFaqs={faqs} />
