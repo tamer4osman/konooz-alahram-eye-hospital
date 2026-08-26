@@ -1,0 +1,14 @@
+{
+  "instances": [
+    {
+      "slug": "konooz-alahram",
+      "name": "مستشفى كنوز الأهرام لطب وجراحة العيون",
+      "profile": "hospital",
+      "domain": "konozealahram-eye.ly",
+      "composeFile": "docker-compose.yml",
+      "envFile": ".env",
+      "status": "active",
+      "deployedAt": "2026-08-26"
+    }
+  ]
+}
