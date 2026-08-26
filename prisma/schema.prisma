@@ -878,6 +878,28 @@ model Department {
   @@map("departments")
 }
 
+/// Technology/equipment showcase items for the public technology section.
+model Technology {
+  id          String   @id
+  titleAr     String
+  titleEn     String
+  categoryAr  String   @default("")
+  categoryEn  String   @default("")
+  descAr      String   @default("")
+  descEn      String   @default("")
+  featuresAr  String[] @default([])
+  featuresEn  String[] @default([])
+  precision   String   @default("")
+  imageSeed   String   @default("")
+  image       String?
+  isActive    Boolean  @default(true)
+  sortOrder   Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("technologies")
+}
+
 model NewsletterTopic {
   id          String   @id @default(cuid())
   titleAr     String
