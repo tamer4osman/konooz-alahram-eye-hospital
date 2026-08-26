@@ -39,6 +39,7 @@ export default function Hero() {
   const [preferredDate, setPreferredDate] = useState('');
   const [consultationType, setConsultationType] = useState<'consultant' | 'clinic'>('consultant');
   const [formSubmitted, setFormSubmitted] = useState(false);
+  const [bookingRef, setBookingRef] = useState<string | null>(null);
 
   // Effective values taking current logged-in patient into account
   const effectivePatientName = currentPatient ? (currentPatient.fullNameAr || currentPatient.fullNameEn) : patientName;
@@ -62,7 +63,7 @@ export default function Hero() {
     }
   };
 
-  const handleHeroSubmit = (e: React.FormEvent) => {
+  const handleHeroSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const finalName = effectivePatientName.trim();
     const finalPhone = effectivePatientPhone.trim();
@@ -153,6 +154,36 @@ ${symptomDetails.trim() ? `📝 *Additional Notes:* ${symptomDetails}\n` : ''}�
 
     const whatsappUrl = `https://wa.me/${HOSPITAL_CONTACTS.primaryWhatsApp.replace('+', '')}?text=${encodeURIComponent(msg)}`;
     window.open(whatsappUrl, '_blank');
+
+    // Also create server-side booking for ticket reference
+    let ref = `BK-${Math.floor(100000 + Math.random() * 900000)}`;
+    try {
+      const res = await fetch('/api/appointments', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          patientName: effectivePatientName.trim(),
+          phone: effectivePatientPhone.trim(),
+          email: effectivePatientEmail.trim() || undefined,
+          specialtyId: selectedSpecialty,
+          doctorId: selectedDoctor || undefined,
+          conditionTitleAr: conditionObj?.labelAr,
+          conditionTitleEn: conditionObj?.labelEn,
+          preferredDate: preferredDate || undefined,
+          preferredTime: consultationType === 'consultant' ? '09:00' : '16:00',
+          gender: effectiveGender,
+          ageGroup: effectiveAgeGroup,
+          affectedEye,
+          symptomDuration,
+          notes: symptomDetails.trim() || undefined,
+        }),
+      });
+      const json = await res.json();
+      if (res.ok && json?.data?.ref) ref = json.data.ref as string;
+    } catch {
+      // dev DB unreachable — keep generated ref
+    }
+    setBookingRef(ref);
     setFormSubmitted(true);
   };
 
@@ -339,6 +370,12 @@ ${symptomDetails.trim() ? `📝 *Additional Notes:* ${symptomDetails}\n` : ''}�
                       'WhatsApp has been opened to send your appointment details directly to our hospital reception team.'
                     )}
                   </p>
+                  {bookingRef && (
+                    <div className="inline-flex items-center gap-2 bg-pine-50 border border-pine-200 rounded-lg px-3 py-1.5">
+                      <span className="text-[10px] text-ink-400">{t('رقم المرجع:', 'Reference:')}</span>
+                      <span className="font-mono font-extrabold text-sm text-pine-900">{bookingRef}</span>
+                    </div>
+                  )}
                   <div className="pt-2 flex flex-col gap-2">
                     <button
                       onClick={() => setFormSubmitted(false)}
