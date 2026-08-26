@@ -3,13 +3,14 @@
 import React, { useState } from 'react';
 import { useLanguage } from '@/context/LanguageContext';
 import { usePatientAuth } from '@/context/PatientAuthContext';
-import { SPECIALTIES, HOSPITAL_CONTACTS, PATIENT_CONDITIONS, AFFECTED_EYE_OPTIONS, AGE_GROUP_OPTIONS, GENDER_OPTIONS, SYMPTOM_DURATION_OPTIONS, PatientCondition } from '@/data/hospitalData';
+import { HOSPITAL_CONTACTS, PATIENT_CONDITIONS, AFFECTED_EYE_OPTIONS, AGE_GROUP_OPTIONS, GENDER_OPTIONS, SYMPTOM_DURATION_OPTIONS, PatientCondition, Specialty } from '@/data/hospitalData';
 import Modal from '@/components/ui/Modal';
 import { X, Calendar, Clock, CheckCircle2, ExternalLink, ChevronDown, Sparkles, ShieldCheck, Activity, Eye, LogOut, UserPlus, FolderLock } from 'lucide-react';
+import IntakeFormRenderer from '@/components/ui/IntakeFormRenderer';
 
 export default function BookingModal() {
   const {
-    isBookingModalOpen, bookingDoctorId, bookingSpecialtyId, closeBookingModal, } = useLanguage();
+    isBookingModalOpen, bookingDoctorId, bookingSpecialtyId, closeBookingModal, specialties, } = useLanguage();
 
   if (!isBookingModalOpen) return null;
 
@@ -19,15 +20,17 @@ export default function BookingModal() {
       bookingSpecialtyId={bookingSpecialtyId}
       bookingDoctorId={bookingDoctorId}
       onClose={closeBookingModal}
+      specialties={specialties}
     />
   );
 }
 
 function BookingModalContent({
-  bookingSpecialtyId, bookingDoctorId, onClose }: {
+  bookingSpecialtyId, bookingDoctorId, onClose, specialties }: {
   bookingSpecialtyId: string | null;
   bookingDoctorId: string | null;
   onClose: () => void;
+  specialties: Specialty[];
 }) {
   const { lang, t, doctors } = useLanguage();
   const {
@@ -55,7 +58,7 @@ function BookingModalContent({
   const [symptomDuration, setSymptomDuration] = useState<'recent' | 'gradual' | 'chronic'>('recent');
 
   const [selectedSpecialty, setSelectedSpecialty] = useState<string>(
-    bookingSpecialtyId || (SPECIALTIES.length > 0 ? SPECIALTIES[0].id : '')
+    bookingSpecialtyId || (specialties.length > 0 ? specialties[0].id : '')
   );
   
   const initialSelectedDoc = doctors.find((d) => d.id === bookingDoctorId);
@@ -79,11 +82,12 @@ function BookingModalContent({
   const [preferredDate, setPreferredDate] = useState<string>('');
   const [preferredSlot, setPreferredSlot] = useState<'morning' | 'evening'>('morning');
   const [notes, setNotes] = useState<string>('');
+  const [intakeData, setIntakeData] = useState<Record<string, string>>({});
   const [isSuccess, setIsSuccess] = useState<boolean>(false);
   const [confirmedQueueTicket, setConfirmedQueueTicket] = useState<string>('Q-284');
   const [confirmedBookingRef, setConfirmedBookingRef] = useState<string>('BK-8492');
 
-  const activeSpecialtyObj = SPECIALTIES.find((s) => s.id === selectedSpecialty);
+  const activeSpecialtyObj = specialties.find((s) => s.id === selectedSpecialty);
   const activeDoctorObj = doctors.find((d) => d.id === selectedDoctor);
   const activeConditionObj = PATIENT_CONDITIONS.find((c) => c.id === selectedCondition);
   const eyeObj = AFFECTED_EYE_OPTIONS.find((e) => e.id === affectedEye);
@@ -156,7 +160,8 @@ function BookingModalContent({
           gender: gender,
           affectedEye: affectedEye,
           symptomDuration: symptomDuration,
-          notes: notes.trim() || undefined
+          notes: notes.trim() || undefined,
+          intakeData: Object.keys(intakeData).length > 0 ? intakeData : undefined,
         })
       });
       const json = await res.json();
@@ -618,7 +623,18 @@ ${notes.trim() ? `📝 *Additional Notes:* ${notes}\n` : ''}--------------------
                     </span>
                   </div>
 
-                  {/* 1. Reason for Visit / Condition Dropbox */}
+                  {activeSpecialtyObj?.intakeSchema ? (
+                    <IntakeFormRenderer
+                      fields={activeSpecialtyObj.intakeSchema}
+                      values={intakeData}
+                      onChange={(fieldId, value) =>
+                        setIntakeData((prev) => ({ ...prev, [fieldId]: value }))
+                      }
+                      lang={lang}
+                    />
+                  ) : (
+                    <>
+                      {/* 1. Reason for Visit / Condition Dropbox */}
                   <div>
                     <label className="text-xs font-bold text-ink-700 flex items-center gap-1.5 mb-1">
                       <Activity className="w-3.5 h-3.5 text-pine-700" />
@@ -696,6 +712,8 @@ ${notes.trim() ? `📝 *Additional Notes:* ${notes}\n` : ''}--------------------
                       </div>
                     </div>
                   </div>
+                    </>
+                  )}
                 </div>
 
                 {/* ============================================================ */}
@@ -785,7 +803,7 @@ ${notes.trim() ? `📝 *Additional Notes:* ${notes}\n` : ''}--------------------
                           }}
                           className="w-full ps-3.5 pe-8 py-2.5 text-xs sm:text-sm bg-white border border-ink-300 rounded-xl focus:ring-2 focus:ring-pine-500 focus:border-pine-500 outline-hidden appearance-none transition-all text-ink-900 font-medium cursor-pointer"
                         >
-                          {SPECIALTIES.map((spec) => (
+                          {specialties.map((spec) => (
                             <option key={spec.id} value={spec.id}>
                               {lang === 'ar' ? spec.titleAr : spec.titleEn}
                             </option>

@@ -15,5 +15,7 @@ export const appointmentRequestSchema = z.object({
   affectedEye: z.string().optional(),
   symptomDuration: z.string().optional(),
   notes: z.string().max(2000).optional(),
+  /** Schema-driven intake data collected via department intakeSchema */
+  intakeData: z.record(z.string(), z.unknown()).optional(),
 })
 

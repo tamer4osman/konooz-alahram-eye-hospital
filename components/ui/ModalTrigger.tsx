@@ -2,7 +2,6 @@
 
 import React from 'react';
 import { useLanguage } from '@/context/LanguageContext';
-import { SPECIALTIES } from '@/data/hospitalData';
 
 interface ModalTriggerProps {
   action: 'booking' | 'specialty' | 'visionTest';
@@ -21,7 +20,7 @@ export default function ModalTrigger({
   doctorId,
   id,
 }: ModalTriggerProps) {
-  const { openBookingModal, openSpecialtyModal, openVisionTestModal } =
+  const { openBookingModal, openSpecialtyModal, openVisionTestModal, specialties } =
     useLanguage();
 
   const handleClick = () => {
@@ -30,7 +29,7 @@ export default function ModalTrigger({
       return;
     }
     if (action === 'specialty') {
-      const spec = SPECIALTIES.find((s) => s.id === specialtyId);
+      const spec = specialties.find((s) => s.id === specialtyId);
       if (spec) openSpecialtyModal(spec);
       return;
     }

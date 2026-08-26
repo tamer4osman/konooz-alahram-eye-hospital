@@ -28,6 +28,12 @@ vi.mock('@/lib/prisma', () => ({
 
 import { prisma } from '@/lib/prisma';
 import { computeAnalytics, type AnalyticsTimeframe } from '@/lib/dashboard/analytics';
+import type { Specialty } from '@/data/hospitalData';
+
+const DEPARTMENTS_FIXTURE: Specialty[] = [
+  { id: 'cataract-phaco', titleAr: 'جراحة المياه البيضاء', titleEn: 'Cataract Surgery & Micro-Phaco', iconName: 'Eye', shortDescAr: '', shortDescEn: '', fullDescAr: '', fullDescEn: '', badgeAr: '', badgeEn: '', proceduresAr: [], proceduresEn: [], technologiesAr: [], technologiesEn: [], durationAr: '', durationEn: '', recoveryAr: '', recoveryEn: '', suitableForAr: [], suitableForEn: [] },
+  { id: 'retina-vitreous', titleAr: 'جراحات الشبكية', titleEn: 'Retinal Surgery & Vitrectomy', iconName: 'Activity', shortDescAr: '', shortDescEn: '', fullDescAr: '', fullDescEn: '', badgeAr: '', badgeEn: '', proceduresAr: [], proceduresEn: [], technologiesAr: [], technologiesEn: [], durationAr: '', durationEn: '', recoveryAr: '', recoveryEn: '', suitableForAr: [], suitableForEn: [] },
+];
 
 const TODAY = new Date();
 TODAY.setHours(0, 0, 0, 0);
@@ -146,7 +152,7 @@ describe('computeAnalytics (day timeframe)', () => {
 
   it('aggregates department workload by specialty with palette colors', async () => {
     seedPrisma();
-    const dto = await computeAnalytics('day' as AnalyticsTimeframe);
+    const dto = await computeAnalytics('day' as AnalyticsTimeframe, DEPARTMENTS_FIXTURE);
 
     const cataract = dto.departmentWorkload.find((d) => d.nameEn.toLowerCase().includes('cataract'));
     const retina = dto.departmentWorkload.find((d) => d.nameEn.toLowerCase().includes('retina'));

@@ -1,6 +1,7 @@
 import { apiSuccess, apiError } from '@/lib/api/response'
 import { requireAdmin } from '@/lib/api/admin-route'
 import { computeAnalytics, type AnalyticsTimeframe } from '@/lib/dashboard/analytics'
+import { getDepartments } from '@/lib/departments'
 
 export const dynamic = 'force-dynamic'
 
@@ -14,7 +15,8 @@ export async function GET(request: Request) {
     return apiError(400, 'INVALID_TIMEFRAME', 'فترة زمنية غير صالحة', 'Invalid timeframe')
   }
   try {
-    const data = await computeAnalytics(tfParam as AnalyticsTimeframe)
+    const departments = await getDepartments()
+    const data = await computeAnalytics(tfParam as AnalyticsTimeframe, departments)
     return apiSuccess(data)
   } catch {
     return apiError(500, 'ANALYTICS_FAILED', 'تعذر حساب المؤشرات', 'Failed to compute analytics')

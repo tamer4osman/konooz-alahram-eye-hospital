@@ -1,4 +1,5 @@
 import { prisma } from '@/lib/prisma';
+import type { Prisma } from '@prisma/client';
 import { apiSuccess, apiError } from '@/lib/api/response';
 import { appointmentRequestSchema } from '@/lib/validation/appointments';
 import {
@@ -73,6 +74,7 @@ export async function POST(request: Request) {
             instructionsEn: 'Please arrive 15 minutes early. Reception confirms the slot via WhatsApp.',
             locationAr: 'مستشفى كنوز الأهرام لطب وجراحة العيون - بنغازي',
             locationEn: 'Konooz Al-Ahram Eye Hospital - Benghazi',
+            intakeData: input.intakeData as unknown as Prisma.InputJsonValue | undefined,
           },
         });
         break;

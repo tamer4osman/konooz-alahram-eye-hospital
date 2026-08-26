@@ -4,6 +4,7 @@ import { PatientAuthProvider } from '@/context/PatientAuthContext';
 import HomePageClient from '@/components/HomePageClient';
 import ServicesGrid from '@/components/ServicesGrid';
 import { getPublicDoctors } from '@/lib/doctors';
+import { getDepartments } from '@/lib/departments';
 import { getFaqs } from '@/lib/content/faqs';
 import { getPublicTestimonials, getTrustStats } from '@/lib/content/public-content';
 
@@ -16,15 +17,21 @@ export default async function LocaleHome({
 }) {
   const { locale: raw } = await params;
   const locale = raw === 'en' ? 'en' : 'ar';
-  const [doctors, testimonials, trustStats, faqs] = await Promise.all([
+  const [doctors, specialties, testimonials, trustStats, faqs] = await Promise.all([
     getPublicDoctors(),
+    getDepartments(),
     getPublicTestimonials(),
     getTrustStats(),
     getFaqs(),
   ]);
 
   return (
-    <LanguageProvider key={locale} initialLocale={locale} initialDoctors={doctors}>
+    <LanguageProvider
+      key={locale}
+      initialLocale={locale}
+      initialDoctors={doctors}
+      initialSpecialties={specialties}
+    >
       <PatientAuthProvider>
         <HomePageClient
           testimonials={testimonials}

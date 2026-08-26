@@ -14,6 +14,7 @@ interface LanguageContextType {
   isRTL: boolean;
   t: (ar: string, en: string) => string;
   doctors: Doctor[];
+  specialties: Specialty[];
   fontSize: FontSize;
   setFontSize: (size: FontSize) => void;
   increaseFontSize: () => void;
@@ -67,10 +68,12 @@ export function LanguageProvider({
   children,
   initialLocale = 'ar',
   initialDoctors = [],
+  initialSpecialties = [],
 }: {
   children: React.ReactNode;
   initialLocale?: Language;
   initialDoctors?: Doctor[];
+  initialSpecialties?: Specialty[];
 }) {
   const router = useRouter();
   // The URL segment is the single source of truth for language. The server
@@ -101,6 +104,8 @@ export function LanguageProvider({
   // Doctors come from the server component tree (ISR-revalidated homepage) —
   // no client-side fetch waterfall for content that rarely changes.
   const [doctors] = useState<Doctor[]>(initialDoctors ?? []);
+  // Departments likewise: DB-backed, fetched once per ISR render upstream.
+  const [specialties] = useState<Specialty[]>(initialSpecialties ?? []);
 
   const isRTL = lang === 'ar';
 
@@ -219,6 +224,7 @@ export function LanguageProvider({
         isRTL,
         t,
         doctors,
+        specialties,
         fontSize,
         setFontSize,
         increaseFontSize,

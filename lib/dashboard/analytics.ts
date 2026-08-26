@@ -1,5 +1,5 @@
 import { prisma } from '@/lib/prisma'
-import { SPECIALTIES } from '@/data/hospitalData'
+import type { Specialty } from '@/data/hospitalData'
 
 export type AnalyticsTimeframe = 'day' | 'week' | 'month' | 'year'
 
@@ -193,7 +193,10 @@ export interface AnalyticsDTO {
   surgeonWorkload: Array<{ nameAr: string; nameEn: string; cases: number; avgDurationMin: number }>
 }
 
-export async function computeAnalytics(timeframe: AnalyticsTimeframe): Promise<AnalyticsDTO> {
+export async function computeAnalytics(
+  timeframe: AnalyticsTimeframe,
+  departments: Specialty[] = [],
+): Promise<AnalyticsDTO> {
   const range = computeRange(timeframe)
 
   const [cur, prev, surgeryRows, consultDates, scanDates, invoices, orRoomCount] = await Promise.all([
@@ -266,7 +269,7 @@ export async function computeAnalytics(timeframe: AnalyticsTimeframe): Promise<A
     const key = s.specialtyId || 'other'
     workloadGroups.set(key, (workloadGroups.get(key) ?? 0) + 1)
   }
-  const specialtyById = new Map(SPECIALTIES.map((sp) => [sp.id, sp]))
+  const specialtyById = new Map(departments.map((sp) => [sp.id, sp]))
   const departmentWorkload = [...workloadGroups.entries()]
     .sort((a, b) => b[1] - a[1])
     .slice(0, 6)

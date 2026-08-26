@@ -5,7 +5,6 @@ import Image from 'next/image';
 import { useLanguage } from '@/context/LanguageContext';
 import { usePatientAuth } from '@/context/PatientAuthContext';
 import {
-  SPECIALTIES,
   HOSPITAL_CONTACTS,
   HOSPITAL_IMAGES,
   PATIENT_CONDITIONS,
@@ -18,7 +17,7 @@ import {
 import { Calendar, CheckCircle2, Sparkles, Phone, ShieldCheck, Award, Clock, ArrowRight, ArrowLeft, Eye, MapPin, ExternalLink, ChevronDown, UserCheck, Stethoscope, Activity, User, Star, Hospital } from 'lucide-react';
 
 export default function Hero() {
-  const { lang, t, isRTL, openVisionTestModal, doctors } = useLanguage();
+  const { lang, t, isRTL, openVisionTestModal, doctors, specialties } = useLanguage();
   const {
     currentPatient, createLocalProfile, logout, addAppointmentToCurrentPatient, openPatientPortal } = usePatientAuth();
 
@@ -35,7 +34,7 @@ export default function Hero() {
   const [symptomDuration, setSymptomDuration] = useState<'recent' | 'gradual' | 'chronic'>('recent');
   const [symptomDetails, setSymptomDetails] = useState('');
 
-  const [selectedSpecialty, setSelectedSpecialty] = useState(SPECIALTIES[0].id);
+  const [selectedSpecialty, setSelectedSpecialty] = useState(specialties[0]?.id ?? '');
   const [selectedDoctor, setSelectedDoctor] = useState('');
   const [preferredDate, setPreferredDate] = useState('');
   const [consultationType, setConsultationType] = useState<'consultant' | 'clinic'>('consultant');
@@ -84,7 +83,7 @@ export default function Hero() {
     }
 
     const conditionObj = PATIENT_CONDITIONS.find((c) => c.id === selectedCondition);
-    const specialtyObj = SPECIALTIES.find((s) => s.id === selectedSpecialty);
+    const specialtyObj = specialties.find((s) => s.id === selectedSpecialty);
     const doctorObj = doctors.find((d) => d.id === selectedDoctor);
     const eyeObj = AFFECTED_EYE_OPTIONS.find((e) => e.id === affectedEye);
     const ageObj = AGE_GROUP_OPTIONS.find((a) => a.id === effectiveAgeGroup);
@@ -680,7 +679,7 @@ ${symptomDetails.trim() ? `ðŸ“ *Additional Notes:* ${symptomDetails}\n` : ''}ðŸ
                             }}
                             className="w-full px-3 py-2 text-xs bg-white border border-pine-900/15 rounded-lg focus:ring-2 focus:ring-pine-600 focus:border-pine-600 outline-hidden appearance-none transition-all text-ink-900 font-medium cursor-pointer"
                           >
-                            {SPECIALTIES.map((spec) => (
+                            {specialties.map((spec) => (
                               <option key={spec.id} value={spec.id}>
                                 {lang === 'ar' ? spec.titleAr : spec.titleEn}
                               </option>
