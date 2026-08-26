@@ -4,14 +4,15 @@ import React, { useState } from 'react';
 import Image from 'next/image';
 import Reveal from './Reveal';
 import { useLanguage } from '@/context/LanguageContext';
-import { TECHNOLOGIES, TechnologyItem } from '@/data/hospitalData';
+import type { TechnologyItem } from '@/data/hospitalData';
+import { tenantConfig } from '@/config/tenant';
 import { Sparkles, CheckCircle2, Microscope, Cpu } from 'lucide-react';
 
-export default function TechnologySection() {
+export default function TechnologySection({ technologies }: { technologies: TechnologyItem[] }) {
   const { lang, t, openBookingModal } = useLanguage();
   const [activeTechIndex, setActiveTechIndex] = useState(0);
 
-  const activeTech: TechnologyItem = TECHNOLOGIES[activeTechIndex];
+  const activeTech: TechnologyItem | undefined = technologies[activeTechIndex];
 
   return (
     <section id="technology" className="py-16 sm:py-24 bg-bone-50 relative overflow-hidden">
@@ -30,14 +31,15 @@ export default function TechnologySection() {
 
           <p className="text-sm sm:text-base text-ink-500 leading-relaxed max-w-2xl font-normal">
             {t(
-              'حرصنا على تجهيز مستشفى كنوز الأهرام بأحدث منظومات الفيمتو ليزك، الفاكو البارد، وتصوير الشبكية المقطعي ثلاثي الأبعاد وغرف العمليات الكبسولية.', 'Equipped with industry-leading Femto-laser, cold micro-phaco platforms, ultra-widefield OCT imaging, and positive-pressure cleanrooms.'
+              `حرصنا على تجهيز ${tenantConfig.identity.shortNameAr} بأحدث الأجهزة والتقنيات الطبية المتطورة.`,
+              `Equipped with the latest advanced medical devices and technologies at ${tenantConfig.identity.shortNameEn}.`
             ) }
           </p>
         </Reveal>
 
         {/* Technology Selector Tabs */}
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2.5 mb-10">
-          {TECHNOLOGIES.map((tech, idx) => {
+          {technologies.map((tech, idx) => {
             const isActive = idx === activeTechIndex;
             return (
               <button

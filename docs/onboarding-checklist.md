@@ -63,11 +63,19 @@ npx tsx deploy/rollout.ts <slug>
 
 ## 6. Post-launch
 
+- [ ] Favicon: replace `public/icon.svg` with hospital's logo (Next.js file convention)
+- [ ] Hero section: customize triage form fields per department (currently eye-specific)
 - [ ] DNS configured (A record → VPS IP)
 - [ ] SSL certificate active (Caddy auto-TLS)
 - [ ] Google Maps embed working
 - [ ] WhatsApp booking flow tested end-to-end
 - [ ] Hospital staff trained on dashboard basics
+
+## Customization scope
+
+The platform is **config-driven** for: identity, theme, contacts, SEO, departments, intake forms, capabilities, permissions, doctor profiles, testimonials, FAQs, technologies, and privacy policy.
+
+**Requires code/onboarding**: Hero triage form (currently eye-specific), logo SVG emblem (swap via `logoImage` in config), WhatsApp message templates (functional strings, same across tenants).
 
 ## Demo rule
 

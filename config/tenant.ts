@@ -28,6 +28,8 @@ export interface TenantIdentity {
   orgTypeEn: string;
   taglineAr: string;
   taglineEn: string;
+  /** Path to logo image (public/). If undefined, renders default SVG emblem. */
+  logoImage?: string;
 }
 
 export interface TenantSeoCopy {

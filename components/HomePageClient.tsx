@@ -39,10 +39,11 @@ interface HomePageClientProps {
   testimonials: Awaited<ReturnType<typeof import('@/lib/content/public-content').getPublicTestimonials>>;
   trustStats: Awaited<ReturnType<typeof import('@/lib/content/public-content').getTrustStats>>;
   faqs: FaqDTO[];
+  technologies: Awaited<ReturnType<typeof import('@/lib/technologies').getTechnologies>>;
   servicesSlot: ReactNode;
 }
 
-export default function HomePageClient({ testimonials, trustStats, faqs, servicesSlot }: HomePageClientProps) {
+export default function HomePageClient({ testimonials, trustStats, faqs, technologies, servicesSlot }: HomePageClientProps) {
   const {
     activeView,
     isSpecialtyModalOpen,
@@ -105,7 +106,7 @@ export default function HomePageClient({ testimonials, trustStats, faqs, service
         <DoctorsSection />
 
         {/* State-of-the-Art Technology & Diagnostics */}
-        <TechnologySection />
+        <TechnologySection technologies={technologies} />
 
         {/* Interactive Vision Acuity & Amsler Grid Self-Screener */}
         {tenantConfig.capabilities.visionTest && <VisionTestInteractive />}
