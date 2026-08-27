@@ -1,6 +1,6 @@
 import type {NextConfig} from 'next';
 
-const isDev = process.env.NODE_ENV === 'development';
+const isDev = process.env.NODE_ENV === 'development'; // eslint-disable-line no-undef
 
 const securityHeaders = [
   {key: 'X-Frame-Options', value: 'DENY'},
