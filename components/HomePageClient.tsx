@@ -7,20 +7,20 @@ import { useLanguage } from '@/context/LanguageContext';
 import { usePatientAuth } from '@/context/PatientAuthContext';
 import { tenantConfig } from '@/config/tenant';
 import Navbar from '@/components/Navbar';
-import Hero from '@/components/Hero';
-import DoctorsSection from '@/components/DoctorsSection';
-import TechnologySection from '@/components/TechnologySection';
-import VisionTestInteractive from '@/components/VisionTestInteractive';
-import TestimonialsAndStats from '@/components/TestimonialsAndStats';
-import LocationAndContact from '@/components/LocationAndContact';
-import FloatingWidgets from '@/components/FloatingWidgets';
 import Footer from '@/components/Footer';
 import type { ReactNode } from 'react';
 import type { FaqDTO } from '@/lib/content/faqs';
 
+// Below-the-fold components: lazy-loaded to reduce initial bundle
+const Hero = dynamic(() => import('@/components/Hero'), { ssr: false, loading: () => <div className="min-h-[60vh] bg-bone-50" /> });
+const DoctorsSection = dynamic(() => import('@/components/DoctorsSection'), { ssr: false });
+const TechnologySection = dynamic(() => import('@/components/TechnologySection'), { ssr: false });
+const VisionTestInteractive = dynamic(() => import('@/components/VisionTestInteractive'), { ssr: false });
+const TestimonialsAndStats = dynamic(() => import('@/components/TestimonialsAndStats'), { ssr: false });
+const LocationAndContact = dynamic(() => import('@/components/LocationAndContact'), { ssr: false });
+const FloatingWidgets = dynamic(() => import('@/components/FloatingWidgets'), { ssr: false });
+
 // Heavy / rarely-used surfaces are code-split and only fetched when first shown.
-// Each modal additionally renders conditionally, so its chunk downloads on
-// first open instead of shipping with the landing page.
 const HospitalDashboard = dynamic(() => import('@/components/dashboard/HospitalDashboard'), {
   ssr: false,
   loading: () => (
