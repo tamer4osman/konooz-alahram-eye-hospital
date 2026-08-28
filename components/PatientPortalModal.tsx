@@ -1,16 +1,25 @@
 'use client';
 
 import React, { useState } from 'react';
+import dynamic from 'next/dynamic';
 import { useLanguage } from '@/context/LanguageContext';
 import { usePatientAuth } from '@/context/PatientAuthContext';
 import Modal from '@/components/ui/Modal';
-import ProfileTab from '@/components/portal/ProfileTab';
-import AppointmentsTab from '@/components/portal/AppointmentsTab';
-import PrescriptionsTab from '@/components/portal/PrescriptionsTab';
-import NotificationsTab from '@/components/portal/NotificationsTab';
-import NewsletterTab from '@/components/portal/NewsletterTab';
-import AuthTab from '@/components/portal/AuthTab';
 import { X, User, Calendar, Pill, Bell, Mail, ShieldCheck, CheckCircle2, Lock, LogOut } from 'lucide-react';
+
+const PortalTabSkeleton = () => (
+  <div className="space-y-4 animate-pulse">
+    <div className="h-10 bg-bone-200 rounded-xl w-48" />
+    <div className="h-48 bg-bone-200 rounded-2xl" />
+  </div>
+);
+
+const ProfileTab = dynamic(() => import('@/components/portal/ProfileTab'), { ssr: false, loading: PortalTabSkeleton });
+const AppointmentsTab = dynamic(() => import('@/components/portal/AppointmentsTab'), { ssr: false, loading: PortalTabSkeleton });
+const PrescriptionsTab = dynamic(() => import('@/components/portal/PrescriptionsTab'), { ssr: false, loading: PortalTabSkeleton });
+const NotificationsTab = dynamic(() => import('@/components/portal/NotificationsTab'), { ssr: false, loading: PortalTabSkeleton });
+const NewsletterTab = dynamic(() => import('@/components/portal/NewsletterTab'), { ssr: false, loading: PortalTabSkeleton });
+const AuthTab = dynamic(() => import('@/components/portal/AuthTab'), { ssr: false, loading: PortalTabSkeleton });
 
 export default function PatientPortalModal() {
   const { t } = useLanguage();
