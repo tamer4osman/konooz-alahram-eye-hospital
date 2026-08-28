@@ -8,6 +8,7 @@ import type { TechnologyItem } from '@/data/hospitalData';
 import { tenantConfig } from '@/config/tenant';
 import { Sparkles, CheckCircle2, Microscope, Cpu } from 'lucide-react';
 
+// fallow-ignore-next-line unused-export
 export default function TechnologySection({ technologies }: { technologies: TechnologyItem[] }) {
   const { lang, t, openBookingModal } = useLanguage();
   const [activeTechIndex, setActiveTechIndex] = useState(0);
@@ -53,7 +54,7 @@ export default function TechnologySection({ technologies }: { technologies: Tech
                 }`}
               >
                 <div className="flex items-center justify-between w-full">
-                  <span className={`text-[10px] font-bold uppercase tnum ${isActive ? 'text-brass-500' : 'text-ink-300'}`}>
+                  <span className={`text-[10px] font-bold uppercase tnum ${isActive ? 'text-brass-600' : 'text-ink-500'}`}>
                     0{idx + 1 }
                   </span>
                   <span
@@ -61,10 +62,10 @@ export default function TechnologySection({ technologies }: { technologies: Tech
                     aria-hidden="true"
                   />
                 </div>
-                <h4 className={`text-xs sm:text-sm font-bold line-clamp-2 leading-snug ${isActive ? 'text-pine-900' : ''}`}>
+                <h3 className={`text-xs sm:text-sm font-bold line-clamp-2 leading-snug ${isActive ? 'text-pine-900' : ''}`}>
                   {lang === 'ar' ? tech.titleAr : tech.titleEn}
-                </h4>
-                <span className="text-[10px] text-ink-400">
+                </h3>
+                <span className="text-[10px] text-ink-500">
                   {lang === 'ar' ? tech.categoryAr : tech.categoryEn}
                 </span>
               </button>

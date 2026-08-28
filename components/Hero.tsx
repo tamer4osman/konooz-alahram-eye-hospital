@@ -433,7 +433,7 @@ ${symptomDetails.trim() ? `📝 *Additional Notes:* ${symptomDetails}\n` : ''}�
 
                     {/* Patient Full Name */}
                     <div>
-                      <label className="block text-[11px] font-bold text-ink-700 mb-1">
+                      <label htmlFor="hero-patient-name" className="block text-[11px] font-bold text-ink-700 mb-1">
                         {t('اسم المريض رباعي *', 'Patient Full (Four-Part) Name *')}
                       </label>
                       <input
@@ -453,7 +453,7 @@ ${symptomDetails.trim() ? `📝 *Additional Notes:* ${symptomDetails}\n` : ''}�
                     {/* Patient Phone & Email */}
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                       <div>
-                        <label className="block text-[11px] font-bold text-ink-700 mb-1">
+                        <label htmlFor="hero-patient-phone" className="block text-[11px] font-bold text-ink-700 mb-1">
                           {t('رقم الهاتف / الواتساب (+218) *', 'Phone / WhatsApp (+218) *')}
                         </label>
                         <input
@@ -472,7 +472,7 @@ ${symptomDetails.trim() ? `📝 *Additional Notes:* ${symptomDetails}\n` : ''}�
                       </div>
 
                       <div>
-                        <label className="block text-[11px] font-bold text-ink-700 mb-1">
+                        <label htmlFor="hero-patient-email" className="block text-[11px] font-bold text-ink-700 mb-1">
                           {t('البريد الإلكتروني المعتمد *', 'Official Email Address *')}
                         </label>
                         <input
@@ -494,7 +494,7 @@ ${symptomDetails.trim() ? `📝 *Additional Notes:* ${symptomDetails}\n` : ''}�
                     {/* Gender & Age Group Dropboxes */}
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                       <div>
-                        <label className="block text-[11px] font-bold text-ink-700 mb-1">
+                        <label htmlFor="hero-gender-select" className="block text-[11px] font-bold text-ink-700 mb-1">
                           {t('الجنس *', 'Gender *')}
                         </label>
                         <div className="relative">
@@ -518,7 +518,7 @@ ${symptomDetails.trim() ? `📝 *Additional Notes:* ${symptomDetails}\n` : ''}�
                       </div>
 
                       <div>
-                        <label className="block text-[11px] font-bold text-ink-700 mb-1">
+                        <label htmlFor="hero-age-select" className="block text-[11px] font-bold text-ink-700 mb-1">
                           {t('الفئة العمرية *', 'Age Group *')}
                         </label>
                         <div className="relative">
@@ -561,7 +561,7 @@ ${symptomDetails.trim() ? `📝 *Additional Notes:* ${symptomDetails}\n` : ''}�
                     {/* Consultation Type Selector (Visiting vs Local) */}
                     <div>
                       <div className="flex items-center justify-between mb-1.5">
-                        <label className="text-xs font-bold text-ink-900 flex items-center gap-1.5">
+                        <label htmlFor="hero-track-visiting" className="text-xs font-bold text-ink-900 flex items-center gap-1.5">
                           <Award className="w-3.5 h-3.5 text-pine-700" />
                           <span>{t('مسار ونوع الكشف الطبي *', 'Consultation Track & Doctor Category *')}</span>
                         </label>
@@ -621,7 +621,7 @@ ${symptomDetails.trim() ? `📝 *Additional Notes:* ${symptomDetails}\n` : ''}�
                     {/* Reason for Visit / Consultation Dropbox */}
                     <div>
                       <div className="flex items-center justify-between mb-1">
-                        <label className="text-xs font-bold text-ink-900 flex items-center gap-1.5">
+                        <label htmlFor="hero-condition-select" className="text-xs font-bold text-ink-900 flex items-center gap-1.5">
                           <Activity className="w-3.5 h-3.5 text-pine-700" />
                           <span>{t('سبب الزيارة أو نوع الاستشارة *', 'Reason for Visit / Consultation *')}</span>
                         </label>
@@ -656,7 +656,7 @@ ${symptomDetails.trim() ? `📝 *Additional Notes:* ${symptomDetails}\n` : ''}�
                     {/* Affected Eye & Symptom Duration Dropboxes */}
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
                       <div>
-                        <label className="block text-xs font-bold text-ink-900 mb-1 flex items-center gap-1.5">
+                        <label htmlFor="hero-eye-select" className="block text-xs font-bold text-ink-900 mb-1 flex items-center gap-1.5">
                           <Eye className="w-3.5 h-3.5 text-pine-700" />
                           <span>{t('العين المصابة أو موضع الفحص *', 'Affected Eye *')}</span>
                         </label>
@@ -678,7 +678,7 @@ ${symptomDetails.trim() ? `📝 *Additional Notes:* ${symptomDetails}\n` : ''}�
                       </div>
 
                       <div>
-                        <label className="block text-xs font-bold text-ink-900 mb-1 flex items-center gap-1.5">
+                        <label htmlFor="hero-duration-select" className="block text-xs font-bold text-ink-900 mb-1 flex items-center gap-1.5">
                           <Clock className="w-3.5 h-3.5 text-pine-700" />
                           <span>{t('مدة وبداية الأعراض *', 'Symptom Duration / Onset *')}</span>
                         </label>
@@ -703,7 +703,7 @@ ${symptomDetails.trim() ? `📝 *Additional Notes:* ${symptomDetails}\n` : ''}�
                     {/* Specialty & Doctor Dropboxes */}
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
                       <div>
-                        <label className="block text-xs font-bold text-ink-700 mb-1">
+                        <label htmlFor="hero-specialty-select" className="block text-xs font-bold text-ink-700 mb-1">
                           {t('التخصص الجراحي أو العيادة *', 'Clinical Specialty *')}
                         </label>
                         <div className="relative">
@@ -727,7 +727,7 @@ ${symptomDetails.trim() ? `📝 *Additional Notes:* ${symptomDetails}\n` : ''}�
                       </div>
 
                       <div>
-                        <label className="block text-xs font-bold text-ink-700 mb-1 flex items-center justify-between">
+                        <label htmlFor="hero-doctor-select" className="block text-xs font-bold text-ink-700 mb-1 flex items-center justify-between">
                           <span>
                             {consultationType === 'consultant'
                               ? t('الاستشاري الزائر المطلوب (مصر 🇪🇬)', 'Visiting Consultant (Egypt 🇪🇬)')
@@ -760,7 +760,7 @@ ${symptomDetails.trim() ? `📝 *Additional Notes:* ${symptomDetails}\n` : ''}�
                     {/* Preferred Date & Notes */}
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
                       <div>
-                        <label className="block text-xs font-bold text-ink-700 mb-1">
+                        <label htmlFor="hero-preferred-date" className="block text-xs font-bold text-ink-700 mb-1">
                           {t('تاريخ الموعد المقترح', 'Preferred Date')}
                         </label>
                         <input
@@ -773,7 +773,7 @@ ${symptomDetails.trim() ? `📝 *Additional Notes:* ${symptomDetails}\n` : ''}�
                       </div>
 
                       <div>
-                        <label className="block text-xs font-bold text-ink-700 mb-1">
+                        <label htmlFor="hero-symptom-details" className="block text-xs font-bold text-ink-700 mb-1">
                           {t('ملاحظات إضافية (اختياري)', 'Additional notes')}
                         </label>
                         <input
