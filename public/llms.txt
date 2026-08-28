@@ -1,20 +1,33 @@
 # Konooz Al-Ahram Eye Hospital
 
-> Official website and patient portal of Konooz Al-Ahram Eye & Surgery Hospital in Benghazi, Libya. A bilingual (Arabic-first, RTL) Next.js 15 site offering department information, surgical cost estimates, vision self-screening tools, appointment booking via WhatsApp handoff, and a device-local patient portal.
+> Official website and patient portal of Konooz Al-Ahram Eye & Ophthalmic Surgery Hospital in Benghazi, Libya. Bilingual (Arabic-first, RTL) Next.js 15 site with department information, surgical cost estimates, vision self-screening, appointment booking via WhatsApp, and a device-local patient portal.
 
 Key facts:
 
-- Arabic is the default language; English is available via the header switcher or `?lang=en` deep links.
-- Patient profile data is stored **only in the visitor's browser** — nothing is transmitted to a server, and no feature described on this site sends data automatically.
+- Arabic is the default language; English is available via the header switcher or `/en` prefix.
+- Patient profile data is stored only in the visitor's browser — nothing is sent to a server.
 - Booking requests open a pre-filled WhatsApp draft that the user sends themselves.
-- Built with Next.js 15 (App Router), React 19, TypeScript strict mode, and Tailwind CSS v4.
+- Built with Next.js 15 (App Router), React 19, TypeScript strict mode, Tailwind CSS v4, Prisma + PostgreSQL.
 
 ## Pages
 
-- [Home](https://konozealahram-eye.ly/): single-page bilingual site — departments, doctors, services, booking, patient portal, operations dashboard.
+- [Homepage (Arabic)](https://konozealahram-eye.ly/ar): departments, doctors, services, booking, patient portal, operations dashboard.
+- [Homepage (English)](https://konozealahram-eye.ly/en): English version of the homepage.
+- [Privacy Policy (Arabic)](https://konozealahram-eye.ly/ar/privacy): data handling and patient privacy.
+- [Privacy Policy (English)](https://konozealahram-eye.ly/en/privacy): English privacy policy.
 
 ## Machine-readable resources
 
 - [Sitemap](https://konozealahram-eye.ly/sitemap.xml): complete list of indexable URLs.
-- [Robots](https://konozealahram-eye.ly/robots.txt): crawl directives.
+- [Robots](https://konozealahram-eye.ly/robots.txt): crawl directives for search engines and AI crawlers.
 - [Web app manifest](https://konozealahram-eye.ly/manifest.webmanifest): PWA metadata, icons, and theme colors.
+
+## Contact
+
+- [Email](mailto:tamer4osman@gmail.com): project maintainer contact.
+- [Facebook](https://www.facebook.com/hospitalpyramid/): official hospital page.
+
+## Optional
+
+- [Google Maps](https://www.google.com/maps/place/%D9%85%D8%B3%D8%AA%D8%B4%D9%81%D9%89+%D9%83%D9%86%D9%88%D8%B2+%D8%A7%D9%84%D8%A7%D9%87%D8%B1%D8%A7%D9%85+%D9%84%D8%B7%D8%A8+%D8%A7%D9%84%D8%B9%D9%8A%D9%88%D9%86/@32.036767,20.0541282,17z): hospital location.
+- [Spitar partner](https://spitar.com): healthcare partner platform.
