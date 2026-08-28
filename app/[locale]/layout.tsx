@@ -10,6 +10,8 @@ import '../globals.css';
 const LOCALES = ['ar', 'en'] as const;
 type Locale = (typeof LOCALES)[number];
 
+const GOOGLE_SITE_VERIFICATION = process.env.GOOGLE_SITE_VERIFICATION ?? '';
+
 export function generateStaticParams() {
   return LOCALES.map((locale) => ({ locale }));
 }
@@ -69,6 +71,7 @@ export async function generateMetadata({
     alternates: {
       canonical: `${baseUrl}/${locale}`,
       languages: {
+        'x-default': `${baseUrl}/ar`,
         'ar-LY': `${baseUrl}/ar`,
         'en-US': `${baseUrl}/en`,
         ar: `${baseUrl}/ar`,
@@ -87,10 +90,12 @@ export async function generateMetadata({
         url: img.path,
         width: img.width,
         height: img.height,
+        alt: locale === 'ar' ? img.altAr : img.altEn,
       })),
     },
     twitter: {
       card: 'summary_large_image',
+      site: tenantConfig.seo.twitterHandle,
       title: copy.title,
       description: copy.description,
       images: [tenantConfig.seo.ogImages[0].path],
@@ -112,6 +117,7 @@ export async function generateMetadata({
       'geo.position': copy.geoPosition,
       'ICBM': copy.icbm,
       'medical-specialty': tenantConfig.geo.medicalSpecialty,
+      'google-site-verification': GOOGLE_SITE_VERIFICATION,
     },
   };
 }
@@ -174,7 +180,7 @@ export default async function LocaleLayout({
           dangerouslySetInnerHTML={{ __html: TENANT_THEME_CSS }}
         />
         <Suspense fallback={null}>
-          <SEOStructuredData />
+          <SEOStructuredData locale={locale} />
         </Suspense>
         {children}
       </body>

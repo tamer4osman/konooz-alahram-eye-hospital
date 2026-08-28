@@ -40,7 +40,8 @@ export interface TenantSeoCopy {
   applicationNameAr: string;
   applicationNameEn: string;
   keywords: string[];
-  ogImages: Array<{ path: string; width: number; height: number }>;
+  ogImages: Array<{ path: string; width: number; height: number; altAr: string; altEn: string }>;
+  twitterHandle?: string;
 }
 
 export interface TenantContacts {
@@ -102,6 +103,23 @@ export interface TenantCapabilities {
   showFaq?: boolean;
 }
 
+export interface TenantManifest {
+  nameAr: string;
+  nameEn: string;
+  shortNameAr: string;
+  shortNameEn: string;
+  descriptionAr: string;
+  descriptionEn: string;
+  iconPath: string;
+  themeColor: string;
+  backgroundColor: string;
+}
+
+export interface TenantLlms {
+  /** Contact line for llms.txt (e.g. email or URL) */
+  contact: string;
+}
+
 export interface TenantConfig {
   slug: string;
   profile: TenantProfile;
@@ -112,6 +130,8 @@ export interface TenantConfig {
   geo: TenantGeo;
   theme: TenantTheme;
   capabilities: TenantCapabilities;
+  manifest: TenantManifest;
+  llms: TenantLlms;
 }
 
 /* ────────────────────────────────────────────────────────────────────────
@@ -160,13 +180,18 @@ export const tenantConfig: TenantConfig = {
         path: '/images/hospital_hero_surgery_1787188107940.webp',
         width: 1200,
         height: 630,
+        altAr: 'عملية جراحية في مستشفى كنوز الأهرام للعيون',
+        altEn: 'Eye surgery at Konooz Al-Ahram Eye Hospital',
       },
       {
         path: '/images/hospital_exterior_facade_1787188119953.webp',
         width: 1200,
         height: 630,
+        altAr: 'مبنى مستشفى كنوز الأهرام للعيون',
+        altEn: 'Konooz Al-Ahram Eye Hospital building',
       },
     ],
+    twitterHandle: '@hospitalpyramid',
   },
   contacts: {
     addressAr:
@@ -247,5 +272,19 @@ export const tenantConfig: TenantConfig = {
     showTechnologies: true,
     showTestimonials: true,
     showFaq: true,
+  },
+  manifest: {
+    nameAr: 'مستشفى كنوز الأهرام لطب وجراحة العيون',
+    nameEn: 'Konooz Al-Ahram Eye Hospital',
+    shortNameAr: 'كنوز الأهرام',
+    shortNameEn: 'Konooz Al-Ahram',
+    descriptionAr: 'المستشفى التخصصي الرائد لجراحة وطب العيون في بنغازي، ليبيا - تقنيات الفيمتو ليزك، الفاكو، وجراحات الشبكية',
+    descriptionEn: 'Leading specialist hospital for eye surgery and ophthalmology in Benghazi, Libya - Femto LASIK, Phaco, and retinal surgery',
+    iconPath: '/images/hospital_hero_surgery_1787188107940.webp',
+    themeColor: '#0d9488',
+    backgroundColor: '#0a192f',
+  },
+  llms: {
+    contact: 'mailto:tamer4osman@gmail.com',
   },
 };

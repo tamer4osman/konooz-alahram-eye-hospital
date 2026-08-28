@@ -1,11 +1,10 @@
 import React from 'react';
-import { HOSPITAL_CONTACTS } from '@/data/hospitalData';
 import { tenantConfig } from '@/config/tenant';
 import { getFaqs } from '@/lib/content/faqs';
 import { getPublicDoctors } from '@/lib/doctors';
 import { getDepartments } from '@/lib/departments';
 
-export default async function SEOStructuredData() {
+export default async function SEOStructuredData({ locale = 'ar' }: { locale?: string }) {
   const [doctors, faqs, specialties] = await Promise.all([
     getPublicDoctors(),
     getFaqs(),
@@ -17,13 +16,11 @@ export default async function SEOStructuredData() {
     '@context': 'https://schema.org',
     '@type': ['Hospital', 'MedicalBusiness', 'MedicalClinic', 'EmergencyService'],
     '@id': `${BASE}/#hospital`,
-    name: HOSPITAL_CONTACTS.nameAr,
+    name: identity.nameAr,
     alternateName: [
-      HOSPITAL_CONTACTS.nameEn,
-      'مستشفى كنوز الأهرام للعيون',
-      'كنوز الأهرام لطب وجراحة العيون بنغازي',
-      'Konooz Al-Ahram Eye Hospital',
-      'Pyramid Eye Hospital Benghazi'
+      identity.nameEn,
+      identity.shortNameAr,
+      `${identity.orgTypeAr} ${identity.shortNameAr}`,
     ],
     url: BASE,
     logo: `${BASE}${seo.ogImages[0].path}`,
@@ -59,10 +56,10 @@ export default async function SEOStructuredData() {
     },
     geo: {
       '@type': 'GeoCoordinates',
-      latitude: HOSPITAL_CONTACTS.coordinates.lat,
-      longitude: HOSPITAL_CONTACTS.coordinates.lng
+      latitude: geo.lat,
+      longitude: geo.lng
     },
-    hasMap: HOSPITAL_CONTACTS.googleMapsUrl,
+    hasMap: tenantConfig.urls.googleMapsUrl,
     openingHoursSpecification: [
       {
         '@type': 'OpeningHoursSpecification',
@@ -115,21 +112,22 @@ export default async function SEOStructuredData() {
       procedureType: 'http://schema.org/SurgicalProcedure'
     })),
     sameAs: [
-      HOSPITAL_CONTACTS.facebookUrl,
-      HOSPITAL_CONTACTS.googleMapsUrl,
-      HOSPITAL_CONTACTS.spitarUrl
-    ]
+      tenantConfig.urls.facebookUrl,
+      tenantConfig.urls.googleMapsUrl,
+      tenantConfig.urls.partnerUrl,
+    ].filter(Boolean),
   };
 
+  const isAr = locale === 'ar';
   const faqSchema = {
     '@context': 'https://schema.org',
     '@type': 'FAQPage',
     mainEntity: faqs.map((faq) => ({
       '@type': 'Question',
-      name: faq.qAr,
+      name: isAr ? faq.qAr : faq.qEn,
       acceptedAnswer: {
         '@type': 'Answer',
-        text: faq.aAr
+        text: isAr ? faq.aAr : faq.aEn
       }
     }))
   };
