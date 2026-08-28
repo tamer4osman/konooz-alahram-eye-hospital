@@ -1,5 +1,7 @@
 import React from 'react';
 import Link from 'next/link';
+import type { Metadata } from 'next';
+import { tenantConfig } from '@/config/tenant';
 
 const LOCALES = ['ar', 'en'] as const;
 
@@ -68,6 +70,33 @@ const privacyContent = {
 
 export function generateStaticParams() {
   return LOCALES.map((locale) => ({ locale }));
+}
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+  const { locale: raw } = await params;
+  const locale = (LOCALES as readonly string[]).includes(raw) ? raw : 'ar';
+  const { baseUrl } = tenantConfig.urls;
+  const title = locale === 'ar' ? 'سياسة الخصوصية | كنوز الأهرام' : 'Privacy Policy | Konooz Al-Ahram';
+  const description = locale === 'ar'
+    ? 'سياسة الخصوصية وحماية البيانات لمستشفى كنوز الأهرام لطب وجراحة العيون في بنغازي.'
+    : 'Privacy policy and data protection for Konooz Al-Ahram Eye Hospital in Benghazi.';
+
+  return {
+    title,
+    description,
+    robots: { index: false, follow: true },
+    alternates: {
+      canonical: `${baseUrl}/${locale}/privacy`,
+      languages: {
+        'ar-LY': `${baseUrl}/ar/privacy`,
+        'en-US': `${baseUrl}/en/privacy`,
+      },
+    },
+  };
 }
 
 export default async function PrivacyPage({
