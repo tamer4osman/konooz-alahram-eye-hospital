@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import type { ReactNode } from 'react';
+import { Suspense } from 'react';
 import { notFound } from 'next/navigation';
 import { Alexandria } from 'next/font/google';
 import SEOStructuredData from '@/components/SEOStructuredData';
@@ -155,6 +156,14 @@ export default async function LocaleLayout({
       className={alexandria.variable}
       suppressHydrationWarning
     >
+      <head>
+        <link
+          rel="preload"
+          as="image"
+          href="/images/hospital_hero_surgery_1787188107940.webp"
+          fetchPriority="high"
+        />
+      </head>
       <body
         className="font-sans antialiased bg-bone-50 text-ink-900 selection:bg-pine-900 selection:text-bone-50"
         suppressHydrationWarning
@@ -164,7 +173,9 @@ export default async function LocaleLayout({
           precedence="high"
           dangerouslySetInnerHTML={{ __html: TENANT_THEME_CSS }}
         />
-        <SEOStructuredData />
+        <Suspense fallback={null}>
+          <SEOStructuredData />
+        </Suspense>
         {children}
       </body>
     </html>

@@ -4,7 +4,6 @@ import Reveal from './Reveal';
 import ModalTrigger from './ui/ModalTrigger';
 import type { Language } from '@/context/LanguageContext';
 import type { Specialty } from '@/data/hospitalData';
-import { getDepartments } from '@/lib/departments';
 import { HOSPITAL_CONTACTS, HOSPITAL_IMAGES } from '@/data/hospitalData';
 import {
   Sparkles,
@@ -30,10 +29,9 @@ const iconMap: Record<string, React.ReactNode> = {
   ShieldAlert: <ShieldAlert className="w-5 h-5 text-brass-300" />,
 };
 
-export default async function ServicesGrid({ locale }: { locale: Language }) {
+export default async function ServicesGrid({ locale, specialties }: { locale: Language; specialties: Specialty[] }) {
   const t = (ar: string, en: string) => (locale === 'ar' ? ar : en);
   const isRTL = locale === 'ar';
-  const specialties = await getDepartments();
 
   return (
     <section id="specialties" className="py-16 sm:py-24 bg-bone-50 relative">

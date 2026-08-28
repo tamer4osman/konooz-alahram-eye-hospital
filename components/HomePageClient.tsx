@@ -9,15 +9,11 @@ import { tenantConfig } from '@/config/tenant';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import type { ReactNode } from 'react';
-import type { FaqDTO } from '@/lib/content/faqs';
 
 // Below-the-fold components: lazy-loaded to reduce initial bundle
 const Hero = dynamic(() => import('@/components/Hero'), { ssr: false, loading: () => <div className="min-h-[60vh] bg-bone-50" /> });
 const DoctorsSection = dynamic(() => import('@/components/DoctorsSection'), { ssr: false });
-const TechnologySection = dynamic(() => import('@/components/TechnologySection'), { ssr: false });
 const VisionTestInteractive = dynamic(() => import('@/components/VisionTestInteractive'), { ssr: false });
-const TestimonialsAndStats = dynamic(() => import('@/components/TestimonialsAndStats'), { ssr: false });
-const LocationAndContact = dynamic(() => import('@/components/LocationAndContact'), { ssr: false });
 const FloatingWidgets = dynamic(() => import('@/components/FloatingWidgets'), { ssr: false });
 
 // Heavy / rarely-used surfaces are code-split and only fetched when first shown.
@@ -36,14 +32,13 @@ const SurgicalCostCalculatorModal = dynamic(() => import('@/components/SurgicalC
 const PatientPortalModal = dynamic(() => import('@/components/PatientPortalModal'), { ssr: false });
 
 interface HomePageClientProps {
-  testimonials: Awaited<ReturnType<typeof import('@/lib/content/public-content').getPublicTestimonials>>;
-  trustStats: Awaited<ReturnType<typeof import('@/lib/content/public-content').getTrustStats>>;
-  faqs: FaqDTO[];
-  technologies: Awaited<ReturnType<typeof import('@/lib/technologies').getTechnologies>>;
   servicesSlot: ReactNode;
+  technologiesSlot: ReactNode;
+  testimonialsSlot: ReactNode;
+  faqsSlot: ReactNode;
 }
 
-export default function HomePageClient({ testimonials, trustStats, faqs, technologies, servicesSlot }: HomePageClientProps) {
+export default function HomePageClient({ servicesSlot, technologiesSlot, testimonialsSlot, faqsSlot }: HomePageClientProps) {
   const {
     activeView,
     isSpecialtyModalOpen,
@@ -106,20 +101,16 @@ export default function HomePageClient({ testimonials, trustStats, faqs, technol
         <DoctorsSection />
 
         {/* State-of-the-Art Technology & Diagnostics */}
-        {tenantConfig.capabilities.showTechnologies !== false && (
-          <TechnologySection technologies={technologies} />
-        )}
+        {tenantConfig.capabilities.showTechnologies !== false && technologiesSlot}
 
         {/* Interactive Vision Acuity & Amsler Grid Self-Screener */}
         {tenantConfig.capabilities.visionTest && <VisionTestInteractive />}
 
         {/* Testimonials, Trust Stats & Visual Clarity Simulator — server-provided content */}
-        {tenantConfig.capabilities.showTestimonials !== false && (
-          <TestimonialsAndStats initialTestimonials={testimonials} initialTrustStats={trustStats} />
-        )}
+        {tenantConfig.capabilities.showTestimonials !== false && testimonialsSlot}
 
         {/* Location, Spitar Booking, Phone Directory & FAQ — server-provided content */}
-        <LocationAndContact initialFaqs={faqs} />
+        {faqsSlot}
       </main>
 
       {/* Footer */}
