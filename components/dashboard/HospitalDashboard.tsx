@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import dynamic from 'next/dynamic';
 import { useLanguage } from '@/context/LanguageContext';
 import {
   HospitalStaff,
@@ -15,21 +16,58 @@ import {
 } from '@/data/dashboardData';
 
 import DashboardHeader from './DashboardHeader';
-import OverviewTab from './OverviewTab';
-import PersonnelTab from './PersonnelTab';
-import RoomsTab from './RoomsTab';
-import EquipmentTab from './EquipmentTab';
-import SurgeriesScheduleTab from './SurgeriesScheduleTab';
-import AnalyticsTab from './AnalyticsTab';
-import ClinicalConsultationTab from './ClinicalConsultationTab';
-import BedManagementTab from './BedManagementTab';
-import BillingInsuranceTab from './BillingInsuranceTab';
-import AddStaffModal from './modals/AddStaffModal';
-import ScheduleSurgeryModal from './modals/ScheduleSurgeryModal';
-import MaintenanceModal from './modals/MaintenanceModal';
-import AddRoomModal from './modals/AddRoomModal';
-import AddEquipmentModal from './modals/AddEquipmentModal';
-import BroadcastModal, { type BroadcastLevel } from './modals/BroadcastModal';
+import { type BroadcastLevel } from './modals/BroadcastModal';
+
+const TabSkeleton = () => (
+  <div className="space-y-4 animate-pulse">
+    <div className="h-10 bg-bone-200 rounded-xl w-64" />
+    <div className="h-64 bg-bone-200 rounded-2xl" />
+  </div>
+);
+
+const PersonnelTab = dynamic(() => import('./PersonnelTab'), { ssr: false, loading: TabSkeleton });
+const RoomsTab = dynamic(() => import('./RoomsTab'), { ssr: false, loading: TabSkeleton });
+const EquipmentTab = dynamic(() => import('./EquipmentTab'), { ssr: false, loading: TabSkeleton });
+const SurgeriesScheduleTab = dynamic(() => import('./SurgeriesScheduleTab'), { ssr: false, loading: TabSkeleton });
+const ClinicalConsultationTab = dynamic(() => import('./ClinicalConsultationTab'), { ssr: false, loading: TabSkeleton });
+const BedManagementTab = dynamic(() => import('./BedManagementTab'), { ssr: false, loading: TabSkeleton });
+const BillingInsuranceTab = dynamic(() => import('./BillingInsuranceTab'), { ssr: false, loading: TabSkeleton });
+
+const AddStaffModal = dynamic(() => import('./modals/AddStaffModal'), { ssr: false });
+const ScheduleSurgeryModal = dynamic(() => import('./modals/ScheduleSurgeryModal'), { ssr: false });
+const MaintenanceModal = dynamic(() => import('./modals/MaintenanceModal'), { ssr: false });
+const AddRoomModal = dynamic(() => import('./modals/AddRoomModal'), { ssr: false });
+const AddEquipmentModal = dynamic(() => import('./modals/AddEquipmentModal'), { ssr: false });
+const BroadcastModal = dynamic(() => import('./modals/BroadcastModal'), { ssr: false });
+
+const OverviewTab = dynamic(() => import('./OverviewTab'), {
+  ssr: false,
+  loading: () => (
+    <div className="space-y-4 animate-pulse">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        {Array.from({ length: 4 }).map((_, i) => (
+          <div key={i} className="h-24 bg-bone-200 rounded-2xl" />
+        ))}
+      </div>
+      <div className="h-64 bg-bone-200 rounded-2xl" />
+    </div>
+  ),
+});
+
+const AnalyticsTab = dynamic(() => import('./AnalyticsTab'), {
+  ssr: false,
+  loading: () => (
+    <div className="space-y-4 animate-pulse">
+      <div className="h-10 bg-bone-200 rounded-xl w-48" />
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        {Array.from({ length: 4 }).map((_, i) => (
+          <div key={i} className="h-24 bg-bone-200 rounded-2xl" />
+        ))}
+      </div>
+      <div className="h-80 bg-bone-200 rounded-2xl" />
+    </div>
+  ),
+});
 
 import { Activity, Users, Building2, Cpu, Calendar, BarChart3, X, Radio, Stethoscope, Bed, Receipt } from 'lucide-react';
 import { hasModuleAccess, type DashboardModule } from '@/lib/permissions';
