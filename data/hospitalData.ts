@@ -94,13 +94,6 @@ export const HOSPITAL_IMAGES = {
   heroSurgery: '/images/hospital_hero_surgery_1787188107940.webp',
   hospitalExterior: '/images/hospital_exterior_facade_1787188119953.webp',
   femtoLaserTech: '/images/femto_laser_tech_1787188144731.webp',
-  eyeDiagnostics: '/images/ophthalmology_diagnostics_1787188133030.webp',
-  cataractSurgery: '/images/cataract_lens_surgery_1787188187884.webp',
-  retinaScanOct: '/images/retina_scan_oct_1787188201209.webp',
-  corneaCrosslink: '/images/cornea_crosslink_1787190931823.webp',
-  pediatricEyeCare: '/images/pediatric_eye_care_1787190917908.webp',
-  oculoplasticsEye: '/images/oculoplastics_eye_1787190943890.webp',
-  pentacamMachine: '/images/pentacam_machine_1787190957984.webp',
 };
 
 import { tenantConfig } from '@/config/tenant';
