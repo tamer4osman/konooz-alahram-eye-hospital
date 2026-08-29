@@ -13,6 +13,7 @@ const technologies = [
     featuresEn: ['Bladeless', 'Fast recovery', 'High precision'],
     precision: '0.25 ميكرون',
     imageSeed: 'femto-lasik',
+    image: '/images/femto_laser_tech_1787188144731.webp',
     sortOrder: 1,
   },
   {
@@ -27,6 +28,7 @@ const technologies = [
     featuresEn: ['Small incision', 'No stitches', 'Fast recovery'],
     precision: '2.2 مم شق',
     imageSeed: 'cataract-phaco',
+    image: '/images/cataract_lens_surgery_1787188187884.webp',
     sortOrder: 2,
   },
   {
@@ -41,6 +43,7 @@ const technologies = [
     featuresEn: ['Non-surgical', 'Precise', 'Preventive'],
     precision: 'مايكرو واط',
     imageSeed: 'retinal-laser',
+    image: '/images/retina_scan_oct_1787188201209.webp',
     sortOrder: 3,
   },
   {
@@ -55,6 +58,7 @@ const technologies = [
     featuresEn: ['Cross-sectional imaging', 'Early detection', 'Painless'],
     precision: '5 ميكرون',
     imageSeed: 'oct-scan',
+    image: '/images/ophthalmology_diagnostics_1787188133030.webp',
     sortOrder: 4,
   },
 ]
