@@ -84,6 +84,8 @@ export default function HospitalDashboard() {
   const [userPermissions, setUserPermissions] = useState<unknown>(null);
 
   useEffect(() => {
+    const hasSession = document.cookie.split(';').some((c) => c.trim().startsWith('konooz_auth='));
+    if (!hasSession) return;
     fetch('/api/auth/me').then((r) => r.json()).then((json) => {
       if (json?.data) {
         setUserRole(json.data.role ?? 'STAFF');

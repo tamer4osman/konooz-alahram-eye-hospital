@@ -3,6 +3,7 @@ import { cookies } from 'next/headers'
 import { prisma } from '@/lib/prisma'
 
 const COOKIE_NAME = 'konooz_session'
+const INDICATOR_COOKIE = 'konooz_auth'
 const MAX_AGE = 60 * 60 * 24 * 30 // 30 days
 
 function sha256(input: string): string {
@@ -19,6 +20,14 @@ export async function createSession(userId: string): Promise<string> {
   const cookieStore = await cookies()
   cookieStore.set(COOKIE_NAME, token, {
     httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'lax',
+    path: '/',
+    maxAge: MAX_AGE,
+  })
+
+  cookieStore.set(INDICATOR_COOKIE, '1', {
+    httpOnly: false,
     secure: process.env.NODE_ENV === 'production',
     sameSite: 'lax',
     path: '/',
@@ -60,4 +69,5 @@ export async function destroySession() {
     await prisma.session.deleteMany({ where: { tokenHash: sha256(token) } })
   }
   cookieStore.delete(COOKIE_NAME)
+  cookieStore.delete(INDICATOR_COOKIE)
 }

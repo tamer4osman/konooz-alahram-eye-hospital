@@ -181,6 +181,8 @@ export function PatientAuthProvider({ children }: { children: React.ReactNode })
 
   useEffect(() => {
     let cancelled = false;
+    const hasSession = document.cookie.split(';').some((c) => c.trim().startsWith('konooz_auth='));
+    if (!hasSession) return;
     fetch('/api/auth/me')
       .then(async (res) => {
         if (!res.ok) return;
