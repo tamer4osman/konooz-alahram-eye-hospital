@@ -152,7 +152,7 @@ export default function TechnologySection({ technologies }: { technologies: Tech
                   <div className="absolute bottom-4 inset-x-4 space-y-1.5 z-10">
                     <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-pine-950/90 ring-1 ring-brass-400/40">
                       <Sparkles className="w-3.5 h-3.5 text-brass-300" />
-                      <span className="text-[11px] font-extrabold text-brass-200">
+                      <span className="text-[11px] font-extrabold text-white">
                         {t('نظام جراحي وتشخيصي معتمد', 'Certified High-Precision Platform')}
                       </span>
                     </div>

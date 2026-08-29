@@ -162,14 +162,6 @@ export default async function LocaleLayout({
       className={alexandria.variable}
       suppressHydrationWarning
     >
-      <head>
-        <link
-          rel="preload"
-          as="image"
-          href="/images/hospital_hero_surgery_1787188107940.webp"
-          fetchPriority="high"
-        />
-      </head>
       <body
         className="font-sans antialiased bg-bone-50 text-ink-900 selection:bg-pine-900 selection:text-bone-50"
         suppressHydrationWarning

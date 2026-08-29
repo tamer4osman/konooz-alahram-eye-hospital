@@ -159,7 +159,7 @@ export default async function ServicesGrid({ locale, specialties }: { locale: La
         </div>
 
         <Reveal delay={120}>
-          <div className="mt-12 relative p-6 sm:p-8 rounded-2xl bg-pine-900 text-white overflow-hidden flex flex-col md:flex-row items-center justify-between gap-6 shadow-xl shadow-pine-950/25">
+          <div className="mt-12 relative p-6 sm:p-8 rounded-2xl bg-pine-900 text-white overflow-hidden flex flex-col md:flex-row items-center justify-between gap-6 shadow-xl shadow-pine-950/25 min-h-[180px]">
             <Image
               src={HOSPITAL_IMAGES.femtoLaserTech}
               alt=""
