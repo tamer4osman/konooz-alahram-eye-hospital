@@ -4,8 +4,9 @@ import React, { useState } from 'react';
 import dynamic from 'next/dynamic';
 import { useLanguage } from '@/context/LanguageContext';
 import { useDashboardData } from '@/hooks/useDashboardData';
+import { useDashboardModals } from '@/hooks/useDashboardModals';
 import {
-  HospitalEquipment,
+  type HospitalEquipment,
   ScheduledSurgery,
   StaffStatus,
   RoomStatus,
@@ -13,7 +14,6 @@ import {
 } from '@/data/dashboardData';
 
 import DashboardHeader from './DashboardHeader';
-import { type BroadcastLevel } from './modals/BroadcastModal';
 
 const TabSkeleton = () => (
   <div className="space-y-4 animate-pulse">
@@ -75,19 +75,11 @@ export default function HospitalDashboard() {
   const { t } = useLanguage();
   const { userRole, userPermissions, staffList, roomsList, equipmentList, surgeriesList, consumablesList, patientFlowList, setStaffList, setRoomsList, setEquipmentList, setSurgeriesList } = useDashboardData();
 
+  const modals = useDashboardModals();
+
   // Navigation & User State
   const [activeTab, setActiveTab] = useState<DashboardTab>('overview');
   const [timeframe, setTimeframe] = useState<'day' | 'week' | 'month' | 'year'>('day');
-
-  // Modal Open States — forms and submissions live inside each modal component.
-  const [isAddStaffOpen, setIsAddStaffOpen] = useState(false);
-  const [isAddRoomOpen, setIsAddRoomOpen] = useState(false);
-  const [isAddEquipmentOpen, setIsAddEquipmentOpen] = useState(false);
-  const [isScheduleSurgeryOpen, setIsScheduleSurgeryOpen] = useState(false);
-  const [maintenanceDevice, setMaintenanceDevice] = useState<HospitalEquipment | null>(null);
-  const [isMaintenanceOpen, setIsMaintenanceOpen] = useState(false);
-  const [isBroadcastOpen, setIsBroadcastOpen] = useState(false);
-  const [activeBroadcastBanner, setActiveBroadcastBanner] = useState<string | null>(null);
 
   // Quick State Updaters & Removers
   const handleUpdateStaffStatus = (staffId: string, newStatus: StaffStatus) => {
@@ -158,10 +150,6 @@ export default function HospitalDashboard() {
     setEquipmentList((prev) =>
       prev.map((dev) => (dev.id === deviceId ? { ...dev, ...updates } : dev))
     );
-  };
-
-  const handleBroadcast = (message: string, _level: BroadcastLevel) => {
-    setActiveBroadcastBanner(message);
   };
 
   const allNavTabs = [
@@ -239,15 +227,15 @@ export default function HospitalDashboard() {
     <div className="min-h-screen bg-bone-100 text-ink-900 pb-16">
       
       {/* Broadcast Alert Banner if Active */}
-      {activeBroadcastBanner && (
+      {modals.activeBroadcastBanner && (
         <div className="bg-gradient-to-r from-rose-600 to-brass-600 text-white px-4 py-2.5 shadow-md flex items-center justify-between gap-3 text-xs font-bold animate-pulse">
           <div className="flex items-center gap-2 max-w-5xl mx-auto flex-1">
             <Radio className="w-4 h-4 text-brass-600 flex-shrink-0 animate-spin" />
             <span>{t('تنبيه وإشعار إداري عاجل لكافة الأجنحة: ', 'URGENT COMPLEX-WIDE BROADCAST: ')}</span>
-            <span className="font-extrabold underline">{activeBroadcastBanner}</span>
+            <span className="font-extrabold underline">{modals.activeBroadcastBanner}</span>
           </div>
           <button
-            onClick={() => setActiveBroadcastBanner(null)}
+            onClick={() => modals.setActiveBroadcastBanner(null)}
             className="p-1 hover:bg-white/20 rounded-md cursor-pointer transition-colors"
             aria-label={t('إغلاق التنبيه', 'Dismiss broadcast')}
           >
@@ -260,13 +248,7 @@ export default function HospitalDashboard() {
       <DashboardHeader
         timeframe={timeframe}
         onChangeTimeframe={setTimeframe}
-        onOpenAddModal={(type) => {
-          if (type === 'staff') setIsAddStaffOpen(true);
-          if (type === 'surgery') setIsScheduleSurgeryOpen(true);
-          if (type === 'room') setIsAddRoomOpen(true);
-          if (type === 'equipment') setIsAddEquipmentOpen(true);
-          if (type === 'broadcast') setIsBroadcastOpen(true);
-        }}
+        onOpenAddModal={modals.handleOpenAddModal}
       />
 
       {/* Main Body Container */}
@@ -324,7 +306,7 @@ export default function HospitalDashboard() {
             <ClinicalConsultationTab
               onReferToSurgery={(_patientName, _procedure) => {
                 setActiveTab('surgeries');
-                setIsScheduleSurgeryOpen(true);
+                modals.openScheduleSurgery();
               }}
             />
           )}
@@ -333,7 +315,7 @@ export default function HospitalDashboard() {
             <SurgeriesScheduleTab
               surgeriesList={surgeriesList}
               onUpdateSurgeryStatus={handleUpdateSurgeryStatus}
-              onOpenScheduleModal={() => setIsScheduleSurgeryOpen(true)}
+              onOpenScheduleModal={modals.openScheduleSurgery}
               onRemoveSurgery={handleRemoveSurgery}
             />
           )}
@@ -343,7 +325,7 @@ export default function HospitalDashboard() {
               roomsList={roomsList}
               onUpdateRoomStatus={handleUpdateRoomStatus}
               onOpenRoomModal={() => {}}
-              onOpenAddRoomModal={() => setIsAddRoomOpen(true)}
+              onOpenAddRoomModal={modals.openAddRoom}
               onRemoveRoom={handleRemoveRoom}
             />
           )}
@@ -356,7 +338,7 @@ export default function HospitalDashboard() {
             <PersonnelTab
               staffList={staffList}
               onUpdateStaffStatus={handleUpdateStaffStatus}
-              onOpenAddStaffModal={() => setIsAddStaffOpen(true)}
+              onOpenAddStaffModal={modals.openAddStaff}
               onRemoveStaff={handleRemoveStaff}
             />
           )}
@@ -365,11 +347,8 @@ export default function HospitalDashboard() {
             <EquipmentTab
               equipmentList={equipmentList}
               onUpdateDeviceStatus={handleUpdateDeviceStatus}
-              onOpenMaintenanceModal={(device) => {
-                setMaintenanceDevice(device);
-                setIsMaintenanceOpen(true);
-              }}
-              onOpenAddEquipmentModal={() => setIsAddEquipmentOpen(true)}
+              onOpenMaintenanceModal={modals.openMaintenance}
+              onOpenAddEquipmentModal={modals.openAddEquipment}
               onRemoveEquipment={handleRemoveEquipment}
             />
           )}
@@ -397,39 +376,36 @@ export default function HospitalDashboard() {
       {/* Dialogs — each owns its form state and submission; the dashboard only
           receives created/updated entities to merge into its live lists. */}
       <AddStaffModal
-        open={isAddStaffOpen}
-        onClose={() => setIsAddStaffOpen(false)}
+        open={modals.isAddStaffOpen}
+        onClose={modals.closeAddStaff}
         onCreated={(member) => setStaffList((prev) => [member, ...prev])}
       />
       <ScheduleSurgeryModal
-        open={isScheduleSurgeryOpen}
-        onClose={() => setIsScheduleSurgeryOpen(false)}
+        open={modals.isScheduleSurgeryOpen}
+        onClose={modals.closeScheduleSurgery}
         onScheduled={(surgery) => setSurgeriesList((prev) => [surgery, ...prev])}
       />
       <AddRoomModal
-        open={isAddRoomOpen}
-        onClose={() => setIsAddRoomOpen(false)}
+        open={modals.isAddRoomOpen}
+        onClose={modals.closeAddRoom}
         onCreated={(room) => setRoomsList((prev) => [room, ...prev])}
       />
       <AddEquipmentModal
-        open={isAddEquipmentOpen}
+        open={modals.isAddEquipmentOpen}
         rooms={roomsList}
-        onClose={() => setIsAddEquipmentOpen(false)}
+        onClose={modals.closeAddEquipment}
         onCreated={(device) => setEquipmentList((prev) => [device, ...prev])}
       />
       <MaintenanceModal
-        device={maintenanceDevice}
-        open={isMaintenanceOpen}
-        onClose={() => {
-          setIsMaintenanceOpen(false);
-          setMaintenanceDevice(null);
-        }}
+        device={modals.maintenanceDevice}
+        open={modals.isMaintenanceOpen}
+        onClose={modals.closeMaintenance}
         onCertified={handleDeviceCertified}
       />
       <BroadcastModal
-        open={isBroadcastOpen}
-        onClose={() => setIsBroadcastOpen(false)}
-        onBroadcast={handleBroadcast}
+        open={modals.isBroadcastOpen}
+        onClose={modals.closeBroadcast}
+        onBroadcast={modals.handleBroadcast}
       />
 
     </div>
