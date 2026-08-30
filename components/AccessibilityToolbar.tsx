@@ -78,7 +78,7 @@ export default function AccessibilityToolbar() {
           className={`min-h-[26px] px-1.5 py-1 inline-flex items-center gap-0.5 text-[10px] font-medium rounded transition-colors ${
             fontSize === 'base' ? 'text-brass-300 font-bold' : 'text-pine-300 hover:text-white'
           }`}
-          aria-label="Reset text size"
+          aria-label={t('إعادة ضبط الخط', 'Reset font size')}
         >
           <RotateCcw className="w-2.5 h-2.5 inline mr-0.5" />
           {t('افتراضي', 'Default')}

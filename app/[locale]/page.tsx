@@ -72,9 +72,7 @@ export default async function LocaleHome({
       <PatientAuthProvider>
         <HomePageClient
           servicesSlot={
-            <Suspense fallback={<SectionSkeleton />}>
               <ServicesGrid locale={locale} specialties={specialties} />
-            </Suspense>
           }
           technologiesSlot={
             <Suspense fallback={<SectionSkeleton />}>

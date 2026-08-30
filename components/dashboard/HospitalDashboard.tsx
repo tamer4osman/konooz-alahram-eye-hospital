@@ -1,15 +1,12 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import dynamic from 'next/dynamic';
 import { useLanguage } from '@/context/LanguageContext';
+import { useDashboardData } from '@/hooks/useDashboardData';
 import {
-  HospitalStaff,
-  HospitalRoom,
   HospitalEquipment,
   ScheduledSurgery,
-  SurgicalConsumable,
-  PatientFlowStage,
   StaffStatus,
   RoomStatus,
   DeviceStatus
@@ -76,81 +73,11 @@ type DashboardTab = 'overview' | 'clinical' | 'surgeries' | 'rooms' | 'beds' | '
 
 export default function HospitalDashboard() {
   const { t } = useLanguage();
+  const { userRole, userPermissions, staffList, roomsList, equipmentList, surgeriesList, consumablesList, patientFlowList, setStaffList, setRoomsList, setEquipmentList, setSurgeriesList } = useDashboardData();
 
   // Navigation & User State
   const [activeTab, setActiveTab] = useState<DashboardTab>('overview');
   const [timeframe, setTimeframe] = useState<'day' | 'week' | 'month' | 'year'>('day');
-  const [userRole, setUserRole] = useState<string>('ADMIN');
-  const [userPermissions, setUserPermissions] = useState<unknown>(null);
-
-  useEffect(() => {
-    const hasSession = document.cookie.split(';').some((c) => c.trim().startsWith('konooz_auth='));
-    if (!hasSession) return;
-    fetch('/api/auth/me').then((r) => r.json()).then((json) => {
-      if (json?.data) {
-        setUserRole(json.data.role ?? 'STAFF');
-        setUserPermissions(json.data.permissions ?? null);
-      }
-    }).catch(() => {});
-  }, []);
-
-  // Live Hospital Operational State — staff members are persisted via staff APIs.
-  const [staffList, setStaffList] = useState<HospitalStaff[]>([]);
-  // Rooms are persisted in the database via staff APIs (single source of truth).
-  const [roomsList, setRoomsList] = useState<HospitalRoom[]>([]);
-  const [equipmentList, setEquipmentList] = useState<HospitalEquipment[]>([]);
-  const [surgeriesList, setSurgeriesList] = useState<ScheduledSurgery[]>([]);
-  const [consumablesList, setConsumablesList] = useState<SurgicalConsumable[]>([]);
-  const [patientFlowList, setPatientFlowList] = useState<PatientFlowStage[]>([]);
-
-  useEffect(() => {
-    let cancelled = false;
-    fetch('/api/staff/rooms')
-      .then(async (res) => {
-        if (!res.ok) return;
-        const json = await res.json();
-        if (!cancelled && Array.isArray(json?.data)) setRoomsList(json.data as HospitalRoom[]);
-      })
-      .catch(() => {});
-    fetch('/api/staff/equipment')
-      .then(async (res) => {
-        if (!res.ok) return;
-        const json = await res.json();
-        if (!cancelled && Array.isArray(json?.data)) setEquipmentList(json.data as HospitalEquipment[]);
-      })
-      .catch(() => {});
-    fetch('/api/staff/surgeries')
-      .then(async (res) => {
-        if (!res.ok) return;
-        const json = await res.json();
-        if (!cancelled && Array.isArray(json?.data)) setSurgeriesList(json.data as ScheduledSurgery[]);
-      })
-      .catch(() => {});
-    fetch('/api/staff/consumables')
-      .then(async (res) => {
-        if (!res.ok) return;
-        const json = await res.json();
-        if (!cancelled && Array.isArray(json?.data)) setConsumablesList(json.data as SurgicalConsumable[]);
-      })
-      .catch(() => {});
-    fetch('/api/staff/patient-flow')
-      .then(async (res) => {
-        if (!res.ok) return;
-        const json = await res.json();
-        if (!cancelled && Array.isArray(json?.data)) setPatientFlowList(json.data as PatientFlowStage[]);
-      })
-      .catch(() => {});
-    fetch('/api/staff/staff-members')
-      .then(async (res) => {
-        if (!res.ok) return;
-        const json = await res.json();
-        if (!cancelled && Array.isArray(json?.data)) setStaffList(json.data as HospitalStaff[]);
-      })
-      .catch(() => {});
-    return () => {
-      cancelled = true;
-    };
-  }, []);
 
   // Modal Open States — forms and submissions live inside each modal component.
   const [isAddStaffOpen, setIsAddStaffOpen] = useState(false);

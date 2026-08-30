@@ -267,7 +267,7 @@ export default function TestimonialsAndStats({
               {currentTestimonial && (
               <div className="space-y-4 relative z-10">
                 {/* Rating Stars */}
-                <div className="flex items-center gap-1" aria-label={`${currentTestimonial.rating}/5`}>
+                <div className="flex items-center gap-1" role="img" aria-label={`${currentTestimonial.rating}/5`}>
                   {Array.from({ length: currentTestimonial.rating }).map((_, i) => (
                     <Star key={i} className="w-4 h-4 text-brass-400 fill-brass-400" />
                   ))}

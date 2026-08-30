@@ -96,7 +96,7 @@ export default async function ServicesGrid({ locale, specialties }: { locale: La
                     </div>
 
                     <div className="space-y-2 pt-3 border-t border-pine-900/10">
-                      <span className="text-[11px] font-bold text-ink-400 uppercase tracking-wider block">
+                      <span className="text-[11px] font-bold text-ink-700 uppercase tracking-wider block">
                         {t('أبرز الإجراءات:', 'Key Procedures:')}
                       </span>
                       <ul className="space-y-1.5">
