@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import { useLanguage } from '@/context/LanguageContext';
 import { usePatientAuth } from '@/context/PatientAuthContext';
 import { HOSPITAL_CONTACTS, PATIENT_CONDITIONS, AFFECTED_EYE_OPTIONS, AGE_GROUP_OPTIONS, GENDER_OPTIONS, SYMPTOM_DURATION_OPTIONS, PatientCondition, Specialty } from '@/data/hospitalData';
+import { buildBookingModalMessage, buildWhatsAppUrl } from '@/lib/whatsapp-message-builder';
 import Modal from '@/components/ui/Modal';
 import { X, Calendar, Clock, CheckCircle2, ExternalLink, ChevronDown, Sparkles, ShieldCheck, Activity, Eye, LogOut, UserPlus, FolderLock } from 'lucide-react';
 import IntakeFormRenderer from '@/components/ui/IntakeFormRenderer';
@@ -241,45 +242,27 @@ function BookingModalContent({
       `السيد/ة ${patientName}، مرفق تفاصيل حجز موعدك لـ (${conditionTitle}) لدى ${doctorTitle}. رقم الحجز: #${bookingRef}، كود المريض: ${patientEmail}. يرجى الحضور قبل الموعد بـ 15 دقيقة مصطحباً بطاقتك الشخصية.`
     );
 
-    const msg = lang === 'ar'
-      ? `*طلب حجز فوري ومباشر - مستشفى كنوز الأهرام للعيون (بنغازي)*
-----------------------------------------
-🎟️ *رقم الحجز المرجعي:* #${bookingRef}
-🔢 *رقم التذكرة بالعيادة:* ${newTicket}
-👤 *اسم المريض:* ${patientName}
-📞 *رقم الهاتف:* ${patientPhone}
-📧 *البريد الإلكتروني:* ${patientEmail}
-⚧ *الجنس:* ${genderTitle}
-🎂 *الفئة العمرية:* ${ageTitle}
-👁️ *العين المصابة:* ${eyeTitle}
-🩺 *سبب الزيارة / نوع الاستشارة:* ${conditionTitle}
-⏱️ *مدة الأعراض / البداية:* ${durationTitle}
-🏥 *التخصص الطبي:* ${specialtyTitle}
-👨‍⚕️ *الطبيب المطلوب:* ${doctorTitle}
-📅 *تاريخ الموعد المقترح:* ${preferredDate || 'أقرب موعد ممكن'}
-⏰ *الفترة المفضلة:* ${slotText}
-${notes.trim() ? `📝 *تفاصيل وملاحظات إضافية:* ${notes}\n` : ''}----------------------------------------
-*تم الإرسال عبر البوابة الإلكترونية لمستشفى كنوز الأهرام*`
-      : `*Instant Direct Booking Request - Konooz Al-Ahram Eye Hospital (Benghazi)*
-----------------------------------------
-🎟️ *Booking Ref:* #${bookingRef}
-🔢 *Clinic Queue Ticket:* ${newTicket}
-👤 *Patient Name:* ${patientName}
-📞 *Phone Number:* ${patientPhone}
-📧 *Email:* ${patientEmail}
-⚧ *Gender:* ${genderTitle}
-🎂 *Age Group:* ${ageTitle}
-👁️ *Affected Eye:* ${eyeTitle}
-🩺 *Reason for Visit:* ${conditionTitle}
-⏱️ *Symptom Duration:* ${durationTitle}
-🏥 *Department / Specialty:* ${specialtyTitle}
-👨‍⚕️ *Requested Doctor:* ${doctorTitle}
-📅 *Preferred Date:* ${preferredDate || 'Earliest available'}
-⏰ *Preferred Time Slot:* ${slotText}
-${notes.trim() ? `📝 *Additional Notes:* ${notes}\n` : ''}----------------------------------------
-*Sent via Konooz Al-Ahram Eye Hospital Web Portal*`;
+    const msg = buildBookingModalMessage({
+      lang,
+      bookingRef,
+      queueTicket: newTicket,
+      patientName,
+      phone: patientPhone,
+      email: patientEmail,
+      genderTitle,
+      ageTitle,
+      eyeTitle,
+      conditionTitle,
+      durationTitle,
+      specialtyTitle,
+      doctorTitle,
+      preferredDate,
+      preferredSlot,
+      slotText,
+      notes,
+    });
 
-    const whatsappUrl = `https://wa.me/${HOSPITAL_CONTACTS.primaryWhatsApp.replace('+', '')}?text=${encodeURIComponent(msg)}`;
+    const whatsappUrl = buildWhatsAppUrl(HOSPITAL_CONTACTS.primaryWhatsApp, msg);
     window.open(whatsappUrl, '_blank');
     setIsSuccess(true);
   };

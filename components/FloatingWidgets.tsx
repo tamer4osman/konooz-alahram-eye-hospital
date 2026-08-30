@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { useLanguage } from '@/context/LanguageContext';
 import { usePatientAuth } from '@/context/PatientAuthContext';
 import { HOSPITAL_CONTACTS } from '@/data/hospitalData';
+import { buildGreetingMessage, buildWhatsAppUrl } from '@/lib/whatsapp-message-builder';
 import { Phone, ArrowUp, MessageCircle, Calendar, X, User } from 'lucide-react';
 
 export default function FloatingWidgets() {
@@ -116,11 +117,7 @@ export default function FloatingWidgets() {
         {/* WhatsApp Direct Pulsing Floating Button */}
         <a
           id="btn-floating-whatsapp"
-          href={`https://wa.me/${HOSPITAL_CONTACTS.primaryWhatsApp.replace('+', '')}?text=${encodeURIComponent(
-            lang === 'ar'
-              ? 'السلام عليكم، أرغب في الاستفسار وحجز موعد في مستشفى كنوز الأهرام لطب وجراحة العيون.'
-              : 'Hello, I would like to inquire about treatments and appointments at Konooz Al-Ahram Eye Hospital.'
-          )}`}
+          href={buildWhatsAppUrl(HOSPITAL_CONTACTS.primaryWhatsApp, buildGreetingMessage(lang))}
           target="_blank"
           rel="noopener noreferrer"
           className="group relative w-12 h-12 rounded-full bg-[#25D366] hover:bg-[#20bd5a] text-white shadow-lg flex items-center justify-center transition-all shrink-0 lg:w-14 lg:h-14"

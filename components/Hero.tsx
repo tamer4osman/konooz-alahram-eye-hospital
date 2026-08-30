@@ -14,6 +14,7 @@ import {
   SYMPTOM_DURATION_OPTIONS,
   PatientCondition
 } from '@/data/hospitalData';
+import { buildHeroBookingMessage, buildWhatsAppUrl } from '@/lib/whatsapp-message-builder';
 import { Calendar, CheckCircle2, Sparkles, Phone, ShieldCheck, Award, Clock, ArrowRight, ArrowLeft, Eye, MapPin, ExternalLink, ChevronDown, UserCheck, Stethoscope, Activity, User, Star, Hospital } from 'lucide-react';
 
 export default function Hero() {
@@ -118,41 +119,24 @@ export default function Hero() {
       locationEn: 'Konooz Al-Ahram Eye Hospital - Benghazi'
     });
 
-    const msg = lang === 'ar'
-      ? `*طلب حجز موعد كشف فوري ومباشر - مستشفى كنوز الأهرام للعيون (بنغازي)*
-----------------------------------------
-👤 *اسم المريض:* ${finalName}
-📞 *رقم الهاتف:* ${finalPhone}
-📧 *البريد الإلكتروني:* ${finalEmail}
-⚧ *الجنس:* ${genderTitle}
-🎂 *الفئة العمرية:* ${ageTitle}
-👁️ *العين المصابة:* ${eyeTitle}
-🩺 *سبب الزيارة / نوع الاستشارة:* ${conditionTitle}
-⏱️ *مدة الأعراض / البداية:* ${durationTitle}
-${symptomDetails.trim() ? `📝 *تفاصيل وملاحظات إضافية:* ${symptomDetails}\n` : ''}🏥 *القسم / التخصص:* ${specialtyTitle}
-👨‍⚕️ *الطبيب المفضل:* ${doctorTitle}
-📅 *الموعد المفضل:* ${preferredDate || 'أقرب موعد ممكن'}
-🔍 *نوع الكشف:* ${consultationType === 'consultant' ? 'كشف استشاري زائر' : 'كشف عيادة عامة'}
-----------------------------------------
-*تم الإرسال والربط بالملف الطبي الإلكتروني للمستشفى*`
-      : `*Instant Appointment Booking Request - Konooz Al-Ahram Eye Hospital (Benghazi)*
-----------------------------------------
-👤 *Patient Name:* ${finalName}
-📞 *Phone Number:* ${finalPhone}
-📧 *Email:* ${finalEmail}
-⚧ *Gender:* ${genderTitle}
-🎂 *Age Group:* ${ageTitle}
-👁️ *Affected Eye:* ${eyeTitle}
-🩺 *Reason for Visit:* ${conditionTitle}
-⏱️ *Symptom Duration:* ${durationTitle}
-${symptomDetails.trim() ? `📝 *Additional Notes:* ${symptomDetails}\n` : ''}🏥 *Department / Specialty:* ${specialtyTitle}
-👨‍⚕️ *Preferred Doctor:* ${doctorTitle}
-📅 *Preferred Date:* ${preferredDate || 'As soon as possible'}
-🔍 *Consultation Type:* ${consultationType === 'consultant' ? 'Visiting Consultant' : 'General Clinic'}
-----------------------------------------
-*Synced with EMR Patient Portal - Konooz Al-Ahram*`;
+    const msg = buildHeroBookingMessage({
+      lang,
+      patientName: finalName,
+      phone: finalPhone,
+      email: finalEmail,
+      genderTitle,
+      ageTitle,
+      eyeTitle,
+      conditionTitle,
+      durationTitle,
+      symptomDetails,
+      specialtyTitle,
+      doctorTitle,
+      preferredDate,
+      consultationType,
+    });
 
-    const whatsappUrl = `https://wa.me/${HOSPITAL_CONTACTS.primaryWhatsApp.replace('+', '')}?text=${encodeURIComponent(msg)}`;
+    const whatsappUrl = buildWhatsAppUrl(HOSPITAL_CONTACTS.primaryWhatsApp, msg);
     window.open(whatsappUrl, '_blank');
 
     // Also create server-side booking for ticket reference
