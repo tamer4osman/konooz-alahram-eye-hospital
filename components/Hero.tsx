@@ -1,9 +1,10 @@
 'use client';
 
-import React, { useState } from 'react';
+import React from 'react';
 import Image from 'next/image';
 import { useLanguage } from '@/context/LanguageContext';
 import { usePatientAuth } from '@/context/PatientAuthContext';
+import { useHeroBookingForm } from '@/hooks/useHeroBookingForm';
 import {
   HOSPITAL_CONTACTS,
   HOSPITAL_IMAGES,
@@ -12,164 +13,32 @@ import {
   AGE_GROUP_OPTIONS,
   GENDER_OPTIONS,
   SYMPTOM_DURATION_OPTIONS,
-  PatientCondition
 } from '@/data/hospitalData';
-import { buildHeroBookingMessage, buildWhatsAppUrl } from '@/lib/whatsapp-message-builder';
 import { Calendar, CheckCircle2, Sparkles, Phone, ShieldCheck, Award, Clock, ArrowRight, ArrowLeft, Eye, MapPin, ExternalLink, ChevronDown, UserCheck, Stethoscope, Activity, User, Star, Hospital } from 'lucide-react';
 
 export default function Hero() {
-  const { lang, t, isRTL, openVisionTestModal, doctors, specialties } = useLanguage();
+  const { lang, t, isRTL, openVisionTestModal, specialties } = useLanguage();
+  const { currentPatient, logout, openPatientPortal } = usePatientAuth();
+  const form = useHeroBookingForm();
+
   const {
-    currentPatient, createLocalProfile, logout, addAppointmentToCurrentPatient, openPatientPortal } = usePatientAuth();
-
-  // Quick Hero Booking Form State
-  const [patientName, setPatientName] = useState('');
-  const [patientPhone, setPatientPhone] = useState('');
-  const [patientEmail, setPatientEmail] = useState('');
-
-  // Triage Multiple-Choice State
-  const [gender, setGender] = useState<'male' | 'female'>('male');
-  const [ageGroup, setAgeGroup] = useState<'child' | 'adult' | 'senior'>('adult');
-  const [affectedEye, setAffectedEye] = useState<'both' | 'right' | 'left'>('both');
-  const [selectedCondition, setSelectedCondition] = useState('lasik');
-  const [symptomDuration, setSymptomDuration] = useState<'recent' | 'gradual' | 'chronic'>('recent');
-  const [symptomDetails, setSymptomDetails] = useState('');
-
-  const [selectedSpecialty, setSelectedSpecialty] = useState(specialties[0]?.id ?? '');
-  const [selectedDoctor, setSelectedDoctor] = useState('');
-  const [preferredDate, setPreferredDate] = useState('');
-  const [consultationType, setConsultationType] = useState<'consultant' | 'clinic'>('consultant');
-  const [formSubmitted, setFormSubmitted] = useState(false);
-  const [bookingRef, setBookingRef] = useState<string | null>(null);
-
-  // Effective values taking current logged-in patient into account
-  const effectivePatientName = currentPatient ? (currentPatient.fullNameAr || currentPatient.fullNameEn) : patientName;
-  const effectivePatientPhone = currentPatient ? (currentPatient.phone || '') : patientPhone;
-  const effectivePatientEmail = currentPatient ? (currentPatient.email || '') : patientEmail;
-  const effectiveGender = currentPatient ? (currentPatient.gender || gender) : gender;
-  const effectiveAgeGroup = ageGroup;
-
-  // Doctors matching selected specialty and consultation track (Visiting vs Local)
-  const availableDoctors = doctors.filter((doc) => {
-    const matchSpecialty = !selectedSpecialty || doc.specialtyId === selectedSpecialty;
-    const matchType = consultationType === 'consultant' ? doc.doctorType === 'visiting' : doc.doctorType === 'local';
-    return matchSpecialty && matchType;
-  });
-
-  const handleConditionSelect = (condition: PatientCondition) => {
-    setSelectedCondition(condition.id);
-    if (condition.specialtyId) {
-      setSelectedSpecialty(condition.specialtyId);
-      setSelectedDoctor('');
-    }
-  };
-
-  const handleHeroSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    const finalName = effectivePatientName.trim();
-    const finalPhone = effectivePatientPhone.trim();
-    const finalEmail = effectivePatientEmail.trim();
-
-    if (!finalName || !finalPhone || !finalEmail) {
-      alert(t('يرجى كتابة اسم المريض ورقم الهاتف والبريد الإلكتروني', 'Please enter patient name, phone number, and email'));
-      return; }
-
-    // Create a device-local profile if none exists (data stays in this browser)
-    if (!currentPatient) {
-      createLocalProfile({
-        fullNameAr: finalName,
-        email: finalEmail,
-        phone: finalPhone,
-        gender: effectiveGender
-      });
-    }
-
-    const conditionObj = PATIENT_CONDITIONS.find((c) => c.id === selectedCondition);
-    const specialtyObj = specialties.find((s) => s.id === selectedSpecialty);
-    const doctorObj = doctors.find((d) => d.id === selectedDoctor);
-    const eyeObj = AFFECTED_EYE_OPTIONS.find((e) => e.id === affectedEye);
-    const ageObj = AGE_GROUP_OPTIONS.find((a) => a.id === effectiveAgeGroup);
-    const genderObj = GENDER_OPTIONS.find((g) => g.id === effectiveGender);
-    const durationObj = SYMPTOM_DURATION_OPTIONS.find((d) => d.id === symptomDuration);
-
-    const conditionTitle = conditionObj
-      ? lang === 'ar'
-        ? `${conditionObj.icon} ${conditionObj.labelAr}`
-        : `${conditionObj.icon} ${conditionObj.labelEn}`
-      : t('كشف عام', 'General Examination');
-
-    const eyeTitle = eyeObj ? (lang === 'ar' ? eyeObj.labelAr : eyeObj.labelEn) : '';
-    const ageTitle = ageObj ? (lang === 'ar' ? ageObj.labelAr : ageObj.labelEn) : '';
-    const genderTitle = genderObj ? (lang === 'ar' ? genderObj.labelAr : genderObj.labelEn) : '';
-    const durationTitle = durationObj ? (lang === 'ar' ? durationObj.labelAr : durationObj.labelEn) : '';
-
-    const specialtyTitle = specialtyObj ? (lang === 'ar' ? specialtyObj.titleAr : specialtyObj.titleEn) : (lang === 'ar' ? 'عام' : 'General');
-    const doctorTitle = doctorObj ? (lang === 'ar' ? doctorObj.nameAr : doctorObj.nameEn) : t('أقرب استشاري متاح', 'Next Available Consultant');
-
-    // Also store appointment in Patient EMR
-    addAppointmentToCurrentPatient({
-      specialtyAr: specialtyTitle,
-      specialtyEn: specialtyTitle,
-      doctorNameAr: doctorTitle,
-      doctorNameEn: doctorTitle,
-      date: preferredDate || new Date().toISOString().split('T')[0],
-      time: '10:00 AM',
-      status: 'confirmed',
-      locationAr: 'مستشفى كنوز الأهرام للعيون - بنغازي',
-      locationEn: 'Konooz Al-Ahram Eye Hospital - Benghazi'
-    });
-
-    const msg = buildHeroBookingMessage({
-      lang,
-      patientName: finalName,
-      phone: finalPhone,
-      email: finalEmail,
-      genderTitle,
-      ageTitle,
-      eyeTitle,
-      conditionTitle,
-      durationTitle,
-      symptomDetails,
-      specialtyTitle,
-      doctorTitle,
-      preferredDate,
-      consultationType,
-    });
-
-    const whatsappUrl = buildWhatsAppUrl(HOSPITAL_CONTACTS.primaryWhatsApp, msg);
-    window.open(whatsappUrl, '_blank');
-
-    // Also create server-side booking for ticket reference
-    let ref = `BK-${Math.floor(100000 + Math.random() * 900000)}`;
-    try {
-      const res = await fetch('/api/appointments', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          patientName: effectivePatientName.trim(),
-          phone: effectivePatientPhone.trim(),
-          email: effectivePatientEmail.trim() || undefined,
-          specialtyId: selectedSpecialty,
-          doctorId: selectedDoctor || undefined,
-          conditionTitleAr: conditionObj?.labelAr,
-          conditionTitleEn: conditionObj?.labelEn,
-          preferredDate: preferredDate || undefined,
-          preferredTime: consultationType === 'consultant' ? '09:00' : '16:00',
-          gender: effectiveGender,
-          ageGroup: effectiveAgeGroup,
-          affectedEye,
-          symptomDuration,
-          notes: symptomDetails.trim() || undefined,
-        }),
-      });
-      const json = await res.json();
-      if (res.ok && json?.data?.ref) ref = json.data.ref as string;
-    } catch {
-      // dev DB unreachable — keep generated ref
-    }
-    setBookingRef(ref);
-    setFormSubmitted(true);
-  };
+    patientName, setPatientName,
+    patientPhone, setPatientPhone,
+    patientEmail, setPatientEmail,
+    setGender,
+    setAgeGroup,
+    affectedEye, setAffectedEye,
+    selectedCondition, setSelectedCondition, handleConditionSelect,
+    symptomDuration, setSymptomDuration,
+    symptomDetails, setSymptomDetails,
+    selectedSpecialty, setSelectedSpecialty,
+    selectedDoctor, setSelectedDoctor,
+    preferredDate, setPreferredDate,
+    consultationType, setConsultationType,
+    availableDoctors,
+    effectiveGender, effectiveAgeGroup,
+    formSubmitted, setFormSubmitted, bookingRef, handleHeroSubmit,
+  } = form;
 
   return (
     <section
