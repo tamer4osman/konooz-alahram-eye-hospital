@@ -162,7 +162,7 @@ export default async function ServicesGrid({ locale, specialties }: { locale: La
           <div className="mt-12 relative p-6 sm:p-8 rounded-2xl bg-pine-900 text-white overflow-hidden flex flex-col md:flex-row items-center justify-between gap-6 shadow-xl shadow-pine-950/25 min-h-[180px]">
             <Image
               src={HOSPITAL_IMAGES.femtoLaserTech}
-              alt=""
+              alt={locale === 'ar' ? 'جهاز الفيمتو ليزك للعيون' : 'Femto laser device for eye surgery'}
               fill
               sizes="(max-width: 1280px) 100vw, 1200px"
               className="object-cover opacity-15 pointer-events-none"

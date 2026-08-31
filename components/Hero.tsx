@@ -49,7 +49,7 @@ export default function Hero() {
       <div className="absolute inset-0 pointer-events-none">
         <Image
           src={HOSPITAL_IMAGES.heroSurgery}
-          alt=""
+          alt={t('غرفة عمليات جراحية في مستشفى كنوز الأهرام', 'Surgical theater at Konooz Al-Ahram Hospital')}
           fill
           sizes="100vw"
           className="object-cover opacity-25"

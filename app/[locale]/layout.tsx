@@ -154,6 +154,7 @@ export default async function LocaleLayout({
   const { locale: raw } = await params;
   if (!(LOCALES as readonly string[]).includes(raw)) notFound();
   const locale = raw as Locale;
+  const copy = siteCopy(locale);
 
   return (
     <html
@@ -162,6 +163,9 @@ export default async function LocaleLayout({
       className={alexandria.variable}
       suppressHydrationWarning
     >
+      <head>
+        <meta name="description" content={copy.description} />
+      </head>
       <body
         className="font-sans antialiased bg-bone-50 text-ink-900 selection:bg-pine-900 selection:text-bone-50"
         suppressHydrationWarning
