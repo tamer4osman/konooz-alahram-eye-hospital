@@ -5,13 +5,7 @@ import dynamic from 'next/dynamic';
 import { useLanguage } from '@/context/LanguageContext';
 import { useDashboardData } from '@/hooks/useDashboardData';
 import { useDashboardModals } from '@/hooks/useDashboardModals';
-import {
-  type HospitalEquipment,
-  ScheduledSurgery,
-  StaffStatus,
-  RoomStatus,
-  DeviceStatus
-} from '@/data/dashboardData';
+import { useDashboardMutations } from '@/hooks/useDashboardMutations';
 
 import DashboardHeader from './DashboardHeader';
 
@@ -77,80 +71,16 @@ export default function HospitalDashboard() {
 
   const modals = useDashboardModals();
 
+  const mutations = useDashboardMutations({
+    setStaffList,
+    setRoomsList,
+    setEquipmentList,
+    setSurgeriesList,
+  });
+
   // Navigation & User State
   const [activeTab, setActiveTab] = useState<DashboardTab>('overview');
   const [timeframe, setTimeframe] = useState<'day' | 'week' | 'month' | 'year'>('day');
-
-  // Quick State Updaters & Removers
-  const handleUpdateStaffStatus = (staffId: string, newStatus: StaffStatus) => {
-    setStaffList((prev) =>
-      prev.map((s) => (s.id === staffId ? { ...s, status: newStatus } : s))
-    );
-    fetch('/api/staff/staff-members', {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ id: staffId, status: newStatus })
-    }).catch(() => {});
-  };
-
-  const handleRemoveStaff = (staffId: string) => {
-    setStaffList((prev) => prev.filter((s) => s.id !== staffId));
-    fetch(`/api/staff/staff-members?id=${encodeURIComponent(staffId)}`, { method: 'DELETE' }).catch(() => {});
-  };
-
-  const handleUpdateRoomStatus = (roomId: string, newStatus: RoomStatus) => {
-    setRoomsList((prev) =>
-      prev.map((r) => (r.id === roomId ? { ...r, status: newStatus } : r))
-    );
-    fetch(`/api/staff/rooms/${roomId}`, {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ status: newStatus })
-    }).catch(() => {});
-  };
-
-  const handleRemoveRoom = (roomId: string) => {
-    setRoomsList((prev) => prev.filter((r) => r.id !== roomId));
-    fetch(`/api/staff/rooms/${roomId}`, { method: 'DELETE' }).catch(() => {});
-  };
-
-  const handleUpdateDeviceStatus = (deviceId: string, newStatus: DeviceStatus) => {
-    setEquipmentList((prev) =>
-      prev.map((e) => (e.id === deviceId ? { ...e, status: newStatus } : e))
-    );
-    fetch(`/api/staff/equipment/${deviceId}`, {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ status: newStatus })
-    }).catch(() => {});
-  };
-
-  const handleRemoveEquipment = (deviceId: string) => {
-    setEquipmentList((prev) => prev.filter((e) => e.id !== deviceId));
-    fetch(`/api/staff/equipment/${deviceId}`, { method: 'DELETE' }).catch(() => {});
-  };
-
-  const handleUpdateSurgeryStatus = (surgeryId: string, newStatus: ScheduledSurgery['status']) => {
-    setSurgeriesList((prev) =>
-      prev.map((s) => (s.id === surgeryId ? { ...s, status: newStatus } : s))
-    );
-    fetch(`/api/staff/surgeries/${surgeryId}`, {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ status: newStatus })
-    }).catch(() => {});
-  };
-
-  const handleRemoveSurgery = (surgeryId: string) => {
-    setSurgeriesList((prev) => prev.filter((s) => s.id !== surgeryId));
-    fetch(`/api/staff/surgeries/${surgeryId}`, { method: 'DELETE' }).catch(() => {});
-  };
-
-  const handleDeviceCertified = (deviceId: string, updates: Partial<HospitalEquipment>) => {
-    setEquipmentList((prev) =>
-      prev.map((dev) => (dev.id === deviceId ? { ...dev, ...updates } : dev))
-    );
-  };
 
   const allNavTabs = [
     {
@@ -297,8 +227,8 @@ export default function HospitalDashboard() {
               equipmentList={equipmentList}
               surgeriesList={surgeriesList}
               onSelectTab={(tabId) => setActiveTab(tabId as DashboardTab)}
-              onUpdateSurgeryStatus={handleUpdateSurgeryStatus}
-              onUpdateRoomStatus={handleUpdateRoomStatus}
+              onUpdateSurgeryStatus={mutations.handleUpdateSurgeryStatus}
+              onUpdateRoomStatus={mutations.handleUpdateRoomStatus}
             />
           )}
 
@@ -314,19 +244,19 @@ export default function HospitalDashboard() {
           {activeTab === 'surgeries' && (
             <SurgeriesScheduleTab
               surgeriesList={surgeriesList}
-              onUpdateSurgeryStatus={handleUpdateSurgeryStatus}
+              onUpdateSurgeryStatus={mutations.handleUpdateSurgeryStatus}
               onOpenScheduleModal={modals.openScheduleSurgery}
-              onRemoveSurgery={handleRemoveSurgery}
+              onRemoveSurgery={mutations.handleRemoveSurgery}
             />
           )}
 
           {activeTab === 'rooms' && (
             <RoomsTab
               roomsList={roomsList}
-              onUpdateRoomStatus={handleUpdateRoomStatus}
+              onUpdateRoomStatus={mutations.handleUpdateRoomStatus}
               onOpenRoomModal={() => {}}
               onOpenAddRoomModal={modals.openAddRoom}
-              onRemoveRoom={handleRemoveRoom}
+              onRemoveRoom={mutations.handleRemoveRoom}
             />
           )}
 
@@ -337,19 +267,19 @@ export default function HospitalDashboard() {
           {activeTab === 'personnel' && (
             <PersonnelTab
               staffList={staffList}
-              onUpdateStaffStatus={handleUpdateStaffStatus}
+              onUpdateStaffStatus={mutations.handleUpdateStaffStatus}
               onOpenAddStaffModal={modals.openAddStaff}
-              onRemoveStaff={handleRemoveStaff}
+              onRemoveStaff={mutations.handleRemoveStaff}
             />
           )}
 
           {activeTab === 'equipment' && (
             <EquipmentTab
               equipmentList={equipmentList}
-              onUpdateDeviceStatus={handleUpdateDeviceStatus}
+              onUpdateDeviceStatus={mutations.handleUpdateDeviceStatus}
               onOpenMaintenanceModal={modals.openMaintenance}
               onOpenAddEquipmentModal={modals.openAddEquipment}
-              onRemoveEquipment={handleRemoveEquipment}
+              onRemoveEquipment={mutations.handleRemoveEquipment}
             />
           )}
 
@@ -400,7 +330,7 @@ export default function HospitalDashboard() {
         device={modals.maintenanceDevice}
         open={modals.isMaintenanceOpen}
         onClose={modals.closeMaintenance}
-        onCertified={handleDeviceCertified}
+        onCertified={mutations.handleDeviceCertified}
       />
       <BroadcastModal
         open={modals.isBroadcastOpen}
