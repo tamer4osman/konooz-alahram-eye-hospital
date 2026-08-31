@@ -28,7 +28,7 @@ export default function FormSelect({
 }: FormSelectProps) {
   return (
     <div>
-      <label className="block text-xs font-bold text-ink-700 mb-1 flex items-center gap-1.5">
+      <label htmlFor={id} className="block text-xs font-bold text-ink-700 mb-1 flex items-center gap-1.5">
         {icon}
         <span>{label}</span>
       </label>
