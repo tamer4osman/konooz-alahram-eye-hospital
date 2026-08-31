@@ -69,11 +69,11 @@ export default function Logo({ className = '', variant = 'full' }: LogoProps) {
 
       {/* Typography Block */}
       <div className="flex flex-col">
-        <span className="text-sm sm:text-base font-bold tracking-tight text-pine-900 leading-tight">
+        <span className="text-sm sm:text-base font-bold tracking-tight text-pine-950 leading-tight">
           {nameLine}
         </span>
         {!compact && (
-          <span className="text-[11px] sm:text-xs font-medium text-ink-500 flex items-center gap-1">
+          <span className="text-[11px] sm:text-xs font-medium text-ink-700 flex items-center gap-1">
             <span>{typeLine}</span>
             <span className="w-1 h-1 rounded-full bg-brass-400 inline-block" />
             <span className="text-[10px] text-brass-600 font-semibold">{cityLine}</span>

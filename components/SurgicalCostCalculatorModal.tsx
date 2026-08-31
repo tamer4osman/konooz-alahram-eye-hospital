@@ -116,7 +116,7 @@ export default function SurgicalCostCalculatorModal({
               <Calculator className="w-5 h-5" />
             </div>
             <div>
-              <h3 id="cost-calculator-title" className="text-base font-extrabold text-[#0B3D33]">
+              <h3 id="cost-calculator-title" className="text-base font-extrabold text-pine-950">
                 {t('حاسبة تكاليف العمليات والتغطية التأمينية', 'Surgical Cost & Insurance Co-Pay Estimator')}
               </h3>
               <span className="text-[11px] text-ink-500 block">

@@ -38,7 +38,7 @@ export default async function ServicesGrid({ locale, specialties }: { locale: La
       <div className="max-w-7xl mx-auto px-4 sm:px-6">
 
         <Reveal className="max-w-3xl mb-12 sm:mb-16 space-y-3">
-          <h2 className="text-2xl sm:text-3xl lg:text-[2.4rem] lg:leading-tight font-extrabold text-pine-900 tracking-tight text-balance">
+          <h2 className="text-2xl sm:text-3xl lg:text-[2.4rem] lg:leading-tight font-extrabold text-pine-950 tracking-tight text-balance">
             {t(
               'أحدث جراحات وعلاجات العيون في بنغازي',
               'Advanced Ophthalmic Surgical Specialties'
@@ -86,7 +86,7 @@ export default async function ServicesGrid({ locale, specialties }: { locale: La
                       <div className="w-10 h-10 rounded-lg bg-pine-900 ring-4 ring-white flex items-center justify-center shadow-sm mb-3">
                         {iconMap[spec.iconName] || <Eye className="w-5 h-5 text-brass-300" />}
                       </div>
-                      <h3 className="text-lg font-extrabold text-pine-900 group-hover:text-pine-700 transition-colors leading-snug mb-2 text-balance">
+                      <h3 className="text-lg font-extrabold text-pine-950 group-hover:text-pine-700 transition-colors leading-snug mb-2 text-balance">
                         {locale === 'ar' ? spec.titleAr : spec.titleEn}
                       </h3>
 
@@ -183,7 +183,7 @@ export default async function ServicesGrid({ locale, specialties }: { locale: La
             <div className="relative flex flex-wrap items-center gap-3">
               <ModalTrigger
                 action="booking"
-                className="px-5 py-2.5 rounded-lg text-xs sm:text-sm font-bold bg-bone-50 hover:bg-white text-pine-900 transition-all shadow-sm active:scale-[0.98]"
+                className="px-5 py-2.5 rounded-lg text-xs sm:text-sm font-bold bg-bone-50 hover:bg-white text-pine-950 transition-all shadow-sm active:scale-[0.98]"
               >
                 {t('حجز استشارة استشاري', 'Book Consultant Visit')}
               </ModalTrigger>

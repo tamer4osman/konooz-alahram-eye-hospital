@@ -90,7 +90,7 @@ export default function HomePageClient({ servicesSlot, technologiesSlot, testimo
       <Navbar />
 
       {/* Main Content Sections */}
-      <main className="flex-grow">
+      <main id="main-content" className="flex-grow">
         {/* Hero Section with Split-Screen & Quick Booking Card */}
         <Hero />
 

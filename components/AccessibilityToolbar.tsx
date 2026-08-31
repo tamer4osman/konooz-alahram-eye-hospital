@@ -66,7 +66,7 @@ export default function AccessibilityToolbar() {
           onClick={decreaseFontSize}
           title={t('تصغير حجم الخط', 'Decrease font size')}
           disabled={fontSize === 'sm'}
-          className="min-h-[26px] px-1.5 py-1 text-pine-200 hover:text-white disabled:opacity-40 rounded transition-colors text-[11px] font-bold"
+          className="min-h-[32px] px-1.5 py-1 text-pine-200 hover:text-white disabled:opacity-40 rounded transition-colors text-[11px] font-bold"
           aria-label="Decrease text size"
         >
           A-
@@ -75,7 +75,7 @@ export default function AccessibilityToolbar() {
           id="btn-font-reset"
           onClick={resetFontSize}
           title={t('إعادة ضبط الخط', 'Reset font size')}
-          className={`min-h-[26px] px-1.5 py-1 inline-flex items-center gap-0.5 text-[10px] font-medium rounded transition-colors ${
+          className={`min-h-[32px] px-1.5 py-1 inline-flex items-center gap-0.5 text-[10px] font-medium rounded transition-colors ${
             fontSize === 'base' ? 'text-brass-300 font-bold' : 'text-pine-300 hover:text-white'
           }`}
           aria-label={t('إعادة ضبط الخط', 'Reset font size')}
@@ -88,7 +88,7 @@ export default function AccessibilityToolbar() {
           onClick={increaseFontSize}
           title={t('تكبير حجم الخط', 'Increase font size')}
           disabled={fontSize === 'xl'}
-          className="min-h-[26px] px-1.5 py-1 text-pine-200 hover:text-white disabled:opacity-40 rounded transition-colors text-[11px] font-bold"
+          className="min-h-[32px] px-1.5 py-1 text-pine-200 hover:text-white disabled:opacity-40 rounded transition-colors text-[11px] font-bold"
           aria-label="Increase text size"
         >
           A+
@@ -99,7 +99,7 @@ export default function AccessibilityToolbar() {
       <button
         id="btn-high-contrast-toggle"
         onClick={toggleHighContrast}
-        className={`min-h-[28px] flex items-center gap-1 px-2 py-1 rounded-lg border text-[11px] font-medium transition-all ${
+        className={`min-h-[32px] flex items-center gap-1 px-2 py-1 rounded-lg border text-[11px] font-medium transition-all ${
           highContrast
             ? 'bg-brass-400 text-pine-950 border-brass-300 font-bold ring-2 ring-brass-300/40'
             : 'bg-white/10 text-pine-200 ring-1 ring-white/15 hover:text-white'
@@ -115,7 +115,7 @@ export default function AccessibilityToolbar() {
       <button
         id="btn-reading-ruler-toggle"
         onClick={toggleReadingRuler}
-        className={`hidden sm:min-h-[28px] flex items-center gap-1 px-2 py-1 rounded-lg border text-[11px] font-medium transition-all ${
+        className={`hidden sm:min-h-[32px] flex items-center gap-1 px-2 py-1 rounded-lg border text-[11px] font-medium transition-all ${
           readingRuler
             ? 'bg-brass-400 text-pine-950 font-bold ring-2 ring-brass-300/40'
             : 'bg-white/10 text-pine-200 ring-1 ring-white/15 hover:text-white'
@@ -131,7 +131,7 @@ export default function AccessibilityToolbar() {
       <button
         id="btn-audio-speak"
         onClick={handleSpeakOverview}
-        className={`min-h-[28px] flex items-center gap-1 px-2 py-1 rounded-lg border text-[11px] font-medium transition-all ${
+        className={`min-h-[32px] flex items-center gap-1 px-2 py-1 rounded-lg border text-[11px] font-medium transition-all ${
           isSpeaking
             ? 'bg-brass-400 text-pine-950 font-bold'
             : 'bg-white/10 text-pine-200 ring-1 ring-white/15 hover:text-white'

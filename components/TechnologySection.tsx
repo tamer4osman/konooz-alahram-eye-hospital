@@ -21,7 +21,7 @@ export default function TechnologySection({ technologies }: { technologies: Tech
 
         {/* Section Header */}
         <Reveal className="max-w-3xl mb-12 sm:mb-16 space-y-3">
-          <h2 className="text-2xl sm:text-3xl lg:text-[2.4rem] lg:leading-tight font-extrabold text-pine-900 tracking-tight text-balance flex items-start gap-3">
+          <h2 className="text-2xl sm:text-3xl lg:text-[2.4rem] lg:leading-tight font-extrabold text-pine-950 tracking-tight text-balance flex items-start gap-3">
             <Cpu className="w-7 h-7 text-pine-600 mt-1.5 flex-shrink-0" />
             <span>
               {t(
@@ -62,7 +62,7 @@ export default function TechnologySection({ technologies }: { technologies: Tech
                     aria-hidden="true"
                   />
                 </div>
-                <h3 className={`text-xs sm:text-sm font-bold line-clamp-2 leading-snug ${isActive ? 'text-pine-900' : ''}`}>
+                <h3 className={`text-xs sm:text-sm font-bold line-clamp-2 leading-snug ${isActive ? 'text-pine-950' : ''}`}>
                   {lang === 'ar' ? tech.titleAr : tech.titleEn}
                 </h3>
                 <span className="text-[10px] text-ink-500">

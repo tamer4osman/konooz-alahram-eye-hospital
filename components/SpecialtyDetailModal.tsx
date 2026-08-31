@@ -69,7 +69,7 @@ export default function SpecialtyDetailModal() {
           
           {/* Detailed Overview */}
           <div>
-            <h3 className="text-sm font-extrabold text-[#0B3D33] uppercase tracking-wider mb-2 flex items-center gap-1.5">
+            <h3 className="text-sm font-extrabold text-pine-950 uppercase tracking-wider mb-2 flex items-center gap-1.5">
               <Activity className="w-4 h-4 text-pine-700" />
               <span>{t('نظرة عامة على التخصص الطبي', 'Clinical Overview')}</span>
             </h3>
@@ -80,7 +80,7 @@ export default function SpecialtyDetailModal() {
 
           {/* Key Procedures List */}
           <div>
-            <h3 className="text-sm font-extrabold text-[#0B3D33] uppercase tracking-wider mb-3 flex items-center gap-1.5">
+            <h3 className="text-sm font-extrabold text-pine-950 uppercase tracking-wider mb-3 flex items-center gap-1.5">
               <CheckCircle2 className="w-4 h-4 text-pine-700" />
               <span>{t('قائمة العمليات والإجراءات المتاحة', 'Available Surgeries & Procedures')}</span>
             </h3>
@@ -101,7 +101,7 @@ export default function SpecialtyDetailModal() {
 
           {/* Suitable Candidates */}
           <div>
-            <h3 className="text-sm font-extrabold text-[#0B3D33] uppercase tracking-wider mb-2 flex items-center gap-1.5">
+            <h3 className="text-sm font-extrabold text-pine-950 uppercase tracking-wider mb-2 flex items-center gap-1.5">
               <Users className="w-4 h-4 text-brass-600" />
               <span>{t('لمن يناسب هذا العلاج؟', 'Who Is This Suitable For?')}</span>
             </h3>
@@ -123,7 +123,7 @@ export default function SpecialtyDetailModal() {
               <span className="text-[11px] font-bold text-ink-400 block mb-1">
                 {t('مدة العملية الجراحية', 'Procedure Duration')}
               </span>
-              <span className="text-xs font-extrabold text-[#0B3D33] flex items-center gap-1">
+              <span className="text-xs font-extrabold text-pine-950 flex items-center gap-1">
                 <Clock className="w-3.5 h-3.5 text-pine-700" />
                 {lang === 'ar' ? activeSpecialty.durationAr : activeSpecialty.durationEn}
               </span>

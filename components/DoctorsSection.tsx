@@ -32,7 +32,7 @@ export default function DoctorsSection() {
 
         {/* Section Header */}
         <Reveal className="max-w-3xl mb-10 sm:mb-12 space-y-3">
-          <h2 className="text-2xl sm:text-3xl lg:text-[2.4rem] lg:leading-tight font-extrabold text-pine-900 tracking-tight text-balance">
+          <h2 className="text-2xl sm:text-3xl lg:text-[2.4rem] lg:leading-tight font-extrabold text-pine-950 tracking-tight text-balance">
             {t(
               'أكبر كادر جراحي متخصص في طب العيون ببنغازي', 'Distinguished International & National Surgical Faculty'
             ) }
@@ -54,7 +54,7 @@ export default function DoctorsSection() {
               onClick={() => setDoctorTypeFilter('all')}
               className={`flex-1 py-2.5 px-3 rounded-lg text-xs sm:text-sm font-bold transition-all text-center cursor-pointer ${
                 doctorTypeFilter === 'all'
-                  ? 'bg-white text-pine-900 shadow-sm'
+                   ? 'bg-white text-pine-950 shadow-sm'
                   : 'text-ink-500 hover:text-ink-900'
               }`}
             >
@@ -164,7 +164,7 @@ export default function DoctorsSection() {
                       </div>
 
                       <div>
-                        <h3 className="text-base sm:text-lg font-extrabold text-pine-900 leading-snug text-balance">
+                        <h3 className="text-base sm:text-lg font-extrabold text-pine-950 leading-snug text-balance">
                           {lang === 'ar' ? doc.nameAr : doc.nameEn}
                         </h3>
                         <p className="text-xs font-bold text-pine-700 mt-0.5">
@@ -196,7 +196,7 @@ export default function DoctorsSection() {
                     </div>
 
                     {/* Schedule Box */}
-                    <div className="bg-pine-50 border border-pine-900/10 p-2.5 rounded-lg text-xs flex items-center gap-2 text-pine-900">
+                    <div className="bg-pine-50 border border-pine-900/10 p-2.5 rounded-lg text-xs flex items-center gap-2 text-pine-950">
                       <Clock className="w-4 h-4 text-pine-700 flex-shrink-0" />
                       <span className="font-bold">
                         {lang === 'ar' ? doc.visitScheduleAr : doc.visitScheduleEn}
@@ -207,7 +207,7 @@ export default function DoctorsSection() {
                     <div className="grid grid-cols-2 gap-2 text-center text-xs pt-1 tnum">
                       <div className="bg-white p-2 rounded-lg border border-pine-900/10">
                         <span className="text-[10px] text-ink-400 block">{t('سنوات الخبرة', 'Experience')}</span>
-                        <span className="font-extrabold text-pine-900">+{doc.experienceYears} {t('عاماً', 'Years')}</span>
+                        <span className="font-extrabold text-pine-950">+{doc.experienceYears} {t('عاماً', 'Years')}</span>
                       </div>
                       <div className="bg-white p-2 rounded-lg border border-pine-900/10">
                         <span className="text-[10px] text-ink-400 block">{t('العمليات المنجزة', 'Surgeries')}</span>

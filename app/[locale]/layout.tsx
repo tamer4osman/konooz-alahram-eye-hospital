@@ -174,6 +174,12 @@ export default async function LocaleLayout({
         <Suspense fallback={null}>
           <SEOStructuredData locale={locale} />
         </Suspense>
+        <a
+          href="#main-content"
+          className="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:start-2 focus:z-[9999] focus:px-4 focus:py-2 focus:bg-pine-900 focus:text-bone-50 focus:rounded-lg focus:shadow-lg focus:font-bold focus:text-sm"
+        >
+          {locale === 'ar' ? 'تخطي إلى المحتوى الرئيسي' : 'Skip to main content'}
+        </a>
         {children}
       </body>
     </html>

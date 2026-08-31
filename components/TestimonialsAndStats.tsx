@@ -67,7 +67,7 @@ export default function TestimonialsAndStats({
                   {stat.icon === 'Clock' && <Clock className="w-5 h-5" />}
                   {stat.icon !== 'Building' && stat.icon !== 'ShieldCheck' && stat.icon !== 'Clock' && <CheckCircle2 className="w-5 h-5" />}
                 </div>
-                <p className="text-3xl sm:text-4xl font-extrabold text-pine-900 tracking-tight tnum">
+                <p className="text-3xl sm:text-4xl font-extrabold text-pine-950 tracking-tight tnum">
                   {stat.value}
                 </p>
                 <p className="text-xs sm:text-sm font-semibold text-ink-500">
@@ -251,7 +251,7 @@ export default function TestimonialsAndStats({
         <Reveal delay={60}>
           <div className="space-y-8">
             <div className="max-w-2xl mx-auto space-y-2 text-center">
-              <h3 className="text-2xl sm:text-3xl font-extrabold text-pine-900 tracking-tight text-balance">
+              <h3 className="text-2xl sm:text-3xl font-extrabold text-pine-950 tracking-tight text-balance">
                 {t('قصص نجاح واستعادة الإبصار', 'Real Patient Testimonials')}
               </h3>
               <p className="text-xs sm:text-sm text-ink-500 font-semibold flex items-center justify-center gap-1.5">
@@ -281,7 +281,7 @@ export default function TestimonialsAndStats({
                 {/* Patient and Surgery Meta */}
                 <div className="pt-4 border-t border-pine-900/10 flex flex-wrap items-center justify-between gap-3">
                   <div>
-                    <h4 className="text-sm font-extrabold text-pine-900">
+                    <h4 className="text-sm font-extrabold text-pine-950">
                       {lang === 'ar' ? currentTestimonial.patientNameAr : currentTestimonial.patientNameEn}
                     </h4>
                     <p className="text-xs text-ink-400">

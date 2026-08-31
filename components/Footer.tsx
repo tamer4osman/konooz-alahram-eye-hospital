@@ -178,7 +178,7 @@ export default function Footer() {
                 <li key={doc.id}>
                   <a
                     href="#doctors"
-                    className="py-0.5 hover:text-brass-300 transition-colors block text-[11px]"
+                    className="py-2 min-h-[44px] flex items-center hover:text-brass-300 transition-colors block text-[11px]"
                   >
                     <span className="text-pine-100 font-semibold">{lang === 'ar' ? doc.nameAr : doc.nameEn}</span>
                     <span className="block text-pine-400 text-[10px]">{lang === 'ar' ? doc.originAr : doc.originEn}</span>
@@ -206,7 +206,7 @@ export default function Footer() {
                 <p className="text-[11px] font-bold text-pine-100">{t('أرقام الهواتف المباشرة:', 'Direct Hotlines:')}</p>
                 <div className="grid grid-cols-2 gap-1 font-bold text-[11px] text-brass-300 tnum" dir="ltr">
                   {HOSPITAL_CONTACTS.phoneNumbers.map((p) => (
-                    <a key={p.number} href={`tel:${p.number}`} className="py-1.5 hover:underline">
+                    <a key={p.number} href={`tel:${p.number}`} className="py-2 min-h-[44px] flex items-center hover:underline">
                       {p.display}
                     </a>
                   ))}

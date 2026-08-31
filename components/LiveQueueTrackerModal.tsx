@@ -38,7 +38,7 @@ export default function LiveQueueTrackerModal({ isOpen, onClose }: LiveQueueTrac
             <Clock className="w-5 h-5" />
           </div>
           <div>
-            <h3 id="live-queue-tracker-title" className="text-base font-extrabold text-[#0B3D33]">
+            <h3 id="live-queue-tracker-title" className="text-base font-extrabold text-pine-950">
               {t('تتبع دورك في العيادة والعمليات', 'Clinic & Surgery Queue Tracking')}
             </h3>
             <span className="text-[11px] text-ink-500 block">
@@ -79,7 +79,7 @@ export default function LiveQueueTrackerModal({ isOpen, onClose }: LiveQueueTrac
 
       {/* Clinical Visit Journey — informational only (no live data claimed) */}
       <div className="space-y-2 pt-1">
-        <span className="text-[10px] font-extrabold text-[#0B3D33] uppercase tracking-wider block">
+        <span className="text-[10px] font-extrabold text-pine-950 uppercase tracking-wider block">
           {t('مراحل الزيارة السريرية النموذجية', 'Typical Clinical Visit Journey')}
         </span>
 

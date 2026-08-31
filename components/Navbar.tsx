@@ -173,12 +173,12 @@ export default function Navbar() {
           </Link>
 
           {/* Desktop Navigation Links */}
-          <nav className="hidden xl:flex items-center gap-3 text-[13px] font-semibold text-ink-700 whitespace-nowrap min-w-0 overflow-x-auto scrollbar-none" aria-label="Primary">
+          <nav className="hidden xl:flex items-center gap-3 text-[13px] font-semibold text-ink-900 whitespace-nowrap min-w-0 overflow-x-auto scrollbar-none" aria-label="Primary">
             {navLinks.map((link) => (
               <a
                 key={link.href}
                 href={link.href}
-                className="hover:text-pine-800 transition-colors py-1 relative group"
+                className="hover:text-pine-950 transition-colors py-1 relative group"
               >
                 {t(link.labelAr, link.labelEn)}
                 <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-brass-400 transition-all duration-300 group-hover:w-full" />
@@ -213,7 +213,7 @@ export default function Navbar() {
             <button
               id="btn-mobile-menu-toggle"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="p-2 rounded-lg text-ink-700 hover:bg-pine-100 transition-colors"
+              className="p-2 rounded-lg text-ink-900 hover:bg-pine-100 transition-colors"
               aria-label="Toggle navigation menu"
               aria-expanded={mobileMenuOpen}
             >
@@ -232,7 +232,7 @@ export default function Navbar() {
                 key={link.href}
                 href={link.href}
                 onClick={() => setMobileMenuOpen(false)}
-                className="px-1 py-3 text-sm font-semibold text-ink-900 hover:text-pine-800 transition-colors flex items-center justify-between"
+                className="px-1 py-3 text-sm font-semibold text-ink-900 hover:text-pine-950 transition-colors flex items-center justify-between"
               >
                 <span>{t(link.labelAr, link.labelEn)}</span>
                 <ArrowUpRight className="w-4 h-4 text-ink-300" />

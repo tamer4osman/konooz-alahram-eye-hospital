@@ -25,7 +25,7 @@ export default function LocationAndContact({ initialFaqs = [] }: { initialFaqs?:
         {/* Section Header */ }
         <Reveal className="max-w-3xl mb-12 sm:mb-16 space-y-3">
 
-          <h2 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-pine-900 tracking-tight">
+          <h2 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-pine-950 tracking-tight">
             {t(
               'مستشفى كنوز الأهرام لطب وجراحة العيون في بنغازي', 'Konooz Al-Ahram Specialized Eye Hospital'
             ) }
@@ -74,7 +74,7 @@ export default function LocationAndContact({ initialFaqs = [] }: { initialFaqs?:
                 href={HOSPITAL_CONTACTS.googleMapsUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="px-4 py-2.5 bg-bone-50 hover:bg-white text-pine-900 font-bold rounded-lg text-xs flex items-center gap-1.5 transition-all shadow-md active:scale-[0.98]"
+                className="px-4 py-2.5 bg-bone-50 hover:bg-white text-pine-950 font-bold rounded-lg text-xs flex items-center gap-1.5 transition-all shadow-md active:scale-[0.98]"
               >
                 <MapPin className="w-3.5 h-3.5 text-pine-700" />
                 <span>{t('فتح الاتجاهات', 'Get Directions')}</span>
@@ -86,7 +86,7 @@ export default function LocationAndContact({ initialFaqs = [] }: { initialFaqs?:
         {/* 6 Phone Numbers Grid */}
         <div className="space-y-4">
           <div className="flex items-center justify-between">
-            <h3 className="text-base sm:text-lg font-extrabold text-pine-900 flex items-center gap-2">
+            <h3 className="text-base sm:text-lg font-extrabold text-pine-950 flex items-center gap-2">
               <Phone className="w-5 h-5 text-pine-700" />
               <span>{t('دليل هواتف المستشفى للحجز والاستعلام (بنغازي):', 'Hospital Phone & Inquiries Directory:')}</span>
             </h3>
@@ -108,7 +108,7 @@ export default function LocationAndContact({ initialFaqs = [] }: { initialFaqs?:
                     {lang === 'ar' ? phone.labelAr : phone.labelEn}
                   </span>
                   <span
-                    className="text-base sm:text-lg font-extrabold text-pine-900 tracking-tight group-hover:text-pine-700 transition-colors"
+                    className="text-base sm:text-lg font-extrabold text-pine-950 tracking-tight group-hover:text-pine-700 transition-colors"
                     dir="ltr"
                   >
                     {phone.display}
@@ -133,7 +133,7 @@ export default function LocationAndContact({ initialFaqs = [] }: { initialFaqs?:
                   <Navigation className="w-5 h-5" />
                 </span>
                 <div>
-                  <h3 className="text-lg font-extrabold text-pine-900 tracking-tight">
+                  <h3 className="text-lg font-extrabold text-pine-950 tracking-tight">
                     {t('موقع المستشفى بالتفصيل في بنغازي', 'Detailed Location in Benghazi')}
                   </h3>
                   <p className="text-xs text-ink-500 font-medium">{t('طريق طرابلس الرئيسي', 'Main Tripoli Road')}</p>
@@ -280,7 +280,7 @@ export default function LocationAndContact({ initialFaqs = [] }: { initialFaqs?:
                   f
                 </div>
                 <div>
-                  <h4 className="text-sm font-extrabold text-pine-900">
+                  <h4 className="text-sm font-extrabold text-pine-950">
                     {t('الصفحة الرسمية على فيسبوك', 'Official Facebook Community')}
                   </h4>
                   <p className="text-[11px] text-ink-500 tnum">@hospitalpyramid</p>
@@ -312,7 +312,7 @@ export default function LocationAndContact({ initialFaqs = [] }: { initialFaqs?:
         {/* Frequently Asked Questions Accordion */}
         <div className="bg-white rounded-2xl ring-1 ring-pine-900/10 p-6 sm:p-10 space-y-6">
           <div className="text-center max-w-2xl mx-auto space-y-2">
-            <h3 className="text-xl sm:text-2xl font-extrabold text-pine-900 tracking-tight">
+            <h3 className="text-xl sm:text-2xl font-extrabold text-pine-950 tracking-tight">
               {t('الأسئلة الشائعة حول الفحوصات والعمليات', 'Frequently Asked Questions')}
             </h3>
             <p className="text-xs sm:text-sm text-ink-500">
@@ -330,7 +330,7 @@ export default function LocationAndContact({ initialFaqs = [] }: { initialFaqs?:
                 >
                   <button
                     onClick={() => toggleFaq(idx)}
-                    className="w-full p-4 text-start font-bold text-xs sm:text-sm text-pine-900 hover:bg-white flex items-center justify-between gap-4 transition-colors"
+                    className="w-full p-4 text-start font-bold text-xs sm:text-sm text-pine-950 hover:bg-white flex items-center justify-between gap-4 transition-colors"
                   >
                     <span>{lang === 'ar' ? faq.qAr : faq.qEn}</span>
                     {isOpen ? (

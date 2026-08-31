@@ -331,7 +331,7 @@ export default function Hero() {
                   <span className="inline-block text-[11px] font-bold text-pine-800 bg-pine-100 px-2 py-0.5 rounded-md mb-1">
                     {t('حجز فوري ومباشر', 'Instant Direct Booking')}
                   </span>
-                  <h2 className="text-lg font-extrabold text-pine-900">
+                  <h2 className="text-lg font-extrabold text-pine-950">
                     {t('طلب حجز كشف / استشارة فورية', 'Instant Consultation & Booking')}
                   </h2>
                 </div>
@@ -357,7 +357,7 @@ export default function Hero() {
                   {bookingRef && (
                     <div className="inline-flex items-center gap-2 bg-pine-50 border border-pine-200 rounded-lg px-3 py-1.5">
                       <span className="text-[10px] text-ink-400">{t('رقم المرجع:', 'Reference:')}</span>
-                      <span className="font-mono font-extrabold text-sm text-pine-900">{bookingRef}</span>
+                        <span className="font-mono font-extrabold text-sm text-pine-950">{bookingRef}</span>
                     </div>
                   )}
                   <div className="pt-2 flex flex-col gap-2">
@@ -371,7 +371,7 @@ export default function Hero() {
                       href={HOSPITAL_CONTACTS.spitarUrl}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="inline-flex items-center justify-center gap-1 py-1.5 min-h-[32px] text-xs font-semibold text-ink-500 hover:text-pine-900"
+                      className="inline-flex items-center justify-center gap-1 py-1.5 min-h-[32px] text-xs font-semibold text-ink-900 hover:text-pine-950"
                     >
                       <span>{t('أو الحجز عبر منصة سبيتار', 'Or book via Spitar platform')}</span>
                       <ExternalLink className="w-3 h-3" />
@@ -384,7 +384,7 @@ export default function Hero() {
                   {/* PATIENT INFO SECTION AT THE TOP */}
                   <div className="bg-white border border-pine-900/10 rounded-xl p-3 space-y-2.5">
                     <div className="flex items-center justify-between">
-                      <label className="text-xs font-extrabold text-pine-900 flex items-center gap-1.5">
+                        <label className="text-xs font-extrabold text-pine-950 flex items-center gap-1.5">
                         <User className="w-3.5 h-3.5 text-pine-700" />
                         <span>{t('1. بيانات المريض الأساسية *', '1. Primary Patient Info *')}</span>
                       </label>
@@ -449,7 +449,7 @@ export default function Hero() {
                           readOnly={!!currentPatient}
                           placeholder={t('091XXXXXXX', '091XXXXXXX')}
                           className={`w-full px-3 py-2 text-xs sm:text-sm border border-pine-900/20 rounded-lg focus:ring-2 focus:ring-pine-600 focus:border-pine-600 outline-hidden transition-all text-ink-900 font-medium ${
-                            currentPatient ? 'bg-bone-100 font-bold text-pine-900 cursor-not-allowed' : 'bg-white'
+                            currentPatient ? 'bg-bone-100 font-bold text-pine-950 cursor-not-allowed' : 'bg-white'
                           }`}
                           dir="ltr"
                         />
@@ -468,7 +468,7 @@ export default function Hero() {
                           readOnly={!!currentPatient}
                           placeholder={t('name@example.com', 'name@example.com')}
                           className={`w-full px-3 py-2 text-xs sm:text-sm border border-pine-900/20 rounded-lg focus:ring-2 focus:ring-pine-600 focus:border-pine-600 outline-hidden transition-all text-ink-900 font-medium ${
-                            currentPatient ? 'bg-bone-100 font-bold text-pine-900 cursor-not-allowed' : 'bg-white'
+                            currentPatient ? 'bg-bone-100 font-bold text-pine-950 cursor-not-allowed' : 'bg-white'
                           }`}
                           dir="ltr"
                         />
