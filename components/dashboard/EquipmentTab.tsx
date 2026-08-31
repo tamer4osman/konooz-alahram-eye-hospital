@@ -185,11 +185,11 @@ export default function EquipmentTab({
                 {/* Model and Room Code */}
                 <div className="flex items-center justify-between text-xs text-ink-500 bg-bone-50 p-2.5 rounded-xl border border-bone-100 mb-3">
                   <div>
-                    <span className="text-[10px] text-ink-400 block">{t('الموديل التقني', 'Model')}</span>
+                    <span className="text-[10px] text-ink-500 block">{t('الموديل التقني', 'Model')}</span>
                     <span className="font-bold text-ink-700 font-mono text-[11px]">{device.model}</span>
                   </div>
                   <div className="text-end">
-                    <span className="text-[10px] text-ink-400 block">{t('الموقع', 'Location')}</span>
+                    <span className="text-[10px] text-ink-500 block">{t('الموقع', 'Location')}</span>
                     <span className="font-mono text-xs font-extrabold text-pine-800 bg-white px-2 py-0.5 rounded border border-pine-200">
                       {device.roomCode}
                     </span>

@@ -199,7 +199,7 @@ export default function NotificationsTab({ notify }: NotificationsTabProps) {
                 <div className="flex-1 space-y-0.5">
                   <div className="flex items-center justify-between">
                     <strong className="text-ink-900 font-bold">{lang === 'ar' ? notif.titleAr : notif.titleEn}</strong>
-                    <span className="text-[10px] text-ink-400 font-mono">{notif.timestamp}</span>
+                    <span className="text-[10px] text-ink-500 font-mono">{notif.timestamp}</span>
                   </div>
                   <p className="text-ink-500 text-[11px] leading-relaxed">{lang === 'ar' ? notif.bodyAr : notif.bodyEn}</p>
                 </div>

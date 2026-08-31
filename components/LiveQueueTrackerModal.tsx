@@ -97,7 +97,7 @@ export default function LiveQueueTrackerModal({ isOpen, onClose }: LiveQueueTrac
           ))}
         </div>
 
-        <p className="text-[10px] text-ink-400 italic pt-1">
+        <p className="text-[10px] text-ink-500 italic pt-1">
           {t('معلومة إرشادية عامة — قد يختلف الترتيب الفعلي حسب حالتك الطبية.', 'General guidance only — actual order may differ based on your case.')}
         </p>
       </div>

@@ -233,7 +233,7 @@ export default function ProfileTab({ notify }: ProfileTabProps) {
               <span>{t('قياسات النظر والانكسار الأخيرة', 'Refractive Vision Baseline')}</span>
             </div>
             {currentPatient.refractiveData.lastChecked && (
-              <span className="text-[10px] text-ink-400 font-mono">{currentPatient.refractiveData.lastChecked}</span>
+              <span className="text-[10px] text-ink-500 font-mono">{currentPatient.refractiveData.lastChecked}</span>
             )}
           </div>
 
@@ -315,7 +315,7 @@ export default function ProfileTab({ notify }: ProfileTabProps) {
 
           <div className="space-y-2 text-xs">
             <div className="p-2.5 bg-bone-50 rounded-xl border border-bone-100 space-y-1">
-              <span className="block text-[10px] text-ink-400 font-bold uppercase">{t('جهة الاتصال في الطوارئ', 'Emergency Contact')}</span>
+              <span className="block text-[10px] text-ink-500 font-bold uppercase">{t('جهة الاتصال في الطوارئ', 'Emergency Contact')}</span>
               <p className="font-bold text-ink-700">{currentPatient.emergencyContact.name}</p>
               <a href={`tel:${currentPatient.emergencyContact.phone}`} className="text-pine-800 font-mono text-[11px] hover:underline flex items-center gap-1">
                 <Phone className="w-3 h-3" />
@@ -324,7 +324,7 @@ export default function ProfileTab({ notify }: ProfileTabProps) {
             </div>
 
             <div className="p-2.5 bg-bone-50 rounded-xl border border-bone-100 space-y-1">
-              <span className="block text-[10px] text-ink-400 font-bold uppercase">{t('وثيقة التأمين', 'Insurance Card')}</span>
+              <span className="block text-[10px] text-ink-500 font-bold uppercase">{t('وثيقة التأمين', 'Insurance Card')}</span>
               <p className="font-bold text-ink-700 text-[11px]">{currentPatient.insuranceProviderName}</p>
               <p className="font-mono text-ink-500 text-[10px]">{currentPatient.insurancePolicyNo}</p>
             </div>
@@ -364,12 +364,12 @@ export default function ProfileTab({ notify }: ProfileTabProps) {
         {/* Honest Status Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
           <div className="p-3 bg-bone-50 rounded-xl border border-bone-100">
-            <span className="block text-[10px] text-ink-400 font-bold uppercase mb-1">{t('التخزين الحالي', 'Current storage')}</span>
+            <span className="block text-[10px] text-ink-500 font-bold uppercase mb-1">{t('التخزين الحالي', 'Current storage')}</span>
             <strong className="text-ink-900">{t('محلي على هذا الجهاز فقط', 'Local to this device only')}</strong>
           </div>
 
           <div className="p-3 bg-bone-50 rounded-xl border border-bone-100">
-            <span className="block text-[10px] text-ink-400 font-bold uppercase mb-1">{t('الحسابات السحابية وكلمات المرور', 'Online accounts & passwords')}</span>
+            <span className="block text-[10px] text-ink-500 font-bold uppercase mb-1">{t('الحسابات السحابية وكلمات المرور', 'Online accounts & passwords')}</span>
             <strong className="text-brass-600">{t('قريباً — لم تُفعّل بعد', 'Coming soon — not active yet')}</strong>
             <p className="text-[11px] text-ink-500 mt-0.5">
               {t('سيتم تشغيلها عند اكتمال ربط النظام الطبي.', 'Activates when hospital system integration completes.')}
@@ -377,7 +377,7 @@ export default function ProfileTab({ notify }: ProfileTabProps) {
           </div>
 
           <div className="p-3 bg-bone-50 rounded-xl border border-bone-100">
-            <span className="block text-[10px] text-ink-400 font-bold uppercase mb-1">{t('الخصوصية', 'Privacy')}</span>
+            <span className="block text-[10px] text-ink-500 font-bold uppercase mb-1">{t('الخصوصية', 'Privacy')}</span>
             <strong className="text-ink-900">{t('لا إرسال تلقائي للبيانات', 'No automatic data sharing')}</strong>
             <p className="text-[11px] text-ink-500 mt-0.5">
               {t('التواصل مع المستشفى يتم بإرادتك عبر واتساب أو الهاتف.', 'Contacting the hospital happens by your choice via WhatsApp or phone.')}

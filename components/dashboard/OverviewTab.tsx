@@ -90,7 +90,7 @@ export default function OverviewTab({
           >
             <Users className="w-4 h-4 text-brass-400" />
             <div className="text-start">
-              <span className="text-[10px] text-ink-400 block">{t('الكادر على رأس العمل', 'On Duty Staff')}</span>
+              <span className="text-[10px] text-ink-500 block">{t('الكادر على رأس العمل', 'On Duty Staff')}</span>
               <span className="text-xs font-bold text-white">{onDutyStaff} / {staffList.length}</span>
             </div>
           </button>
@@ -102,7 +102,7 @@ export default function OverviewTab({
           >
             <Building2 className="w-4 h-4 text-brass-400" />
             <div className="text-start">
-              <span className="text-[10px] text-ink-400 block">{t('الغرف المشغولة', 'Occupied Rooms')}</span>
+              <span className="text-[10px] text-ink-500 block">{t('الغرف المشغولة', 'Occupied Rooms')}</span>
               <span className="text-xs font-bold text-white">{occupiedRooms} / {roomsList.length}</span>
             </div>
           </button>
@@ -114,7 +114,7 @@ export default function OverviewTab({
           >
             <Cpu className="w-4 h-4 text-brass-400" />
             <div className="text-start">
-              <span className="text-[10px] text-ink-400 block">{t('جاهزية الأجهزة', 'Device Readiness')}</span>
+              <span className="text-[10px] text-ink-500 block">{t('جاهزية الأجهزة', 'Device Readiness')}</span>
               <span className="text-xs font-bold text-white">{operationalEquipment} / {equipmentList.length}</span>
             </div>
           </button>
@@ -137,7 +137,7 @@ export default function OverviewTab({
           </div>
           <div className="text-2xl font-extrabold text-pine-900 tracking-tight">{kpis.surgeriesCount}</div>
           <div className="text-xs font-bold text-ink-500 mt-0.5">{t('العمليات الجراحية', 'Total Surgeries')}</div>
-          <div className="text-[10px] text-ink-400 mt-1">{t('شبكية، ليزك، فاكو، حول', 'Retina, LASIK, Phaco')}</div>
+          <div className="text-[10px] text-ink-500 mt-1">{t('شبكية، ليزك، فاكو، حول', 'Retina, LASIK, Phaco')}</div>
         </div>
 
         {/* 2. Outpatient Consultations */}
@@ -153,7 +153,7 @@ export default function OverviewTab({
           </div>
           <div className="text-2xl font-extrabold text-pine-900 tracking-tight">{kpis.consultationsCount}</div>
           <div className="text-xs font-bold text-ink-500 mt-0.5">{t('الكشوفات والعيادات', 'Consultations')}</div>
-          <div className="text-[10px] text-ink-400 mt-1">{t('استشاريون مصريون ومقيمون', 'Consultants & Residents')}</div>
+          <div className="text-[10px] text-ink-500 mt-1">{t('استشاريون مصريون ومقيمون', 'Consultants & Residents')}</div>
         </div>
 
         {/* 3. Diagnostic Scans */}
@@ -169,7 +169,7 @@ export default function OverviewTab({
           </div>
           <div className="text-2xl font-extrabold text-pine-900 tracking-tight">{kpis.diagnosticScans}</div>
           <div className="text-xs font-bold text-ink-500 mt-0.5">{t('الفحوصات والأشعة (OCT)', 'Diagnostic Scans')}</div>
-          <div className="text-[10px] text-ink-400 mt-1">{t('OCT, Pentacam, IOLMaster', 'OCT, Pentacam, Biometry')}</div>
+          <div className="text-[10px] text-ink-500 mt-1">{t('OCT, Pentacam, IOLMaster', 'OCT, Pentacam, Biometry')}</div>
         </div>
 
         {/* 4. OR Utilization Rate */}
@@ -185,7 +185,7 @@ export default function OverviewTab({
           </div>
           <div className="text-2xl font-extrabold text-pine-900 tracking-tight">{kpis.orUtilizationRate}%</div>
           <div className="text-xs font-bold text-ink-500 mt-0.5">{t('نسبة إشغال العمليات', 'OR Utilization')}</div>
-          <div className="text-[10px] text-ink-400 mt-1">{t('كفاءة غرف العمليات الكبرى', 'Major OR Efficiency')}</div>
+          <div className="text-[10px] text-ink-500 mt-1">{t('كفاءة غرف العمليات الكبرى', 'Major OR Efficiency')}</div>
         </div>
 
         {/* 5. Patient Satisfaction */}
@@ -200,7 +200,7 @@ export default function OverviewTab({
           </div>
           <div className="text-2xl font-extrabold text-pine-900 tracking-tight">{kpis.patientSatisfaction ?? '—'}{kpis.patientSatisfaction !== null ? '%' : ''}</div>
           <div className="text-xs font-bold text-ink-500 mt-0.5">{t('رضا المرضى وجودة الرعاية', 'Patient Satisfaction')}</div>
-          <div className="text-[10px] text-ink-400 mt-1">{t('مؤشر التعافي بعد الجراحة', 'Post-Op Recovery Index')}</div>
+          <div className="text-[10px] text-ink-500 mt-1">{t('مؤشر التعافي بعد الجراحة', 'Post-Op Recovery Index')}</div>
         </div>
 
         {/* 6. Revenue Throughput in Libyan Dinars */}
@@ -218,7 +218,7 @@ export default function OverviewTab({
             {kpis.revenueLYD.toLocaleString()} <span className="text-xs font-sans font-bold text-pine-800">{t('د.ل', 'LYD')}</span>
           </div>
           <div className="text-xs font-bold text-ink-500 mt-0.5">{t('العائد التشغيلي', 'Revenue Throughput')}</div>
-          <div className="text-[10px] text-ink-400 mt-1">{t('إجمالي الخدمات الجراحية', 'Surgical & Diagnostic')}</div>
+          <div className="text-[10px] text-ink-500 mt-1">{t('إجمالي الخدمات الجراحية', 'Surgical & Diagnostic')}</div>
         </div>
 
       </div>
@@ -590,7 +590,7 @@ export default function OverviewTab({
                       <span className="text-xs font-bold text-ink-900">
                         {lang === 'ar' ? surg.patientNameAr : surg.patientNameEn}
                       </span>
-                      <span className="text-[10px] text-ink-400 font-semibold">
+                      <span className="text-[10px] text-ink-500 font-semibold">
                         ({surg.patientAge} {t('سنة', 'yrs')})
                       </span>
                       {surg.priority === 'urgent' && (

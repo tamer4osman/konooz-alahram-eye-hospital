@@ -317,11 +317,11 @@ export default function ClinicalConsultationTab(_: ClinicalConsultationTabProps)
 
                   <div className="grid grid-cols-2 gap-2 text-xs">
                     <div className="p-2 rounded bg-white border border-bone-100">
-                      <span className="text-[10px] text-ink-400 block">{t('النظر بدون نظارة', 'Unaided VA')}</span>
+                      <span className="text-[10px] text-ink-500 block">{t('النظر بدون نظارة', 'Unaided VA')}</span>
                       <span className="font-mono font-bold text-ink-700">{activeRecord.visualAcuityOD_Unaided}</span>
                     </div>
                     <div className="p-2 rounded bg-white border border-bone-100">
-                      <span className="text-[10px] text-ink-400 block">{t('أفضل تصحيح (BCVA)', 'Best Corrected')}</span>
+                      <span className="text-[10px] text-ink-500 block">{t('أفضل تصحيح (BCVA)', 'Best Corrected')}</span>
                       <span className="font-mono font-bold text-pine-800">{activeRecord.visualAcuityOD_BCVA}</span>
                     </div>
                   </div>
@@ -352,11 +352,11 @@ export default function ClinicalConsultationTab(_: ClinicalConsultationTabProps)
 
                   <div className="grid grid-cols-2 gap-2 text-xs">
                     <div className="p-2 rounded bg-white border border-bone-100">
-                      <span className="text-[10px] text-ink-400 block">{t('النظر بدون نظارة', 'Unaided VA')}</span>
+                      <span className="text-[10px] text-ink-500 block">{t('النظر بدون نظارة', 'Unaided VA')}</span>
                       <span className="font-mono font-bold text-ink-700">{activeRecord.visualAcuityOS_Unaided}</span>
                     </div>
                     <div className="p-2 rounded bg-white border border-bone-100">
-                      <span className="text-[10px] text-ink-400 block">{t('أفضل تصحيح (BCVA)', 'Best Corrected')}</span>
+                      <span className="text-[10px] text-ink-500 block">{t('أفضل تصحيح (BCVA)', 'Best Corrected')}</span>
                       <span className="font-mono font-bold text-pine-700">{activeRecord.visualAcuityOS_BCVA}</span>
                     </div>
                   </div>

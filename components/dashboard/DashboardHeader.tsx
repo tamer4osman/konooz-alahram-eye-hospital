@@ -182,7 +182,7 @@ export default function DashboardHeader({
                         <div className="flex items-start justify-between gap-2">
                           <p className="font-semibold text-pine-200">{t(n.titleAr, n.titleEn)}</p>
                         </div>
-                        <span className="text-[10px] text-ink-400 mt-1 block">{t(n.timeAr, n.timeEn)}</span>
+                        <span className="text-[10px] text-ink-500 mt-1 block">{t(n.timeAr, n.timeEn)}</span>
                       </div>
                     ))}
                   </div>
@@ -244,7 +244,7 @@ export default function DashboardHeader({
                       </div>
                       <div>
                         <div>{t('حجز عملية جراحية', 'Schedule Surgery Case')}</div>
-                        <div className="text-[10px] text-ink-400 font-normal">{t('إدراج مريض في الجدول', 'Add patient to OR pipeline')}</div>
+                        <div className="text-[10px] text-ink-500 font-normal">{t('إدراج مريض في الجدول', 'Add patient to OR pipeline')}</div>
                       </div>
                     </button>
 
@@ -260,7 +260,7 @@ export default function DashboardHeader({
                       </div>
                       <div>
                         <div>{t('إضافة كادر طبي / تمريضي', 'Add Staff Member')}</div>
-                        <div className="text-[10px] text-ink-400 font-normal">{t('طبيب، جراح، تمريض، فني', 'Doctor, nurse, technician')}</div>
+                        <div className="text-[10px] text-ink-500 font-normal">{t('طبيب، جراح، تمريض، فني', 'Doctor, nurse, technician')}</div>
                       </div>
                     </button>
 
@@ -276,7 +276,7 @@ export default function DashboardHeader({
                       </div>
                       <div>
                         <div>{t('إضافة جناح / غرفة عمليات', 'Add Room / Suite')}</div>
-                        <div className="text-[10px] text-ink-400 font-normal">{t('غرفة عمليات، عيادة، مختبر', 'Theater, clinic, diagnostic lab')}</div>
+                        <div className="text-[10px] text-ink-500 font-normal">{t('غرفة عمليات، عيادة، مختبر', 'Theater, clinic, diagnostic lab')}</div>
                       </div>
                     </button>
 
@@ -292,7 +292,7 @@ export default function DashboardHeader({
                       </div>
                       <div>
                         <div>{t('إضافة جهاز طبي / ليزك', 'Add Medical Equipment')}</div>
-                        <div className="text-[10px] text-ink-400 font-normal">{t('تسجيل جهاز ومعايرة', 'Device registry & calibration')}</div>
+                        <div className="text-[10px] text-ink-500 font-normal">{t('تسجيل جهاز ومعايرة', 'Device registry & calibration')}</div>
                       </div>
                     </button>
 

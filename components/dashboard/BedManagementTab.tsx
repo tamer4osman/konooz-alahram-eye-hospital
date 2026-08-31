@@ -292,7 +292,7 @@ export default function BedManagementTab() {
                       {lang === 'ar' ? bed.wardNameAr : bed.wardNameEn}
                     </h3>
                   </div>
-                  <span className="text-[10px] text-ink-400 block mt-0.5">
+                  <span className="text-[10px] text-ink-500 block mt-0.5">
                     {lang === 'ar' ? bed.floorAr : bed.floorEn}
                   </span>
                 </div>
@@ -430,7 +430,7 @@ export default function BedManagementTab() {
                   <Sparkles className="w-8 h-8 text-pine-500 mx-auto" />
                   <div>
                     <span className="text-xs font-extrabold text-pine-900 block">{t('السرير معقم ومتاح للاستقبال', 'Clean & Ready for Admission')}</span>
-                    <span className="text-[10px] text-ink-400">{t('المسؤول: ', 'Nurse: ')} {lang === 'ar' ? bed.nurseInChargeAr : bed.nurseInChargeEn}</span>
+                    <span className="text-[10px] text-ink-500">{t('المسؤول: ', 'Nurse: ')} {lang === 'ar' ? bed.nurseInChargeAr : bed.nurseInChargeEn}</span>
                   </div>
                   <button
                     onClick={() => handleUpdateBedStatus(bed.id, 'reserved')}
@@ -465,7 +465,7 @@ export default function BedManagementTab() {
             </div>
 
             <div className="mb-4 p-3 bg-bone-50 rounded-xl border border-pine-200 text-xs">
-              <span className="text-[10px] text-ink-400 block">{t('المريض والسرير:', 'Patient & Bed:')}</span>
+              <span className="text-[10px] text-ink-500 block">{t('المريض والسرير:', 'Patient & Bed:')}</span>
               <span className="font-bold text-ink-900">{lang === 'ar' ? selectedBed.patientNameAr : selectedBed.patientNameEn}</span>
               <span className="font-mono text-pine-800 font-bold block mt-0.5">{selectedBed.bedNumber}</span>
             </div>

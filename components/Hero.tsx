@@ -356,7 +356,7 @@ export default function Hero() {
                   </p>
                   {bookingRef && (
                     <div className="inline-flex items-center gap-2 bg-pine-50 border border-pine-200 rounded-lg px-3 py-1.5">
-                      <span className="text-[10px] text-ink-400">{t('رقم المرجع:', 'Reference:')}</span>
+                      <span className="text-[10px] text-ink-500">{t('رقم المرجع:', 'Reference:')}</span>
                         <span className="font-mono font-extrabold text-sm text-pine-950">{bookingRef}</span>
                     </div>
                   )}

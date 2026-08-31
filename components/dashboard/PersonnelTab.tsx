@@ -229,7 +229,7 @@ export default function PersonnelTab({
             <Users className="w-4 h-4 text-pine-700" />
           </div>
           <div className="text-xl font-extrabold text-pine-900">{totalStaffCount}</div>
-          <span className="text-[10px] text-ink-400 font-semibold">{t('12 تخصص دقيق للعيون', '12 ophthalmic roles')}</span>
+          <span className="text-[10px] text-ink-500 font-semibold">{t('12 تخصص دقيق للعيون', '12 ophthalmic roles')}</span>
         </div>
 
         <div className="bg-white p-3.5 rounded-2xl border border-pine-200 bg-pine-50/20 shadow-xs">
@@ -423,7 +423,7 @@ export default function PersonnelTab({
                         <div className="truncate max-w-[180px]">
                           {lang === 'ar' ? record.departmentAr : record.departmentEn}
                         </div>
-                        <div className="text-[10px] text-ink-400 font-normal truncate mt-0.5">
+                        <div className="text-[10px] text-ink-500 font-normal truncate mt-0.5">
                           {record.notesAr}
                         </div>
                       </td>
@@ -431,7 +431,7 @@ export default function PersonnelTab({
                       {/* Shift Timing */}
                       <td className="p-3 text-center">
                         <span className="font-bold text-ink-700 block text-xs">{record.shiftTiming}</span>
-                        <span className="text-[10px] text-ink-400 block font-medium">
+                        <span className="text-[10px] text-ink-500 block font-medium">
                           {lang === 'ar' ? record.shiftNameAr : record.shiftNameEn}
                         </span>
                       </td>

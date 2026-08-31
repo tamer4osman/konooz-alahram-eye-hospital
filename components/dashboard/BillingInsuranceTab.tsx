@@ -298,12 +298,12 @@ export default function BillingInsuranceTab() {
                 {/* Patient & Insurance Badge */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 p-3.5 bg-bone-50 rounded-xl border border-pine-200 text-xs">
                   <div>
-                    <span className="text-[10px] text-ink-400 block">{t('بيانات المريض:', 'Patient:')}</span>
+                    <span className="text-[10px] text-ink-500 block">{t('بيانات المريض:', 'Patient:')}</span>
                     <span className="font-bold text-ink-900">{lang === 'ar' ? selectedInvoice.patientNameAr : selectedInvoice.patientNameEn}</span>
                     <span className="text-[10px] font-mono text-ink-500 block mt-0.5">{t('تذكرة: ', 'Ticket: ')}{selectedInvoice.ticketNumber}</span>
                   </div>
                   <div>
-                    <span className="text-[10px] text-ink-400 block">{t('جهة التغطية أو الدفع:', 'Coverage / Insurer:')}</span>
+                    <span className="text-[10px] text-ink-500 block">{t('جهة التغطية أو الدفع:', 'Coverage / Insurer:')}</span>
                     <span className="font-bold text-pine-900">{lang === 'ar' ? selectedInvoice.insuranceNameAr : selectedInvoice.insuranceNameEn}</span>
                   </div>
                 </div>

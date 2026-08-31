@@ -152,7 +152,7 @@ export default function NewsletterTab() {
               </div>
 
               <div className="pt-2 border-t border-bone-100 flex items-center justify-between">
-                <span className="text-[10px] text-ink-400 font-mono">{issue.date}</span>
+                <span className="text-[10px] text-ink-500 font-mono">{issue.date}</span>
                 <button
                   onClick={() => {
                     setActiveNewsletterIssue(issue.id);

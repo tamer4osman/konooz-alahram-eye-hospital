@@ -191,7 +191,7 @@ export default function RoomsTab({
                       </div>
                     )}
                     {room.currentPatientId && (
-                      <div className="text-[10px] text-ink-400 font-mono">
+                      <div className="text-[10px] text-ink-500 font-mono">
                         {t('رقم المريض: ', 'Patient ID: ')} {room.currentPatientId}
                       </div>
                     )}

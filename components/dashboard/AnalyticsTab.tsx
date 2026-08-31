@@ -187,7 +187,7 @@ export default function AnalyticsTab({
               <Timer className="w-4 h-4 text-emerald-600" />
             </div>
             <div className="text-2xl font-extrabold text-emerald-700">16.5 <span className="text-xs font-sans text-ink-500">{t('دقيقة', 'min')}</span></div>
-            <span className="text-[10px] text-ink-400 font-semibold">{t('أسرع بـ 3.5 دقيقة من المعيار', '3.5 min faster than goal') }</span>
+            <span className="text-[10px] text-ink-500 font-semibold">{t('أسرع بـ 3.5 دقيقة من المعيار', '3.5 min faster than goal') }</span>
           </div>
         </div>
       )}
@@ -260,7 +260,7 @@ export default function AnalyticsTab({
                   <div key={room.id} className="flex items-center justify-between p-2 bg-bone-50 rounded-xl border border-bone-100 text-xs">
                     <div>
                       <span className="font-bold text-ink-700 block">{lang === 'ar' ? room.nameAr : room.nameEn}</span>
-                      <span className="text-[10px] text-ink-400">{room.code} • {lang === 'ar' ? room.currentProcedureAr || 'متاح وجاهز' : room.currentProcedureEn || 'Available'}</span>
+                      <span className="text-[10px] text-ink-500">{room.code} • {lang === 'ar' ? room.currentProcedureAr || 'متاح وجاهز' : room.currentProcedureEn || 'Available'}</span>
                     </div>
                     <span className={`px-2 py-0.5 rounded-lg text-[10px] font-extrabold ${
                       room.status === 'occupied_surgery' ? 'bg-rose-100 text-rose-800' :
@@ -292,7 +292,7 @@ export default function AnalyticsTab({
                   <div key={eq.id} className="flex items-center justify-between p-2 bg-bone-50 rounded-xl border border-bone-100 text-xs">
                     <div className="truncate max-w-[170px]">
                       <span className="font-bold text-ink-700 block truncate">{lang === 'ar' ? eq.nameAr : eq.nameEn}</span>
-                      <span className="text-[10px] text-ink-400 truncate block">{eq.brand} • {eq.roomCode}</span>
+                      <span className="text-[10px] text-ink-500 truncate block">{eq.brand} • {eq.roomCode}</span>
                     </div>
                     <span className="px-2 py-0.5 rounded-lg text-[10px] font-extrabold bg-pine-100 text-pine-800 flex-shrink-0">
                       {t('يعمل بكفاءة', 'Operational')}
@@ -478,25 +478,25 @@ export default function AnalyticsTab({
           <div className="p-4 rounded-xl bg-ink-700/80 border border-ink-700 text-center">
             <span className="text-[11px] font-bold text-ink-400 block mb-1">{t('نسبة مكافحة العدوى', 'Infection Prevention')}</span>
             <span className="text-2xl font-extrabold text-brass-400">100.0%</span>
-            <span className="text-[10px] text-ink-400 block mt-1">{t('صفر حالات تلوث جراحي', 'Zero Endophthalmitis Cases')}</span>
+            <span className="text-[10px] text-ink-500 block mt-1">{t('صفر حالات تلوث جراحي', 'Zero Endophthalmitis Cases')}</span>
           </div>
 
           <div className="p-4 rounded-xl bg-ink-700/80 border border-ink-700 text-center">
             <span className="text-[11px] font-bold text-ink-400 block mb-1">{t('تحسن حدة الإبصار', 'Visual Acuity Gain')}</span>
             <span className="text-2xl font-extrabold text-brass-300">99.4%</span>
-            <span className="text-[10px] text-ink-400 block mt-1">{t('نتائج الليزك والفاكو 6/6', '99.4% Achieve 20/20 Target')}</span>
+            <span className="text-[10px] text-ink-500 block mt-1">{t('نتائج الليزك والفاكو 6/6', '99.4% Achieve 20/20 Target')}</span>
           </div>
 
           <div className="p-4 rounded-xl bg-ink-700/80 border border-ink-700 text-center">
             <span className="text-[11px] font-bold text-ink-400 block mb-1">{t('قائمة التحقق الجراحي WHO', 'WHO Surgical Checklist')}</span>
             <span className="text-2xl font-extrabold text-brass-300">100.0%</span>
-            <span className="text-[10px] text-ink-400 block mt-1">{t('تطبيق إلزامي لكل مريض', 'Full Sign-In & Time-Out Protocol')}</span>
+            <span className="text-[10px] text-ink-500 block mt-1">{t('تطبيق إلزامي لكل مريض', 'Full Sign-In & Time-Out Protocol')}</span>
           </div>
 
           <div className="p-4 rounded-xl bg-ink-700/80 border border-ink-700 text-center">
             <span className="text-[11px] font-bold text-ink-400 block mb-1">{t('معدل رضا ومراجعة المرضى', 'Patient Net Promoter Score')}</span>
             <span className="text-2xl font-extrabold text-brass-400">{kpis.patientSatisfaction ?? '—'}{kpis.patientSatisfaction !== null ? '%' : ''}</span>
-            <span className="text-[10px] text-ink-400 block mt-1">{t('تقييم استثنائي وموثق', 'Consistently Rated Outstanding')}</span>
+            <span className="text-[10px] text-ink-500 block mt-1">{t('تقييم استثنائي وموثق', 'Consistently Rated Outstanding')}</span>
           </div>
         </div>
       </div>

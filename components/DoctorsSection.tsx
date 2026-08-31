@@ -206,11 +206,11 @@ export default function DoctorsSection() {
                     {/* Experience & Surgeries Metrics */}
                     <div className="grid grid-cols-2 gap-2 text-center text-xs pt-1 tnum">
                       <div className="bg-white p-2 rounded-lg border border-pine-900/10">
-                        <span className="text-[10px] text-ink-400 block">{t('سنوات الخبرة', 'Experience')}</span>
+                        <span className="text-[10px] text-ink-500 block">{t('سنوات الخبرة', 'Experience')}</span>
                         <span className="font-extrabold text-pine-950">+{doc.experienceYears} {t('عاماً', 'Years')}</span>
                       </div>
                       <div className="bg-white p-2 rounded-lg border border-pine-900/10">
-                        <span className="text-[10px] text-ink-400 block">{t('العمليات المنجزة', 'Surgeries')}</span>
+                        <span className="text-[10px] text-ink-500 block">{t('العمليات المنجزة', 'Surgeries')}</span>
                         <span className="font-extrabold text-pine-700">{doc.surgeriesCount}</span>
                       </div>
                     </div>
