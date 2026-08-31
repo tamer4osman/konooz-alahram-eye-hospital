@@ -174,7 +174,7 @@ export default function Hero() {
   return (
     <section
       id="home"
-      className="relative overflow-hidden bg-pine-950 text-white pt-10 pb-16 lg:py-20"
+      className="relative overflow-hidden bg-pine-950 text-white pt-10 pb-16 lg:py-20 min-h-[600px] lg:min-h-[700px]"
     >
       {/* Full-bleed surgical theater photograph behind a pine scrim */}
       <div className="absolute inset-0 pointer-events-none">

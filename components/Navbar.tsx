@@ -57,7 +57,7 @@ export default function Navbar() {
               <span className="text-pine-300">{t('طوارئ وحجز:', 'Emergency & Booking:') }</span>
               <a
                 href={`tel:${HOSPITAL_CONTACTS.primaryWhatsApp}`}
-                className="font-bold text-brass-300 hover:text-brass-400 transition-colors flex items-center gap-1"
+                className="font-bold text-brass-300 hover:text-brass-400 transition-colors flex items-center gap-1 min-h-[44px] py-1"
                 dir="ltr"
               >
                 <Phone className="w-3 h-3" />
@@ -66,7 +66,7 @@ export default function Navbar() {
               <span className="text-pine-700">|</span>
               <a
                 href={`tel:${HOSPITAL_CONTACTS.secondaryWhatsApp}`}
-                className="font-bold text-brass-300 hover:text-brass-400 transition-colors hidden md:inline"
+                className="font-bold text-brass-300 hover:text-brass-400 transition-colors hidden md:inline min-h-[44px] py-1"
                 dir="ltr"
               >
                 {HOSPITAL_CONTACTS.phoneNumbers[1].display}
@@ -133,7 +133,7 @@ export default function Navbar() {
               <button
                 id="btn-lang-ar"
                 onClick={() => setLang('ar') }
-                className={`px-2.5 py-1 min-h-[26px] inline-flex items-center rounded-md text-[11px] font-bold transition-all ${
+                className={`px-2.5 py-1 min-h-[44px] inline-flex items-center rounded-md text-[11px] font-bold transition-all ${
                   lang === 'ar'
                     ? 'bg-bone-50 text-pine-900'
                     : 'text-pine-200 hover:text-white'
@@ -144,7 +144,7 @@ export default function Navbar() {
               <button
                 id="btn-lang-en"
                 onClick={() => setLang('en')}
-                className={`px-2.5 py-1 min-h-[26px] inline-flex items-center rounded-md text-[11px] font-bold transition-all ${
+                className={`px-2.5 py-1 min-h-[44px] inline-flex items-center rounded-md text-[11px] font-bold transition-all ${
                   lang === 'en'
                     ? 'bg-bone-50 text-pine-900'
                     : 'text-pine-200 hover:text-white'

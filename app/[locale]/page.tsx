@@ -1,4 +1,4 @@
-import React, { Suspense } from 'react';
+import React from 'react';
 import { LanguageProvider } from '@/context/LanguageContext';
 import { PatientAuthProvider } from '@/context/PatientAuthContext';
 import HomePageClient from '@/components/HomePageClient';
@@ -10,22 +10,6 @@ import { getFaqs } from '@/lib/content/faqs';
 import { getPublicTestimonials, getTrustStats } from '@/lib/content/public-content';
 
 export const revalidate = 300;
-
-function SectionSkeleton() {
-  return (
-    <div className="animate-pulse min-h-[500px]">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-16 sm:py-24 space-y-6">
-        <div className="h-8 bg-bone-200 rounded-xl w-64" />
-        <div className="h-4 bg-bone-200 rounded-lg w-96" />
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8">
-          {Array.from({ length: 3 }).map((_, i) => (
-            <div key={i} className="h-48 bg-bone-200 rounded-2xl" />
-          ))}
-        </div>
-      </div>
-    </div>
-  );
-}
 
 async function TechnologiesSection() {
   const technologies = await getTechnologies();
@@ -75,19 +59,13 @@ export default async function LocaleHome({
               <ServicesGrid locale={locale} specialties={specialties} />
           }
           technologiesSlot={
-            <Suspense fallback={<SectionSkeleton />}>
               <TechnologiesSection />
-            </Suspense>
           }
           testimonialsSlot={
-            <Suspense fallback={<SectionSkeleton />}>
               <TestimonialsSection />
-            </Suspense>
           }
           faqsSlot={
-            <Suspense fallback={<SectionSkeleton />}>
               <FaqsSection />
-            </Suspense>
           }
         />
       </PatientAuthProvider>
