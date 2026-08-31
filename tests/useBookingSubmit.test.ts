@@ -72,7 +72,7 @@ describe('useBookingSubmit', () => {
       res = await result.current.submitBooking({
         ...baseFormValues,
         patientName: '',
-      }, 'test message');
+      });
     });
     expect(res.ok).toBe(false);
     expect(res.error).toContain('يرجى إدخال');
@@ -85,7 +85,7 @@ describe('useBookingSubmit', () => {
       res = await result.current.submitBooking({
         ...baseFormValues,
         patientPhone: '',
-      }, 'test message');
+      });
     });
     expect(res.ok).toBe(false);
   });
@@ -97,7 +97,7 @@ describe('useBookingSubmit', () => {
       res = await result.current.submitBooking({
         ...baseFormValues,
         patientEmail: '',
-      }, 'test message');
+      });
     });
     expect(res.ok).toBe(false);
   });
@@ -105,7 +105,7 @@ describe('useBookingSubmit', () => {
   it('creates local profile when no current patient', async () => {
     const { result } = renderHook(() => useBookingSubmit());
     await act(async () => {
-      await result.current.submitBooking(baseFormValues, 'test message');
+      await result.current.submitBooking(baseFormValues);
     });
     expect(mockCreateLocalProfile).toHaveBeenCalledWith({
       fullNameAr: 'علي البرعصي',
@@ -119,7 +119,7 @@ describe('useBookingSubmit', () => {
     mockCurrentPatient = { fullNameAr: 'exists', phone: '091', email: 'e@e.com' };
     const { result } = renderHook(() => useBookingSubmit());
     await act(async () => {
-      await result.current.submitBooking(baseFormValues, 'test message');
+      await result.current.submitBooking(baseFormValues);
     });
     expect(mockCreateLocalProfile).not.toHaveBeenCalled();
   });
@@ -127,7 +127,7 @@ describe('useBookingSubmit', () => {
   it('saves appointment to patient profile', async () => {
     const { result } = renderHook(() => useBookingSubmit());
     await act(async () => {
-      await result.current.submitBooking(baseFormValues, 'test message');
+      await result.current.submitBooking(baseFormValues);
     });
     expect(mockAddAppointment).toHaveBeenCalledTimes(1);
     const appointment = mockAddAppointment.mock.calls[0][0];
@@ -139,7 +139,7 @@ describe('useBookingSubmit', () => {
   it('POSTs to /api/appointments', async () => {
     const { result } = renderHook(() => useBookingSubmit());
     await act(async () => {
-      await result.current.submitBooking(baseFormValues, 'test message');
+      await result.current.submitBooking(baseFormValues);
     });
     expect(mockFetch).toHaveBeenCalledWith('/api/appointments', expect.objectContaining({
       method: 'POST',
@@ -156,7 +156,7 @@ describe('useBookingSubmit', () => {
     const { result } = renderHook(() => useBookingSubmit());
     let res: any;
     await act(async () => {
-      res = await result.current.submitBooking(baseFormValues, 'test message');
+      res = await result.current.submitBooking(baseFormValues);
     });
     expect(res.ok).toBe(true);
     expect(res.bookingRef).toBe('BK-API-789');
@@ -167,7 +167,7 @@ describe('useBookingSubmit', () => {
     const { result } = renderHook(() => useBookingSubmit());
     let res: any;
     await act(async () => {
-      res = await result.current.submitBooking(baseFormValues, 'test message');
+      res = await result.current.submitBooking(baseFormValues);
     });
     expect(res.ok).toBe(true);
     expect(res.bookingRef).toMatch(/^BK-\d+$/);
@@ -177,26 +177,25 @@ describe('useBookingSubmit', () => {
     const { result } = renderHook(() => useBookingSubmit());
     let res: any;
     await act(async () => {
-      res = await result.current.submitBooking(baseFormValues, 'test message');
+      res = await result.current.submitBooking(baseFormValues);
     });
     expect(res.queueTicket).toMatch(/^Q-\d+$/);
   });
 
-  it('opens WhatsApp URL', async () => {
+  it('returns ok:true on successful submit', async () => {
     const { result } = renderHook(() => useBookingSubmit());
+    let res: any;
     await act(async () => {
-      await result.current.submitBooking(baseFormValues, 'test message');
+      res = await result.current.submitBooking(baseFormValues);
     });
-    expect(window.open).toHaveBeenCalledTimes(1);
-    const url = (window.open as any).mock.calls[0][0];
-    expect(url).toContain('wa.me/');
+    expect(res.ok).toBe(true);
   });
 
   it('returns option titles for bilingual rendering', async () => {
     const { result } = renderHook(() => useBookingSubmit());
     let res: any;
     await act(async () => {
-      res = await result.current.submitBooking(baseFormValues, 'test message');
+      res = await result.current.submitBooking(baseFormValues);
     });
     expect(res.titles.genderTitle).toBeTruthy();
     expect(res.titles.ageTitle).toBeTruthy();
@@ -214,7 +213,7 @@ describe('useBookingSubmit', () => {
         patientName: '  علي  ',
         patientPhone: '  0912345678  ',
         patientEmail: '  ali@test.com  ',
-      }, 'test message');
+      });
     });
     const body = JSON.parse(mockFetch.mock.calls[0][1].body);
     expect(body.patientName).toBe('علي');
@@ -229,9 +228,10 @@ describe('useBookingSubmit', () => {
       res = await result.current.submitBooking({
         ...baseFormValues,
         selectedDoctor: 'doc1',
-      }, 'test message');
+      });
     });
     expect(res.ok).toBe(true);
     expect(res.titles.doctorTitle).toContain('د. أحمد');
   });
 });
+

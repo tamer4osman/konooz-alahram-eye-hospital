@@ -8,8 +8,6 @@ import {
   GENDER_OPTIONS,
   SYMPTOM_DURATION_OPTIONS,
 } from '@/data/hospitalData';
-import { HOSPITAL_CONTACTS } from '@/data/hospitalData';
-import { buildWhatsAppUrl } from '@/lib/whatsapp-message-builder';
 
 export interface BookingFormValues {
   patientName: string;
@@ -44,7 +42,7 @@ export interface BookingSubmitResult {
 }
 
 export interface UseBookingSubmit {
-  submitBooking: (form: BookingFormValues, whatsappMessage: string) => Promise<BookingSubmitResult>;
+  submitBooking: (form: BookingFormValues) => Promise<BookingSubmitResult>;
   buildTitles: (form: BookingFormValues) => BilingualTitles;
 }
 
@@ -86,7 +84,6 @@ export function useBookingSubmit(): UseBookingSubmit {
 
   const submitBooking = useCallback(async (
     form: BookingFormValues,
-    whatsappMessage: string,
   ): Promise<BookingSubmitResult> => {
     const finalName = form.patientName.trim();
     const finalPhone = form.patientPhone.trim();
@@ -156,10 +153,6 @@ export function useBookingSubmit(): UseBookingSubmit {
     } catch {
       // dev DB unreachable — keep generated ref
     }
-
-    // Open WhatsApp
-    const whatsappUrl = buildWhatsAppUrl(HOSPITAL_CONTACTS.primaryWhatsApp, whatsappMessage);
-    window.open(whatsappUrl, '_blank');
 
     return { ok: true, bookingRef, queueTicket, titles };
   }, [t, currentPatient, createLocalProfile, addAppointmentToCurrentPatient, buildTitles]);
