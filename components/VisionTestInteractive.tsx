@@ -124,7 +124,7 @@ export default function VisionTestInteractive() {
           {/* Tab 1: Visual Acuity (Tumbling E Test) */}
           {activeTab === 'acuity' && (
             <div className="p-6 sm:p-10 space-y-6">
-              <div className="bg-brass-50 ring-1 ring-brass-300/70 text-brass-600 p-3 rounded-xl text-xs flex items-center gap-2">
+              <div className="bg-brass-50 ring-1 ring-brass-300/70 text-pine-900 p-3 rounded-xl text-xs flex items-center gap-2">
                 <AlertTriangle className="w-4 h-4 text-brass-500 flex-shrink-0" />
                 <span>
                   {t(
@@ -136,7 +136,7 @@ export default function VisionTestInteractive() {
 
               {!eFinished ? (
                 <div className="flex flex-col items-center justify-center py-6 space-y-8">
-                  <div className="text-xs font-bold text-ink-400">
+                  <div className="text-xs font-bold text-ink-700">
                     {t(`المستوى ${eStage + 1} من ${eQuestions.length}`, `Level ${eStage + 1} of ${eQuestions.length}`)}
                   </div>
 

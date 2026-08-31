@@ -54,7 +54,7 @@ export default function TechnologySection({ technologies }: { technologies: Tech
                 }`}
               >
                 <div className="flex items-center justify-between w-full">
-                  <span className={`text-[10px] font-bold uppercase tnum ${isActive ? 'text-brass-600' : 'text-ink-500'}`}>
+                  <span className={`text-[10px] font-bold uppercase tnum ${isActive ? 'text-pine-900' : 'text-ink-500'}`}>
                     0{idx + 1 }
                   </span>
                   <span

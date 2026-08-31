@@ -284,7 +284,7 @@ export default function TestimonialsAndStats({
                     <h4 className="text-sm font-extrabold text-pine-950">
                       {lang === 'ar' ? currentTestimonial.patientNameAr : currentTestimonial.patientNameEn}
                     </h4>
-                    <p className="text-xs text-ink-400">
+                    <p className="text-xs text-ink-700">
                       {lang === 'ar' ? currentTestimonial.cityAr : currentTestimonial.cityEn}
                     </p>
                   </div>
@@ -293,7 +293,7 @@ export default function TestimonialsAndStats({
                     <span className="text-xs font-bold text-pine-800 bg-pine-100 px-2.5 py-1 rounded-md block sm:inline-block w-fit">
                       {lang === 'ar' ? currentTestimonial.procedureAr : currentTestimonial.procedureEn}
                     </span>
-                    <p className="text-[11px] text-ink-400 mt-0.5 tnum">
+                    <p className="text-[11px] text-ink-700 mt-0.5 tnum">
                       {t('الطبيب المعالج:', 'Doctor:')} {lang === 'ar' ? currentTestimonial.doctorAr : currentTestimonial.doctorEn} • {lang === 'ar' ? currentTestimonial.dateAr : currentTestimonial.dateEn}
                     </p>
                   </div>

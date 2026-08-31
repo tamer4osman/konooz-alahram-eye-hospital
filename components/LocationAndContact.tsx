@@ -104,7 +104,7 @@ export default function LocationAndContact({ initialFaqs = [] }: { initialFaqs?:
                 className="p-4 rounded-xl bg-white ring-1 ring-pine-900/10 hover:ring-pine-900/30 hover:shadow-md transition-all flex items-center justify-between group"
               >
                 <div className="space-y-1">
-                  <span className="text-[11px] font-bold text-ink-400 block">
+                   <span className="text-[11px] font-bold text-ink-700 block">
                     {lang === 'ar' ? phone.labelAr : phone.labelEn}
                   </span>
                   <span

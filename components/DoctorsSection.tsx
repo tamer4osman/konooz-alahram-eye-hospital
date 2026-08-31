@@ -68,7 +68,7 @@ export default function DoctorsSection() {
               className={`flex-1 py-2.5 px-3 rounded-lg text-xs sm:text-sm font-bold transition-all text-center flex items-center justify-center gap-1.5 cursor-pointer ${
                 doctorTypeFilter === 'visiting'
                   ? 'bg-brass-400 text-pine-950 shadow-sm'
-                  : 'text-brass-600 hover:bg-brass-50'
+                  : 'text-pine-900 hover:bg-brass-50'
               }`}
             >
               <Star className="w-4 h-4" />
@@ -129,7 +129,7 @@ export default function DoctorsSection() {
                         className={`inline-flex items-center gap-1.5 text-[11px] font-bold px-2.5 py-1 rounded-md ${
                           isAvailableNow
                             ? 'bg-pine-100 text-pine-800 border border-pine-900/15'
-                            : 'bg-brass-50 text-brass-600 border border-brass-300/60'
+                            : 'bg-brass-50 text-pine-900 border border-brass-300/60'
                         }`}
                       >
                         <span
