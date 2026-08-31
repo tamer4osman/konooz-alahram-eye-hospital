@@ -74,57 +74,8 @@ export default function Navbar() {
             </div>
           </div>
 
-          {/* Right: Quick Tools, Accessibility Toolbar & Language Switcher */}
+          {/* Right: Accessibility Toolbar & Language Switcher */}
           <div className="flex items-center gap-2 sm:gap-3 ms-auto">
-            {/* Secondary quick tools (compact chips) */}
-            <div className="hidden lg:flex items-center gap-1">
-              <button
-                id="btn-nav-patient-portal"
-                onClick={() => openPatientPortal('profile')}
-                className="flex items-center gap-1 px-2 py-0.5 rounded-md bg-white/10 hover:bg-white/20 ring-1 ring-white/15 text-pine-100 hover:text-white text-[11px] font-bold transition-colors cursor-pointer whitespace-nowrap"
-                title={t('بوابة المريض والملف الطبي وتنبيهات الواتساب', 'Patient Portal & WhatsApp Alerts')}
-              >
-                <User className="w-3 h-3" />
-                <span className="hidden xl:inline">{t('بوابة المريض', 'Patient Portal')}</span>
-              </button>
-
-              <button
-                id="btn-nav-queue"
-                onClick={openQueueModal}
-                className="flex items-center gap-1 px-2 py-0.5 rounded-md bg-white/10 hover:bg-white/20 ring-1 ring-white/15 text-pine-100 hover:text-white text-[11px] font-bold transition-colors cursor-pointer whitespace-nowrap"
-                title={t('تتبع دورك المباشر في العيادة أو العمليات', 'Live Patient Queue Tracker')}
-              >
-                <Clock className="w-3 h-3" />
-                <span className="hidden xl:inline">{t('تتبع دورك', 'Live Queue')}</span>
-              </button>
-
-              <button
-                id="btn-nav-calculator"
-                onClick={openCostCalculatorModal}
-                className="flex items-center gap-1 px-2 py-0.5 rounded-md bg-white/10 hover:bg-white/20 ring-1 ring-white/15 text-pine-100 hover:text-white text-[11px] font-bold transition-colors cursor-pointer whitespace-nowrap"
-                title={t('حاسبة تكاليف العمليات والتغطية التأمينية', 'Surgical Cost & Insurance Estimator')}
-              >
-                <Calculator className="w-3 h-3" />
-                <span className="hidden xl:inline">{t('حاسبة العمليات', 'Cost Estimator')}</span>
-              </button>
-
-              <button
-                id="btn-nav-dashboard"
-                onClick={() => {
-                  if (serverUser?.role === 'ADMIN') {
-                    setActiveView('dashboard');
-                  } else {
-                    openPatientPortal('auth');
-                  }
-                }}
-                className="flex items-center gap-1 px-2 py-0.5 rounded-md bg-white/10 hover:bg-white/20 ring-1 ring-brass-400/40 text-pine-100 hover:text-white text-[11px] font-bold transition-colors cursor-pointer whitespace-nowrap"
-                title={t('لوحة التحكم — للطاقم المصرح لهم فقط', 'Operations Hub — authorized staff only')}
-              >
-                <span className="w-1.5 h-1.5 rounded-full bg-brass-400 inline-block" aria-hidden="true" />
-                <span className="hidden xl:inline">{t('إدارة المستشفى', 'Operations Hub')}</span>
-              </button>
-            </div>
-
             {/* Vision Accessibility Controls */}
             <AccessibilityToolbar />
 
@@ -186,8 +137,55 @@ export default function Navbar() {
             ))}
           </nav>
 
-          {/* Primary Booking CTA */}
-          <div className="hidden lg:flex items-center flex-shrink-0">
+          {/* Primary Booking CTA & Quick Tools */}
+          <div className="hidden lg:flex items-center gap-1.5 flex-shrink-0">
+            {/* Secondary quick tools (compact chips) */}
+            <button
+              id="btn-nav-patient-portal"
+              onClick={() => openPatientPortal('profile')}
+              className="flex items-center gap-1 px-2 py-0.5 rounded-md bg-white/10 hover:bg-white/20 ring-1 ring-white/15 text-pine-900 hover:text-pine-950 text-[11px] font-bold transition-colors cursor-pointer whitespace-nowrap"
+              title={t('بوابة المريض والملف الطبي وتنبيهات الواتساب', 'Patient Portal & WhatsApp Alerts')}
+            >
+              <User className="w-3 h-3" />
+              <span className="hidden xl:inline">{t('بوابة المريض', 'Patient Portal')}</span>
+            </button>
+
+            <button
+              id="btn-nav-queue"
+              onClick={openQueueModal}
+              className="flex items-center gap-1 px-2 py-0.5 rounded-md bg-white/10 hover:bg-white/20 ring-1 ring-white/15 text-pine-900 hover:text-pine-950 text-[11px] font-bold transition-colors cursor-pointer whitespace-nowrap"
+              title={t('تتبع دورك المباشر في العيادة أو العمليات', 'Live Patient Queue Tracker')}
+            >
+              <Clock className="w-3 h-3" />
+              <span className="hidden xl:inline">{t('تتبع دورك', 'Live Queue')}</span>
+            </button>
+
+            <button
+              id="btn-nav-calculator"
+              onClick={openCostCalculatorModal}
+              className="flex items-center gap-1 px-2 py-0.5 rounded-md bg-white/10 hover:bg-white/20 ring-1 ring-white/15 text-pine-900 hover:text-pine-950 text-[11px] font-bold transition-colors cursor-pointer whitespace-nowrap"
+              title={t('حاسبة تكاليف العمليات والتغطية التأمينية', 'Surgical Cost & Insurance Estimator')}
+            >
+              <Calculator className="w-3 h-3" />
+              <span className="hidden xl:inline">{t('حاسبة العمليات', 'Cost Estimator')}</span>
+            </button>
+
+            <button
+              id="btn-nav-dashboard"
+              onClick={() => {
+                if (serverUser?.role === 'ADMIN') {
+                  setActiveView('dashboard');
+                } else {
+                  openPatientPortal('auth');
+                }
+              }}
+              className="flex items-center gap-1 px-2 py-0.5 rounded-md bg-white/10 hover:bg-white/20 ring-1 ring-brass-400/40 text-pine-900 hover:text-pine-950 text-[11px] font-bold transition-colors cursor-pointer whitespace-nowrap"
+              title={t('لوحة التحكم — للطاقم المصرح لهم فقط', 'Operations Hub — authorized staff only')}
+            >
+              <span className="w-1.5 h-1.5 rounded-full bg-brass-400 inline-block" aria-hidden="true" />
+              <span className="hidden xl:inline">{t('إدارة المستشفى', 'Operations Hub')}</span>
+            </button>
+
             {/* Primary Booking Button */}
             <button
               id="btn-nav-book-appointment"
