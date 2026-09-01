@@ -80,15 +80,6 @@ export default function NotificationsTab({ notify }: NotificationsTabProps) {
                 className="rounded text-emerald-600 focus:ring-pine-500 w-4 h-4 cursor-pointer"
               />
             </div>
-            <div className="flex items-center justify-between">
-              <span>{t('تنبيه عند اقتراب دورك في العيادة (رقم التذكرة)', 'Live Queue Approaching Alert')}</span>
-              <input
-                type="checkbox"
-                checked={currentPatient.communicationPreferences.queueTurnAlerts}
-                onChange={() => toggleNotificationPref('queueTurnAlerts')}
-                className="rounded text-emerald-600 focus:ring-pine-500 w-4 h-4 cursor-pointer"
-              />
-            </div>
           </div>
 
           <div className="pt-2 border-t border-pine-100 flex items-center justify-between">

@@ -27,7 +27,6 @@ const HospitalDashboard = dynamic(() => import('@/components/dashboard/HospitalD
 });
 const SpecialtyDetailModal = dynamic(() => import('@/components/SpecialtyDetailModal'), { ssr: false });
 const BookingModal = dynamic(() => import('@/components/BookingModal'), { ssr: false });
-const LiveQueueTrackerModal = dynamic(() => import('@/components/LiveQueueTrackerModal'), { ssr: false });
 const SurgicalCostCalculatorModal = dynamic(() => import('@/components/SurgicalCostCalculatorModal'), { ssr: false });
 const PatientPortalModal = dynamic(() => import('@/components/PatientPortalModal'), { ssr: false });
 
@@ -43,8 +42,6 @@ export default function HomePageClient({ servicesSlot, technologiesSlot, testimo
     activeView,
     isSpecialtyModalOpen,
     isBookingModalOpen,
-    isQueueModalOpen,
-    closeQueueModal,
     isCostCalculatorModalOpen,
     closeCostCalculatorModal,
     openBookingModal
@@ -119,7 +116,6 @@ export default function HomePageClient({ servicesSlot, technologiesSlot, testimo
       {/* Interactive Modals — mounted (and fetched) only while open */}
       {isSpecialtyModalOpen && <SpecialtyDetailModal />}
       {isBookingModalOpen && <BookingModal />}
-      {isQueueModalOpen && <LiveQueueTrackerModal isOpen={isQueueModalOpen} onClose={closeQueueModal} />}
       {isCostCalculatorModalOpen && tenantConfig.capabilities.costCalculator && (
         <SurgicalCostCalculatorModal
           isOpen={isCostCalculatorModalOpen}

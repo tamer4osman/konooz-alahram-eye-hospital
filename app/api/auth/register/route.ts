@@ -54,7 +54,6 @@ export async function POST(req: NextRequest) {
             appointmentReminders: true,
             eyeDropScheduleAlerts: true,
             postOpCareGuides: true,
-            queueTurnAlerts: true,
             newsletterSubscribed: false,
             newsletterTopics: [],
           }),

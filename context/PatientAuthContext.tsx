@@ -72,7 +72,7 @@ interface PatientAuthContextType {
     specialtyEn: string;
     date: string;
     time: string;
-    status: 'scheduled' | 'confirmed' | 'in_queue' | 'completed';
+    status: 'scheduled' | 'confirmed' | 'completed';
     locationAr?: string;
     locationEn?: string;
     queueNumber?: string;
@@ -147,7 +147,6 @@ function buildLocalProfile(params: {
       appointmentReminders: true,
       eyeDropScheduleAlerts: true,
       postOpCareGuides: true,
-      queueTurnAlerts: true,
       newsletterSubscribed: false,
       newsletterTopics: []
     },
@@ -385,7 +384,7 @@ export function PatientAuthProvider({ children }: { children: React.ReactNode })
     specialtyEn: string;
     date: string;
     time: string;
-    status: 'scheduled' | 'confirmed' | 'in_queue' | 'completed';
+    status: 'scheduled' | 'confirmed' | 'completed';
     locationAr?: string;
     locationEn?: string;
     queueNumber?: string;

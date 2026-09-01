@@ -44,7 +44,6 @@ export interface PatientProfile {
     appointmentReminders: boolean;
     eyeDropScheduleAlerts: boolean;
     postOpCareGuides: boolean;
-    queueTurnAlerts: boolean;
     newsletterSubscribed: boolean;
     newsletterTopics: string[];
   };
@@ -57,7 +56,7 @@ export interface PatientProfile {
     specialtyEn: string;
     date: string;
     time: string;
-    status: 'confirmed' | 'completed' | 'in_queue' | 'scheduled';
+    status: 'confirmed' | 'completed' | 'scheduled';
     room: string;
     instructionsAr?: string;
     instructionsEn?: string;

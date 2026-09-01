@@ -22,11 +22,6 @@ interface ModalContextType {
   openVisionTestModal: () => void;
   closeVisionTestModal: () => void;
 
-  // Live Patient Queue Tracker Modal
-  isQueueModalOpen: boolean;
-  openQueueModal: () => void;
-  closeQueueModal: () => void;
-
   // Surgical Cost & Insurance Calculator Modal
   isCostCalculatorModalOpen: boolean;
   openCostCalculatorModal: () => void;
@@ -47,7 +42,6 @@ export function ModalProvider({ children }: { children: React.ReactNode }) {
 
   // Simple modals
   const [isVisionTestModalOpen, setIsVisionTestModalOpen] = useState(false);
-  const [isQueueModalOpen, setIsQueueModalOpen] = useState(false);
   const [isCostCalculatorModalOpen, setIsCostCalculatorModalOpen] = useState(false);
 
   // Booking modal — accepts specialtyId directly (no doctor lookup)
@@ -77,8 +71,6 @@ export function ModalProvider({ children }: { children: React.ReactNode }) {
   // Simple modals
   const openVisionTestModal = () => setIsVisionTestModalOpen(true);
   const closeVisionTestModal = () => setIsVisionTestModalOpen(false);
-  const openQueueModal = () => setIsQueueModalOpen(true);
-  const closeQueueModal = () => setIsQueueModalOpen(false);
   const openCostCalculatorModal = () => setIsCostCalculatorModalOpen(true);
   const closeCostCalculatorModal = () => setIsCostCalculatorModalOpen(false);
 
@@ -97,9 +89,6 @@ export function ModalProvider({ children }: { children: React.ReactNode }) {
         isVisionTestModalOpen,
         openVisionTestModal,
         closeVisionTestModal,
-        isQueueModalOpen,
-        openQueueModal,
-        closeQueueModal,
         isCostCalculatorModalOpen,
         openCostCalculatorModal,
         closeCostCalculatorModal,

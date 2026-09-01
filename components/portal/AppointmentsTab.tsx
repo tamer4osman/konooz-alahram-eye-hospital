@@ -6,8 +6,8 @@ import { usePortalActions } from './usePortalActions';
 import { Calendar, Clock, Eye, AlertCircle, Smartphone } from 'lucide-react';
 
 export default function AppointmentsTab() {
-  const { lang, t, openQueueModal } = useLanguage();
-  const { currentPatient, closePatientPortal } = usePatientAuth();
+  const { lang, t } = useLanguage();
+  const { currentPatient } = usePatientAuth();
   const { triggerTestWhatsAppAlert } = usePortalActions(() => {});
 
   if (!currentPatient) return null;
@@ -20,20 +20,9 @@ export default function AppointmentsTab() {
             {t('سجل المواعيد والعيادات الاستشارية', 'Consultation & Surgery Appointments')}
           </h3>
           <p className="text-xs text-ink-500">
-            {t('تابع مواعيد كشف العيون، العمليات الجراحية، وموقعك في الطابور المباشر', 'Track your clinical visits, surgical schedule, and live queue position')}
+            {t('تابع مواعيد كشف العيون والعمليات الجراحية', 'Track your clinical visits and surgical schedule')}
           </p>
         </div>
-
-        <button
-          onClick={() => {
-            closePatientPortal();
-            openQueueModal();
-          }}
-          className="px-3.5 py-2 bg-pine-50 hover:bg-pine-100 border border-pine-200 text-pine-800 font-bold rounded-xl text-xs flex items-center gap-1.5 transition-colors cursor-pointer"
-        >
-          <Clock className="w-4 h-4 text-pine-700 animate-pulse" />
-          <span>{t('شاشة تتبع الدور المباشر', 'Open Live Queue')}</span>
-        </button>
       </div>
 
       <div className="space-y-3">
@@ -53,18 +42,14 @@ export default function AppointmentsTab() {
               <div className="flex items-center gap-2">
                 <span
                   className={`px-3 py-1 rounded-full text-xs font-bold ${
-                    apt.status === 'in_queue'
-                      ? 'bg-brass-100 text-brass-600 border border-brass-300 animate-pulse'
-                      : apt.status === 'confirmed'
+                    apt.status === 'confirmed'
                       ? 'bg-pine-100 text-pine-900 border border-pine-300'
                       : apt.status === 'scheduled'
                       ? 'bg-pine-100 text-pine-900 border border-pine-300'
                       : 'bg-bone-100 text-ink-700'
                   }`}
                 >
-                  {apt.status === 'in_queue'
-                    ? t('في طابور الانتظار الآن', 'In Live Queue')
-                    : apt.status === 'confirmed'
+                  {apt.status === 'confirmed'
                     ? t('مؤكد وجاهز', 'Confirmed')
                     : apt.status === 'scheduled'
                     ? t('مجدول قادماً', 'Scheduled')
