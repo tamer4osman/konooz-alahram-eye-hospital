@@ -11,9 +11,9 @@ import { Phone, Calendar, Menu, X, Clock, Eye, ArrowUpRight, Calculator, User } 
 
 export default function Navbar() {
   const {
-    lang, setLang, t, openBookingModal, openVisionTestModal, setActiveView, openQueueModal, openCostCalculatorModal
+    lang, setLang, t, openBookingModal, openVisionTestModal, openQueueModal, openCostCalculatorModal
   } = useLanguage();
-  const { currentPatient, openPatientPortal, serverUser } = usePatientAuth();
+  const { currentPatient, openPatientPortal } = usePatientAuth();
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
@@ -53,20 +53,20 @@ export default function Navbar() {
             </div>
 
             {/* Quick Emergency Phone */}
-            <div className="hidden sm:flex items-center gap-2 text-pine-200 text-[11px]">
+            <div className="hidden sm:flex items-center gap-1.5 text-pine-200 text-[11px]">
               <span className="text-pine-300">{t('طوارئ وحجز:', 'Emergency & Booking:') }</span>
               <a
                 href={`tel:${HOSPITAL_CONTACTS.primaryWhatsApp}`}
-                className="font-bold text-brass-300 hover:text-brass-400 transition-colors flex items-center gap-1 min-h-[44px] py-1"
+                className="font-bold text-brass-300 hover:text-brass-400 transition-colors inline-flex items-center gap-1 min-h-[36px]"
                 dir="ltr"
               >
                 <Phone className="w-3 h-3" />
                 {HOSPITAL_CONTACTS.primaryWhatsAppDisplay}
               </a>
-              <span className="text-pine-700">|</span>
+              <span className="text-pine-700" aria-hidden="true">|</span>
               <a
                 href={`tel:${HOSPITAL_CONTACTS.secondaryWhatsApp}`}
-                className="font-bold text-brass-300 hover:text-brass-400 transition-colors hidden md:inline min-h-[44px] py-1"
+                className="font-bold text-brass-300 hover:text-brass-400 transition-colors inline-flex items-center gap-1 min-h-[36px] hidden md:inline-flex"
                 dir="ltr"
               >
                 {HOSPITAL_CONTACTS.phoneNumbers[1].display}
@@ -143,47 +143,31 @@ export default function Navbar() {
             <button
               id="btn-nav-patient-portal"
               onClick={() => openPatientPortal('profile')}
-              className="flex items-center gap-1 px-2 py-0.5 rounded-md bg-white/10 hover:bg-white/20 ring-1 ring-white/15 text-pine-900 hover:text-pine-950 text-[11px] font-bold transition-colors cursor-pointer whitespace-nowrap"
+              className="flex items-center gap-1 px-2 py-0.5 rounded-md bg-white hover:bg-pine-50 ring-1 ring-pine-900/15 shadow-sm text-pine-900 hover:text-pine-950 text-[11px] font-bold transition-colors cursor-pointer whitespace-nowrap"
               title={t('بوابة المريض والملف الطبي وتنبيهات الواتساب', 'Patient Portal & WhatsApp Alerts')}
             >
               <User className="w-3 h-3" />
-              <span className="hidden xl:inline">{t('بوابة المريض', 'Patient Portal')}</span>
+              <span className="hidden 2xl:inline">{t('بوابة المريض', 'Patient Portal')}</span>
             </button>
 
             <button
               id="btn-nav-queue"
               onClick={openQueueModal}
-              className="flex items-center gap-1 px-2 py-0.5 rounded-md bg-white/10 hover:bg-white/20 ring-1 ring-white/15 text-pine-900 hover:text-pine-950 text-[11px] font-bold transition-colors cursor-pointer whitespace-nowrap"
+              className="flex items-center gap-1 px-2 py-0.5 rounded-md bg-white hover:bg-pine-50 ring-1 ring-pine-900/15 shadow-sm text-pine-900 hover:text-pine-950 text-[11px] font-bold transition-colors cursor-pointer whitespace-nowrap"
               title={t('تتبع دورك المباشر في العيادة أو العمليات', 'Live Patient Queue Tracker')}
             >
               <Clock className="w-3 h-3" />
-              <span className="hidden xl:inline">{t('تتبع دورك', 'Live Queue')}</span>
+              <span className="hidden 2xl:inline">{t('تتبع دورك', 'Live Queue')}</span>
             </button>
 
             <button
               id="btn-nav-calculator"
               onClick={openCostCalculatorModal}
-              className="flex items-center gap-1 px-2 py-0.5 rounded-md bg-white/10 hover:bg-white/20 ring-1 ring-white/15 text-pine-900 hover:text-pine-950 text-[11px] font-bold transition-colors cursor-pointer whitespace-nowrap"
+              className="flex items-center gap-1 px-2 py-0.5 rounded-md bg-white hover:bg-pine-50 ring-1 ring-pine-900/15 shadow-sm text-pine-900 hover:text-pine-950 text-[11px] font-bold transition-colors cursor-pointer whitespace-nowrap"
               title={t('حاسبة تكاليف العمليات والتغطية التأمينية', 'Surgical Cost & Insurance Estimator')}
             >
               <Calculator className="w-3 h-3" />
-              <span className="hidden xl:inline">{t('حاسبة العمليات', 'Cost Estimator')}</span>
-            </button>
-
-            <button
-              id="btn-nav-dashboard"
-              onClick={() => {
-                if (serverUser?.role === 'ADMIN') {
-                  setActiveView('dashboard');
-                } else {
-                  openPatientPortal('auth');
-                }
-              }}
-              className="flex items-center gap-1 px-2 py-0.5 rounded-md bg-white/10 hover:bg-white/20 ring-1 ring-brass-400/40 text-pine-900 hover:text-pine-950 text-[11px] font-bold transition-colors cursor-pointer whitespace-nowrap"
-              title={t('لوحة التحكم — للطاقم المصرح لهم فقط', 'Operations Hub — authorized staff only')}
-            >
-              <span className="w-1.5 h-1.5 rounded-full bg-brass-400 inline-block" aria-hidden="true" />
-              <span className="hidden xl:inline">{t('إدارة المستشفى', 'Operations Hub')}</span>
+              <span className="hidden 2xl:inline">{t('حاسبة العمليات', 'Cost Estimator')}</span>
             </button>
 
             {/* Primary Booking Button */}
@@ -256,21 +240,6 @@ export default function Navbar() {
               <span className="text-[10px] px-2 py-0.5 rounded-md bg-pine-100 text-pine-800 font-bold">
                 {t('تنبيهات الواتساب', 'WhatsApp')}
               </span>
-            </button>
-
-            <button
-              onClick={() => {
-                setMobileMenuOpen(false);
-                if (serverUser?.role === 'ADMIN') {
-                  setActiveView('dashboard');
-                } else {
-                  openPatientPortal('auth');
-                }
-              }}
-              className="w-full py-2.5 px-4 bg-bone-100 hover:bg-bone-200 border border-pine-900/15 text-ink-900 rounded-lg text-sm font-bold flex items-center justify-center gap-2 transition-colors"
-            >
-              <span className="w-2 h-2 rounded-full bg-brass-400 inline-block" aria-hidden="true" />
-              <span>{t('لوحة التحكم وإدارة العمليات (Bahmni Hub)', 'Hospital Operations Command Hub')}</span>
             </button>
 
             <div className="grid grid-cols-2 gap-2">
