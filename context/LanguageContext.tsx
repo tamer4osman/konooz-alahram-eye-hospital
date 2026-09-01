@@ -4,12 +4,10 @@ import React, { createContext, useContext, useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { Specialty } from '@/data/hospitalData';
 import type { Doctor } from '@/data/hospitalData';
-import { AccessibilityProvider, useAccessibility } from '@/context/AccessibilityContext';
 import { ModalProvider, useModals } from '@/context/ModalContext';
 import { ViewProvider, useView } from '@/context/ViewContext';
 
 export type Language = 'ar' | 'en';
-type FontSize = 'sm' | 'base' | 'lg' | 'xl';
 
 interface LanguageContextType {
   lang: Language;
@@ -18,16 +16,6 @@ interface LanguageContextType {
   t: (ar: string, en: string) => string;
   doctors: Doctor[];
   specialties: Specialty[];
-  fontSize: FontSize;
-  setFontSize: (size: FontSize) => void;
-  increaseFontSize: () => void;
-  decreaseFontSize: () => void;
-  resetFontSize: () => void;
-  highContrast: boolean;
-  setHighContrast: (val: boolean | ((prev: boolean) => boolean)) => void;
-  toggleHighContrast: () => void;
-  readingRuler: boolean;
-  toggleReadingRuler: () => void;
 
   activeView: 'portal' | 'dashboard';
   setActiveView: (view: 'portal' | 'dashboard') => void;
@@ -48,10 +36,6 @@ interface LanguageContextType {
   openVisionTestModal: () => void;
   closeVisionTestModal: () => void;
 
-  isQueueModalOpen: boolean;
-  openQueueModal: () => void;
-  closeQueueModal: () => void;
-
   isCostCalculatorModalOpen: boolean;
   openCostCalculatorModal: () => void;
   closeCostCalculatorModal: () => void;
@@ -63,7 +47,7 @@ const LOCALE_COOKIE = 'konooz_lang';
 
 /**
  * Core language provider — handles locale, translation, and data.
- * Wraps AccessibilityProvider, ModalProvider, and ViewProvider.
+ * Wraps ModalProvider and ViewProvider.
  */
 export function LanguageProvider({
   children,
@@ -108,16 +92,6 @@ export function LanguageProvider({
         doctors,
         specialties,
         // Placeholder values — overridden by inner providers via useLanguage shim
-        fontSize: 'base',
-        setFontSize: () => {},
-        increaseFontSize: () => {},
-        decreaseFontSize: () => {},
-        resetFontSize: () => {},
-        highContrast: false,
-        setHighContrast: () => {},
-        toggleHighContrast: () => {},
-        readingRuler: false,
-        toggleReadingRuler: () => {},
         activeView: 'portal',
         setActiveView: () => {},
         toggleView: () => {},
@@ -133,20 +107,15 @@ export function LanguageProvider({
         isVisionTestModalOpen: false,
         openVisionTestModal: () => {},
         closeVisionTestModal: () => {},
-        isQueueModalOpen: false,
-        openQueueModal: () => {},
-        closeQueueModal: () => {},
         isCostCalculatorModalOpen: false,
         openCostCalculatorModal: () => {},
         closeCostCalculatorModal: () => {},
       }}
     >
       <ViewProvider>
-        <ModalProvider>
-          <AccessibilityProvider>
+          <ModalProvider>
             {children}
-          </AccessibilityProvider>
-        </ModalProvider>
+          </ModalProvider>
       </ViewProvider>
     </LanguageContext.Provider>
   );
@@ -163,7 +132,6 @@ export function useLanguage() {
   if (!core) {
     throw new Error('useLanguage must be used within a LanguageProvider');
   }
-  const accessibility = useAccessibility();
   const modals = useModals();
   const view = useView();
 
@@ -188,17 +156,6 @@ export function useLanguage() {
     t: core.t,
     doctors: core.doctors,
     specialties: core.specialties,
-    // Accessibility
-    fontSize: accessibility.fontSize,
-    setFontSize: accessibility.setFontSize,
-    increaseFontSize: accessibility.increaseFontSize,
-    decreaseFontSize: accessibility.decreaseFontSize,
-    resetFontSize: accessibility.resetFontSize,
-    highContrast: accessibility.highContrast,
-    setHighContrast: accessibility.setHighContrast,
-    toggleHighContrast: accessibility.toggleHighContrast,
-    readingRuler: accessibility.readingRuler,
-    toggleReadingRuler: accessibility.toggleReadingRuler,
     // View
     activeView: view.activeView,
     setActiveView: view.setActiveView,
@@ -216,9 +173,6 @@ export function useLanguage() {
     isVisionTestModalOpen: modals.isVisionTestModalOpen,
     openVisionTestModal: modals.openVisionTestModal,
     closeVisionTestModal: modals.closeVisionTestModal,
-    isQueueModalOpen: modals.isQueueModalOpen,
-    openQueueModal: modals.openQueueModal,
-    closeQueueModal: modals.closeQueueModal,
     isCostCalculatorModalOpen: modals.isCostCalculatorModalOpen,
     openCostCalculatorModal: modals.openCostCalculatorModal,
     closeCostCalculatorModal: modals.closeCostCalculatorModal,

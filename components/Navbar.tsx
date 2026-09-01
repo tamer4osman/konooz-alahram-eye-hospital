@@ -3,15 +3,14 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Logo from './Logo';
-import AccessibilityToolbar from './AccessibilityToolbar';
 import { useLanguage } from '@/context/LanguageContext';
 import { usePatientAuth } from '@/context/PatientAuthContext';
 import { HOSPITAL_CONTACTS } from '@/data/hospitalData';
-import { Phone, Calendar, Menu, X, Clock, Eye, ArrowUpRight, Calculator, User } from 'lucide-react';
+import { Phone, Calendar, Menu, X, Eye, ArrowUpRight, Calculator, User } from 'lucide-react';
 
 export default function Navbar() {
   const {
-    lang, setLang, t, openBookingModal, openVisionTestModal, openQueueModal, openCostCalculatorModal
+    lang, setLang, t, openBookingModal, openVisionTestModal, openCostCalculatorModal
   } = useLanguage();
   const { currentPatient, openPatientPortal } = usePatientAuth();
   const [isScrolled, setIsScrolled] = useState(false);
@@ -74,11 +73,8 @@ export default function Navbar() {
             </div>
           </div>
 
-          {/* Right: Accessibility Toolbar & Language Switcher */}
+          {/* Right: Quick tools & Language Switcher */}
           <div className="flex items-center gap-2 sm:gap-3 ms-auto">
-            {/* Vision Accessibility Controls */}
-            <AccessibilityToolbar />
-
             {/* Language Switcher */}
             <div className="flex items-center bg-white/10 rounded-lg p-0.5 border border-white/10">
               <button
@@ -104,6 +100,28 @@ export default function Navbar() {
                 English
               </button>
             </div>
+
+            {/* Cost Estimator */}
+            <button
+              id="btn-nav-calculator"
+              onClick={openCostCalculatorModal}
+              className="flex items-center gap-1 px-2 py-1 rounded-md bg-white/10 hover:bg-white/20 border border-white/10 text-pine-100 hover:text-white text-[11px] font-bold transition-colors cursor-pointer whitespace-nowrap"
+              title={t('حاسبة تكاليف العمليات والتغطية التأمينية', 'Surgical Cost & Insurance Estimator')}
+            >
+              <Calculator className="w-3 h-3" />
+              <span className="hidden sm:inline">{t('حاسبة العمليات', 'Cost Estimator')}</span>
+            </button>
+
+            {/* Patient Portal */}
+            <button
+              id="btn-nav-patient-portal"
+              onClick={() => openPatientPortal('profile')}
+              className="flex items-center gap-1 px-2 py-1 rounded-md bg-white/10 hover:bg-white/20 border border-white/10 text-pine-100 hover:text-white text-[11px] font-bold transition-colors cursor-pointer whitespace-nowrap"
+              title={t('بوابة المريض والملف الطبي وتنبيهات الواتساب', 'Patient Portal & WhatsApp Alerts')}
+            >
+              <User className="w-3 h-3" />
+              <span className="hidden sm:inline">{t('بوابة المريض', 'Patient Portal')}</span>
+            </button>
           </div>
 
         </div>
@@ -137,39 +155,8 @@ export default function Navbar() {
             ))}
           </nav>
 
-          {/* Primary Booking CTA & Quick Tools */}
+          {/* Primary Booking CTA */}
           <div className="hidden lg:flex items-center gap-1.5 flex-shrink-0">
-            {/* Secondary quick tools (compact chips) */}
-            <button
-              id="btn-nav-patient-portal"
-              onClick={() => openPatientPortal('profile')}
-              className="flex items-center gap-1 px-2 py-0.5 rounded-md bg-white hover:bg-pine-50 ring-1 ring-pine-900/15 shadow-sm text-pine-900 hover:text-pine-950 text-[11px] font-bold transition-colors cursor-pointer whitespace-nowrap"
-              title={t('بوابة المريض والملف الطبي وتنبيهات الواتساب', 'Patient Portal & WhatsApp Alerts')}
-            >
-              <User className="w-3 h-3" />
-              <span className="hidden 2xl:inline">{t('بوابة المريض', 'Patient Portal')}</span>
-            </button>
-
-            <button
-              id="btn-nav-queue"
-              onClick={openQueueModal}
-              className="flex items-center gap-1 px-2 py-0.5 rounded-md bg-white hover:bg-pine-50 ring-1 ring-pine-900/15 shadow-sm text-pine-900 hover:text-pine-950 text-[11px] font-bold transition-colors cursor-pointer whitespace-nowrap"
-              title={t('تتبع دورك المباشر في العيادة أو العمليات', 'Live Patient Queue Tracker')}
-            >
-              <Clock className="w-3 h-3" />
-              <span className="hidden 2xl:inline">{t('تتبع دورك', 'Live Queue')}</span>
-            </button>
-
-            <button
-              id="btn-nav-calculator"
-              onClick={openCostCalculatorModal}
-              className="flex items-center gap-1 px-2 py-0.5 rounded-md bg-white hover:bg-pine-50 ring-1 ring-pine-900/15 shadow-sm text-pine-900 hover:text-pine-950 text-[11px] font-bold transition-colors cursor-pointer whitespace-nowrap"
-              title={t('حاسبة تكاليف العمليات والتغطية التأمينية', 'Surgical Cost & Insurance Estimator')}
-            >
-              <Calculator className="w-3 h-3" />
-              <span className="hidden 2xl:inline">{t('حاسبة العمليات', 'Cost Estimator')}</span>
-            </button>
-
             {/* Primary Booking Button */}
             <button
               id="btn-nav-book-appointment"
@@ -242,29 +229,16 @@ export default function Navbar() {
               </span>
             </button>
 
-            <div className="grid grid-cols-2 gap-2">
-              <button
-                onClick={() => {
-                  setMobileMenuOpen(false);
-                  openQueueModal();
-                }}
-                className="py-2.5 px-3 bg-white border border-pine-900/15 text-ink-900 rounded-lg text-xs font-bold flex items-center justify-center gap-1.5 hover:bg-pine-50 transition-colors"
-              >
-                <Clock className="w-4 h-4 text-pine-700" />
-                <span>{t('تتبع دورك المباشر', 'Live Queue')}</span>
-              </button>
-
-              <button
-                onClick={() => {
-                  setMobileMenuOpen(false);
-                  openCostCalculatorModal();
-                }}
-                className="py-2.5 px-3 bg-white border border-pine-900/15 text-ink-900 rounded-lg text-xs font-bold flex items-center justify-center gap-1.5 hover:bg-pine-50 transition-colors"
-              >
-                <Calculator className="w-4 h-4 text-pine-700" />
-                <span>{t('حاسبة العمليات', 'Cost Estimator')}</span>
-              </button>
-            </div>
+            <button
+              onClick={() => {
+                setMobileMenuOpen(false);
+                openCostCalculatorModal();
+              }}
+              className="py-2.5 px-3 bg-white border border-pine-900/15 text-ink-900 rounded-lg text-xs font-bold flex items-center justify-center gap-1.5 hover:bg-pine-50 transition-colors"
+            >
+              <Calculator className="w-4 h-4 text-pine-700" />
+              <span>{t('حاسبة العمليات', 'Cost Estimator')}</span>
+            </button>
 
             <button
               onClick={() => {

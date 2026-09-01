@@ -117,59 +117,6 @@ a.button-press:active {
   transform: scale(0.98);
 }
 
-/* ── High Contrast Mode for Low-Vision Patients ─────────────────── */
-.high-contrast {
-  --surface-page: #000000;
-  --surface-card: #0a0a0a;
-  --text-primary: #ffffff;
-  --text-muted: #e2e8f0;
-  --accent: #ffffff;
-  --accent-strong: #ffffff;
-  --ring-color: #00ffcc;
-  background-color: #000000 !important;
-  color: #ffffff !important;
-}
-
-.high-contrast .bg-white,
-.high-contrast .bg-bone-50,
-.high-contrast .bg-bone-100,
-.high-contrast .bg-bone-100\/60,
-.high-contrast .bg-pine-50 {
-  background-color: #0a0a0a !important;
-  color: #ffffff !important;
-}
-
-.high-contrast .text-ink-900,
-.high-contrast .text-ink-700,
-.high-contrast .text-pine-900,
-.high-contrast .text-pine-800,
-.high-contrast .text-pine-700 {
-  color: #ffffff !important;
-}
-
-.high-contrast .text-ink-500,
-.high-contrast .text-ink-400,
-.high-contrast .text-brass-600 {
-  color: #e2e8f0 !important;
-}
-
-.high-contrast [class*="ring-pine-900"],
-.high-contrast [class*="border-pine-900"] {
-  border-color: #475569 !important;
-}
-
-/* ── Reading Ruler for visual tracking ───────────────────────────── */
-.reading-guide-line {
-  position: fixed;
-  left: 0;
-  right: 0;
-  height: 3px;
-  background: rgba(79, 128, 118, 0.75);
-  box-shadow: 0 0 12px rgba(79, 128, 118, 0.85);
-  pointer-events: none;
-  z-index: 99999;
-}
-
 /* ── Scrollbar ───────────────────────────────────────────────────── */
 ::-webkit-scrollbar {
   width: 8px;
