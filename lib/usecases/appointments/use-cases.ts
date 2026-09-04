@@ -1,6 +1,12 @@
-import type { AppointmentRequestData, BookingConfirmation } from './types';
-import type { AppointmentWriter, DoctorReader } from './ports';
-import { resolveAppointmentCreate, resolveDoctorSnapshot } from './rules';
+import type { AppointmentRequestData, BookingConfirmation, AppointmentStatusUpdate } from './types';
+import type {
+  AppointmentStatusReader,
+  AppointmentStatusWriter,
+  AppointmentWriter,
+  DoctorReader,
+} from './ports';
+import { resolveAppointmentCreate, resolveDoctorSnapshot, resolveStatusPatch } from './rules';
+import { AppointmentNotFoundError } from './types';
 
 // Use case: orchestration only. Business rules live in rules.ts; ports are
 // injected as first arguments. Errors propagate unchanged — the route handler
@@ -20,4 +26,20 @@ export async function createBookingRequest(
   const resolved = resolveAppointmentCreate(input, snapshot, now);
   const ticketNumber = await writer.createWithRetry(resolved, maxAttempts);
   return { ref: ticketNumber, status: 'pending_reception' };
+}
+
+/**
+ * Reception marks a lifecycle fact (cancelled / no-show) on one appointment.
+ * Current status is read through the port so transition rules stay pure.
+ */
+export async function markAppointmentStatus(
+  reader: AppointmentStatusReader,
+  writer: AppointmentStatusWriter,
+  id: string,
+  input: AppointmentStatusUpdate,
+): Promise<void> {
+  const current = await reader.findStatus(id);
+  if (!current) throw new AppointmentNotFoundError();
+  const resolved = resolveStatusPatch(input, current);
+  await writer.applyStatusPatch(id, resolved);
 }

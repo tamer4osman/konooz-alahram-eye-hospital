@@ -1,9 +1,13 @@
 import type {
   AppointmentRequestData,
+  AppointmentStatusUpdate,
   BookingConfirmation,
   DoctorLookupResult,
+  LiveAppointmentStatus,
   ResolvedAppointmentCreate,
+  ResolvedStatusPatch,
 } from './types';
+import { InvalidStatusTransitionError } from './types';
 
 // Pure business rules. No framework, no I/O — fully unit-testable.
 
@@ -94,4 +98,32 @@ export function resolveAppointmentCreate(
 /** Public response shape: reference + honest pending status. Nothing more. */
 export function toBookingConfirmation(ticketNumber: string): BookingConfirmation {
   return { ref: ticketNumber, status: 'pending_reception' };
+}
+
+/**
+ * Status transitions staff may mark. `completed` is deliberately NOT settable
+ * through this round's PATCH (consultation flow owns completion) — only
+ * cancellations and no-shows, which is what reception records. Terminal
+ * states (completed, cancelled, no_show) reject further changes so reports
+ * stay truthful.
+ */
+const ALLOWED_FROM: ReadonlySet<LiveAppointmentStatus> = new Set(['scheduled', 'confirmed']);
+
+export function resolveStatusPatch(
+  input: AppointmentStatusUpdate,
+  current: LiveAppointmentStatus,
+): ResolvedStatusPatch {
+  if (!ALLOWED_FROM.has(current)) {
+    throw new InvalidStatusTransitionError(
+      `Cannot change status from '${current}' — only scheduled/confirmed appointments can be cancelled or marked no-show`,
+    );
+  }
+  if (!input.reason) {
+    throw new InvalidStatusTransitionError('A cancellation reason is required');
+  }
+  return {
+    status: input.status,
+    reason: input.reason,
+    note: input.note?.trim() ? input.note.trim() : null,
+  };
 }

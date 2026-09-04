@@ -2,6 +2,44 @@
 
 export type AppointmentStatus = 'scheduled' | 'confirmed' | 'cancelled' | 'completed';
 
+/** Full lifecycle status incl. values only staff/persistence can produce. */
+export type LiveAppointmentStatus = AppointmentStatus | 'in_queue' | 'no_show';
+
+export type CancelReason =
+  | 'patient_request'
+  | 'clinic_decision'
+  | 'duplicate'
+  | 'rescheduled'
+  | 'other';
+
+/** Staff status update for one appointment (reception marks facts). */
+export interface AppointmentStatusUpdate {
+  status: 'cancelled' | 'no_show';
+  reason?: CancelReason;
+  note?: string;
+}
+
+export class AppointmentNotFoundError extends Error {
+  constructor() {
+    super('Appointment not found');
+    this.name = 'AppointmentNotFoundError';
+  }
+}
+
+export class InvalidStatusTransitionError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = 'InvalidStatusTransitionError';
+  }
+}
+
+/** Fully-resolved status patch the adapter persists verbatim. */
+export interface ResolvedStatusPatch {
+  status: 'cancelled' | 'no_show';
+  reason: CancelReason;
+  note: string | null;
+}
+
 export interface DoctorSnapshot {
   displayNameAr: string | null;
   displayNameEn: string | null;

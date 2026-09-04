@@ -1,12 +1,15 @@
 import { prisma } from '@/lib/prisma';
 import type { Prisma } from '@prisma/client';
 import type {
+  AppointmentStatusReader,
+  AppointmentStatusWriter,
   AppointmentWriter,
   DoctorReader,
   DoctorLookupResult,
   ResolvedAppointmentCreate,
+  ResolvedStatusPatch,
 } from '@/lib/usecases/appointments';
-import { generateTicket } from '@/lib/usecases/appointments';
+import { AppointmentNotFoundError, generateTicket } from '@/lib/usecases/appointments';
 
 // Prisma adapter implementing the appointment use-case ports. This is the
 // only place the booking flow touches the driver: the P2002 ticket-collision
@@ -60,5 +63,34 @@ export const prismaAppointmentWriter: AppointmentWriter = {
       }
     }
     throw lastError;
+  },
+};
+
+export const prismaAppointmentStatusReader: AppointmentStatusReader = {
+  async findStatus(id: string) {
+    const row = await prisma.appointment.findUnique({
+      where: { id },
+      select: { status: true },
+    });
+    return row?.status ?? null;
+  },
+};
+
+export const prismaAppointmentStatusWriter: AppointmentStatusWriter = {
+  async applyStatusPatch(id: string, patch: ResolvedStatusPatch): Promise<void> {
+    try {
+      await prisma.appointment.update({
+        where: { id },
+        data: {
+          status: patch.status,
+          cancelReason: patch.reason,
+          cancelNote: patch.note,
+        },
+      });
+    } catch (err) {
+      const code = (err as { code?: string }).code;
+      if (code === 'P2025') throw new AppointmentNotFoundError();
+      throw err;
+    }
   },
 };
