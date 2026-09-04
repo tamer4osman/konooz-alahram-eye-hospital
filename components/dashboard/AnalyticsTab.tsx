@@ -1,11 +1,19 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
+import dynamic from 'next/dynamic';
 import { useLanguage } from '@/context/LanguageContext';
 import { useAnalytics } from '@/hooks/use-analytics';
 import { HospitalStaff, HospitalRoom, HospitalEquipment, ScheduledSurgery, SurgicalConsumable, PatientFlowStage } from '@/data/dashboardData';
 import { ResponsiveContainer, ComposedChart, Line, Bar, XAxis, YAxis, Tooltip, Legend, CartesianGrid } from 'recharts';
-import { Activity, Award, ShieldCheck, Zap, Download, Building2, Users, Gauge, Package, Timer, Workflow } from 'lucide-react';
+import { Activity, Award, ShieldCheck, Zap, Download, Building2, Users, Gauge, Package, Timer, Workflow, AlertTriangle, Truck, CalendarClock } from 'lucide-react';
+import type { ConsumablesSummary } from '@/lib/usecases/consumables';
+import type { RestockModalProps } from './modals/RestockModal';
+
+const RestockModal = dynamic<RestockModalProps>(
+  () => import('./modals/RestockModal'),
+  { ssr: false },
+);
 
 interface AnalyticsTabProps {
   timeframe: 'day' | 'week' | 'month' | 'year';
@@ -33,6 +41,59 @@ export default function AnalyticsTab({
     patientSatisfaction: null, averageWaitTimeMin: null, nps: null, surveyResponses: 0, revenueLYD: 0, revenueGrowth: '+0.0%'
   };
   const waitTimeFunnel = currentAnalytics?.waitTimeFunnel;
+
+  // Consumables board state
+  const [summary, setSummary] = useState<ConsumablesSummary | null>(null);
+  const [localConsumables, setLocalConsumables] = useState<SurgicalConsumable[] | null>(null);
+  const [categoryFilter, setCategoryFilter] = useState<string | null>(null);
+  const [restockTarget, setRestockTarget] = useState<SurgicalConsumable | null>(null);
+  const [reloadKey, setReloadKey] = useState(0);
+
+  const loadSummary = useCallback(async (signal: AbortSignal) => {
+    try {
+      const res = await fetch('/api/staff/consumables/summary', { signal });
+      if (!res.ok) return;
+      const json = await res.json();
+      if (json?.data?.categories) setSummary(json.data as ConsumablesSummary);
+    } catch (err) {
+      if ((err as Error)?.name !== 'AbortError') return;
+    }
+  }, []);
+
+  const loadList = useCallback(async (signal: AbortSignal) => {
+    try {
+      const res = await fetch('/api/staff/consumables', { signal });
+      if (!res.ok) return;
+      const json = await res.json();
+      if (Array.isArray(json?.data)) setLocalConsumables(json.data as SurgicalConsumable[]);
+    } catch (err) {
+      if ((err as Error)?.name !== 'AbortError') return;
+    }
+  }, []);
+
+  useEffect(() => {
+    const controller = new AbortController();
+    void loadSummary(controller.signal);
+    void loadList(controller.signal);
+    return () => controller.abort();
+  }, [loadSummary, loadList, reloadKey]);
+
+  const refreshConsumables = () => setReloadKey((k) => k + 1);
+
+  const liveConsumables = localConsumables ?? consumablesList;
+  const filteredConsumables =
+    categoryFilter === null ? liveConsumables : liveConsumables.filter((c) => c.category === categoryFilter);
+
+  const CATEGORY_LABELS: Record<string, { ar: string; en: string }> = {
+    iol_lens: { ar: 'عدسات IOL', en: 'IOL Lenses' },
+    viscoelastic: { ar: 'مواد اللزوجة', en: 'Viscoelastic' },
+    laser_pack: { ar: 'أطقم الليزر', en: 'Laser Packs' },
+    surgical_gas: { ar: 'غازات جراحية', en: 'Surgical Gas' },
+    microsuture: { ar: 'خيوط جراحية', en: 'Microsutures' },
+    phaco_pack: { ar: 'أطقم الفاكو', en: 'Phaco Packs' },
+  };
+  const nowDate = new Date();
+  const todayIsoStr = `${nowDate.getFullYear()}-${String(nowDate.getMonth() + 1).padStart(2, '0')}-${String(nowDate.getDate()).padStart(2, '0')}`;
 
   // Dynamic calculations based on live resource arrays
   const totalRooms = roomsList.length || 4;
@@ -437,7 +498,91 @@ export default function AnalyticsTab({
       {/* SECTION 4: SURGICAL CONSUMABLES & IOL VAULT STOCK */}
       {/* ========================================================================= */}
       {activeAnalyticsSubTab === 'stock' && (
-        <div className="bg-white rounded-2xl p-6 border border-pine-200 shadow-sm space-y-4 animate-fadeIn">
+        <div className="space-y-4 animate-fadeIn">
+          {/* Board KPIs */}
+          {summary && (
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+              <div className="bg-white p-4 rounded-2xl border border-pine-200 shadow-xs">
+                <div className="flex items-center justify-between text-ink-500 mb-1">
+                  <span className="text-xs font-bold">{t('إجمالي الأصناف', 'Total Items')}</span>
+                  <Package className="w-4 h-4 text-pine-700" />
+                </div>
+                <div className="text-2xl font-extrabold text-pine-900">{summary.totalItems}</div>
+                <span className="text-[10px] text-ink-500 font-mono">
+                  {summary.totalValueLYD.toLocaleString()} LYD
+                </span>
+              </div>
+
+              <div className="bg-white p-4 rounded-2xl border border-pine-200 shadow-xs">
+                <div className="flex items-center justify-between text-ink-500 mb-1">
+                  <span className="text-xs font-bold">{t('مخزون منخفض', 'Low Stock')}</span>
+                  <AlertTriangle className="w-4 h-4 text-rose-600" />
+                </div>
+                <div className={`text-2xl font-extrabold ${summary.lowStockCount > 0 ? 'text-rose-700' : 'text-pine-900'}`}>
+                  {summary.lowStockCount}
+                </div>
+                <span className="text-[10px] text-ink-500">{t('عند الحد الأدنى أو أقل', 'at or below threshold')}</span>
+              </div>
+
+              <div className="bg-white p-4 rounded-2xl border border-pine-200 shadow-xs">
+                <div className="flex items-center justify-between text-ink-500 mb-1">
+                  <span className="text-xs font-bold">{t('طلبات توريد جارية', 'Reorders Placed')}</span>
+                  <Truck className="w-4 h-4 text-brass-600" />
+                </div>
+                <div className="text-2xl font-extrabold text-pine-900">{summary.reorderPlacedCount}</div>
+                <span className="text-[10px] text-ink-500">{t('قيد التوريد من الموردين', 'inbound from suppliers')}</span>
+              </div>
+
+              <div className="bg-white p-4 rounded-2xl border border-pine-200 shadow-xs">
+                <div className="flex items-center justify-between text-ink-500 mb-1">
+                  <span className="text-xs font-bold">{t('رادار الصلاحية', 'Expiry Radar')}</span>
+                  <CalendarClock className="w-4 h-4 text-pine-700" />
+                </div>
+                <div className="text-2xl font-extrabold text-pine-900">
+                  {summary.expiredCount === 0 && summary.expiringSoonCount === 0
+                    ? '—'
+                    : summary.expiredCount + summary.expiringSoonCount}
+                </div>
+                <span className="text-[10px] text-ink-500">
+                  {summary.expiredCount} {t('منتهي', 'expired')} • {summary.expiringSoonCount} {t('قريب الانتهاء (٦٠ يوماً)', 'expiring (60d)')}
+                </span>
+              </div>
+            </div>
+          )}
+
+          {/* Category filter */}
+          <div className="flex items-center gap-2 overflow-x-auto pb-1">
+            <button
+              type="button"
+              onClick={() => setCategoryFilter(null)}
+              className={`px-3 py-1.5 rounded-xl text-[11px] font-extrabold whitespace-nowrap transition-all cursor-pointer border ${
+                categoryFilter === null
+                  ? 'bg-[#0B3D33] text-white border-[#0B3D33]'
+                  : 'bg-white text-ink-500 hover:bg-bone-100 border-pine-200'
+              }`}
+            >
+              {t('الكل', 'All')}
+            </button>
+            {(summary?.categories ?? []).map((cat) => (
+              <button
+                key={cat.category}
+                type="button"
+                onClick={() => setCategoryFilter(cat.category)}
+                className={`px-3 py-1.5 rounded-xl text-[11px] font-extrabold whitespace-nowrap transition-all cursor-pointer border ${
+                  categoryFilter === cat.category
+                    ? 'bg-[#0B3D33] text-white border-[#0B3D33]'
+                    : 'bg-white text-ink-500 hover:bg-bone-100 border-pine-200'
+                }`}
+              >
+                {CATEGORY_LABELS[cat.category] ? t(CATEGORY_LABELS[cat.category].ar, CATEGORY_LABELS[cat.category].en) : cat.category}
+                {cat.lowStockCount > 0 && (
+                  <span className="ms-1.5 text-rose-400">({cat.lowStockCount})</span>
+                )}
+              </button>
+            ))}
+          </div>
+
+          <div className="bg-white rounded-2xl p-6 border border-pine-200 shadow-sm space-y-4">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-3 border-b border-bone-100">
             <div>
               <h3 className="text-sm font-extrabold text-pine-900 flex items-center gap-2">
@@ -463,11 +608,14 @@ export default function AnalyticsTab({
                   <th className="p-3 text-center">{t('الحد الأدنى', 'Threshold')}</th>
                   <th className="p-3 text-center">{t('رقم التشغيلة والصلاحية', 'Lot / Expiry')}</th>
                   <th className="p-3 text-center">{t('حالة الطلب', 'Reorder Status')}</th>
+                  <th className="p-3 text-center">{t('إجراء', 'Action')}</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-bone-100">
-                {consumablesList.map((item) => (
-                  <tr key={item.id} className="hover:bg-bone-50/80 transition-colors">
+                {filteredConsumables.map((item) => {
+                  const low = item.stockCurrent <= item.stockMinThreshold;
+                  return (
+                  <tr key={item.id} className={`hover:bg-bone-50/80 transition-colors ${low ? 'bg-rose-50/40' : ''}`}>
                     <td className="p-3">
                       <div className="font-extrabold text-pine-900">{lang === 'ar' ? item.nameAr : item.nameEn}</div>
                       <div className="text-[10px] text-pine-800 font-semibold">{item.brand}</div>
@@ -475,15 +623,18 @@ export default function AnalyticsTab({
                     <td className="p-3 text-ink-500 font-medium">
                       {lang === 'ar' ? item.locationAr : item.locationEn}
                     </td>
-                    <td className="p-3 text-center font-mono font-extrabold text-sm text-ink-900">
-                      {item.stockCurrent} <span className="text-[10px] font-sans font-normal text-ink-500">{lang === 'ar' ? item.unitAr : item.unitEn}</span>
+                    <td className="p-3 text-center font-mono font-extrabold text-sm">
+                      <span className={low ? 'text-rose-700' : 'text-ink-900'}>
+                        {item.stockCurrent}
+                      </span>{' '}
+                      <span className="text-[10px] font-sans font-normal text-ink-500">{lang === 'ar' ? item.unitAr : item.unitEn}</span>
                     </td>
                     <td className="p-3 text-center font-mono text-ink-500">
                       {item.stockMinThreshold}
                     </td>
                     <td className="p-3 text-center text-[10px] font-mono text-ink-500">
                       <div>{item.batchLot}</div>
-                      <div className="text-ink-400 font-sans">{item.expiryDate}</div>
+                      <div className={`font-sans ${item.expiryDate && item.expiryDate < todayIsoStr ? 'text-rose-600 font-bold' : 'text-ink-400'}`}>{item.expiryDate}</div>
                     </td>
                     <td className="p-3 text-center">
                       <span className={`px-2.5 py-1 rounded-full text-[10px] font-extrabold ${
@@ -500,13 +651,39 @@ export default function AnalyticsTab({
                           : t('تم طلب التوريد', 'Reorder Placed')}
                       </span>
                     </td>
+                    <td className="p-3 text-center">
+                      <button
+                        type="button"
+                        onClick={() => setRestockTarget(item)}
+                        className="px-2.5 py-1.5 rounded-lg border border-pine-200 text-[10px] font-extrabold text-pine-800 hover:bg-pine-50 transition-colors cursor-pointer"
+                      >
+                        {t('تعديل المخزون', 'Adjust Stock')}
+                      </button>
+                    </td>
                   </tr>
-                ))}
+                  );
+                })}
+                {filteredConsumables.length === 0 && (
+                  <tr>
+                    <td colSpan={7} className="p-8 text-center text-xs text-ink-500">
+                      {consumablesList.length === 0
+                        ? t('لا توجد مستهلكات مسجلة في المخزون بعد', 'No consumables recorded in inventory yet')
+                        : t('لا توجد أصناف في هذا التصنيف', 'No items in this category')}
+                    </td>
+                  </tr>
+                )}
               </tbody>
             </table>
           </div>
+          </div>
         </div>
       )}
+
+      <RestockModal
+        item={restockTarget}
+        onClose={() => setRestockTarget(null)}
+        onSaved={refreshConsumables}
+      />
 
       {/* Quality & Safety Indicators (Clinical Governance) */}
       <div className="bg-gradient-to-r from-ink-900  to-pine-950 rounded-2xl p-6 text-white border border-pine-500/20 shadow-xl">
