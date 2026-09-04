@@ -1,50 +1,29 @@
-import { prisma } from '@/lib/prisma'
-import type { StaffMember } from '@prisma/client'
 import { apiSuccess, apiError } from '@/lib/api/response'
 import { requireAdmin } from '@/lib/api/admin-route'
+import {
+  addStaffMember,
+  listStaffDirectory,
+  removeStaffMember,
+  updateStaffMemberStatus,
+  StaffMemberNameRequiredError,
+} from '@/lib/usecases/staff-members'
+import {
+  prismaStaffDirectoryReader,
+  prismaStaffDirectoryWriter,
+} from '@/lib/adapters/prisma/staff-members-adapter'
 
 export const dynamic = 'force-dynamic'
 
-type StaffCategory = 'surgeon' | 'consultant' | 'resident' | 'nurse' | 'technician' | 'admin'
-
-const CATEGORIES: StaffCategory[] = ['surgeon', 'consultant', 'resident', 'nurse', 'technician', 'admin']
-
-function toDTO(row: StaffMember) {
-  return {
-    id: row.id,
-    nameAr: row.nameAr,
-    nameEn: row.nameEn ?? '',
-    roleAr: row.roleAr,
-    roleEn: row.roleEn ?? '',
-    category: row.category as StaffCategory,
-    departmentAr: row.departmentAr,
-    departmentEn: row.departmentEn ?? '',
-    status: row.status,
-    roomAssignedAr: row.roomAssignedAr,
-    roomAssignedEn: row.roomAssignedEn ?? '',
-    shift: row.shift,
-    patientCountToday: row.patientCountToday,
-    surgeriesCountToday: row.surgeriesCountToday,
-    phone: row.phone ?? '',
-    email: row.email ?? '',
-    avatar: row.avatar ?? '',
-    rating: row.rating,
-  }
-}
-
-function parseCategory(value: unknown): StaffCategory {
-  return CATEGORIES.includes(value as StaffCategory) ? (value as StaffCategory) : 'nurse'
-}
+// Thin handler: auth gate -> use case -> respond. The legacy body-shape
+// validation (string-coercion rules, category fallback, soft-delete rule)
+// lives in lib/usecases/staff-members.
 
 export async function GET() {
   const auth = await requireAdmin()
   if (!auth.ok) return auth.response
   try {
-    const rows = await prisma.staffMember.findMany({
-      where: { isActive: true },
-      orderBy: { sortOrder: 'asc' },
-    })
-    return apiSuccess(rows.map(toDTO))
+    const members = await listStaffDirectory(prismaStaffDirectoryReader)
+    return apiSuccess(members)
   } catch {
     return apiError(500, 'STAFF_FAILED', 'تعذر تحميل بيانات الطاقم', 'Failed to load staff members')
   }
@@ -55,28 +34,12 @@ export async function POST(request: Request) {
   if (!auth.ok) return auth.response
   try {
     const body = await request.json()
-    if (!body?.nameAr || typeof body.nameAr !== 'string') {
+    const member = await addStaffMember(prismaStaffDirectoryWriter, body)
+    return apiSuccess(member)
+  } catch (err) {
+    if (err instanceof StaffMemberNameRequiredError) {
       return apiError(400, 'INVALID_NAME', 'اسم الطاقم مطلوب', 'Staff name is required')
     }
-    const maxOrder = await prisma.staffMember.aggregate({ _max: { sortOrder: true } })
-    const row = await prisma.staffMember.create({
-      data: {
-        nameAr: body.nameAr,
-        nameEn: typeof body.nameEn === 'string' ? body.nameEn : null,
-        roleAr: typeof body.roleAr === 'string' ? body.roleAr : '',
-        roleEn: typeof body.roleEn === 'string' ? body.roleEn : null,
-        category: parseCategory(body.category),
-        departmentAr: typeof body.departmentAr === 'string' ? body.departmentAr : '',
-        departmentEn: typeof body.departmentEn === 'string' ? body.departmentEn : null,
-        status: typeof body.status === 'string' ? body.status : 'on_duty',
-        shift: typeof body.shift === 'string' ? body.shift : 'morning',
-        phone: typeof body.phone === 'string' ? body.phone : null,
-        email: typeof body.email === 'string' ? body.email : null,
-        sortOrder: (maxOrder._max.sortOrder ?? -1) + 1,
-      },
-    })
-    return apiSuccess(toDTO(row))
-  } catch {
     return apiError(500, 'CREATE_FAILED', 'تعذر إضافة عضو الطاقم', 'Failed to create staff member')
   }
 }
@@ -86,16 +49,11 @@ export async function PATCH(request: Request) {
   if (!auth.ok) return auth.response
   try {
     const body = await request.json()
-    if (!body?.id || typeof body.id !== 'string') {
-      return apiError(400, 'INVALID_ID', 'معرف غير صالح', 'Invalid id')
-    }
-    const data: Record<string, string> = {}
-    if (typeof body.status === 'string') data.status = body.status
-    if (Object.keys(data).length === 0) {
+    if (!body?.id || typeof body.id !== 'string' || typeof body.status !== 'string') {
       return apiError(400, 'NOTHING_TO_UPDATE', 'لا توجد حقول للتحديث', 'Nothing to update')
     }
-    const row = await prisma.staffMember.update({ where: { id: body.id }, data })
-    return apiSuccess(toDTO(row))
+    const member = await updateStaffMemberStatus(prismaStaffDirectoryWriter, body.id, body.status)
+    return apiSuccess(member)
   } catch {
     return apiError(500, 'UPDATE_FAILED', 'تعذر تحديث عضو الطاقم', 'Failed to update staff member')
   }
@@ -109,7 +67,7 @@ export async function DELETE(request: Request) {
     if (!id) {
       return apiError(400, 'INVALID_ID', 'معرف غير صالح', 'Invalid id')
     }
-    await prisma.staffMember.update({ where: { id }, data: { isActive: false, status: 'off_duty' } })
+    await removeStaffMember(prismaStaffDirectoryWriter, id)
     return apiSuccess({ id })
   } catch {
     return apiError(500, 'DELETE_FAILED', 'تعذر حذف عضو الطاقم', 'Failed to remove staff member')
