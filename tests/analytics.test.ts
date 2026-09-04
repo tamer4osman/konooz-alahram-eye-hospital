@@ -23,6 +23,12 @@ vi.mock('@/lib/prisma', () => ({
     room: {
       count: vi.fn(async () => 2), // two operating theaters
     },
+    patientSurvey: {
+      findMany: vi.fn(async () => []),
+    },
+    patientFlowStage: {
+      findMany: vi.fn(async () => []),
+    },
   },
 }));
 

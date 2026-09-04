@@ -30,8 +30,9 @@ export default function AnalyticsTab({
   const kpis = currentAnalytics?.kpis ?? {
     surgeriesCount: 0, surgeriesGrowth: '+0.0%', consultationsCount: 0, consultationsGrowth: '+0.0%',
     diagnosticScans: 0, scansGrowth: '+0.0%', orUtilizationRate: 0, orUtilizationGrowth: '+0.0%',
-    patientSatisfaction: null, averageWaitTimeMin: null, revenueLYD: 0, revenueGrowth: '+0.0%'
+    patientSatisfaction: null, averageWaitTimeMin: null, nps: null, surveyResponses: 0, revenueLYD: 0, revenueGrowth: '+0.0%'
   };
+  const waitTimeFunnel = currentAnalytics?.waitTimeFunnel;
 
   // Dynamic calculations based on live resource arrays
   const totalRooms = roomsList.length || 4;
@@ -381,6 +382,54 @@ export default function AnalyticsTab({
               </div>
             ))}
           </div>
+
+          {/* Real recorded wait-time funnel (from patient_flow_stages) */}
+          <div className="pt-3 border-t border-bone-100 space-y-3">
+            <div className="flex items-center justify-between">
+              <div>
+                <h4 className="text-xs font-extrabold text-pine-900 flex items-center gap-1.5">
+                  <Timer className="w-3.5 h-3.5 text-pine-600" />
+                  <span>{t('أزمنة الانتظار المسجّلة فعلياً', 'Actually Recorded Wait Times')}</span>
+                </h4>
+                <p className="text-[10px] text-ink-500 mt-0.5">
+                  {t(
+                    'محسوبة من مراحل تدفق المرضى المسجلة في قاعدة البيانات لهذه الفترة',
+                    'Computed from patient flow stages recorded in the database for this period',
+                  )}
+                </p>
+              </div>
+              {kpis.averageWaitTimeMin !== null && (
+                <span className="px-3 py-1 bg-pine-700 text-white text-xs font-extrabold rounded-xl font-mono">
+                  {t('متوسط', 'Avg')} {kpis.averageWaitTimeMin} {t('دقيقة', 'min')}
+                </span>
+              )}
+            </div>
+
+            {(waitTimeFunnel?.stages.length ?? 0) === 0 ? (
+              <p className="text-[11px] text-ink-400 bg-bone-50 border border-bone-200 rounded-xl px-3 py-2.5">
+                {t(
+                  'لم تُسجَّل مراحل تدفق بعد — ستظهر الأزمنة تلقائياً مع أول تسجيل',
+                  'No flow stages recorded yet — wait times appear automatically with the first entry',
+                )}
+              </p>
+            ) : (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-2">
+                {waitTimeFunnel!.stages.map((s, idx) => (
+                  <div key={`${s.fromStage}-${s.toStage}-${idx}`} className="p-3 rounded-xl bg-bone-50 border border-pine-100">
+                    <div className="flex items-center justify-between mb-1">
+                      <span className="text-[11px] font-bold text-ink-700">
+                        {t('حتى', 'To')} {s.toStage}
+                      </span>
+                      <span className="text-sm font-extrabold text-pine-900 font-mono">{s.avgWaitMin}</span>
+                    </div>
+                    <p className="text-[10px] text-ink-400">
+                      {t('دقيقة من الوصول •', 'min from arrival •')} {s.transitions} {t('رحلة', 'journeys')}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
         </div>
       )}
 
@@ -494,9 +543,15 @@ export default function AnalyticsTab({
           </div>
 
           <div className="p-4 rounded-xl bg-ink-700/80 border border-ink-700 text-center">
-            <span className="text-[11px] font-bold text-ink-400 block mb-1">{t('معدل رضا ومراجعة المرضى', 'Patient Net Promoter Score')}</span>
-            <span className="text-2xl font-extrabold text-brass-400">{kpis.patientSatisfaction ?? '—'}{kpis.patientSatisfaction !== null ? '%' : ''}</span>
-            <span className="text-[10px] text-ink-500 block mt-1">{t('تقييم استثنائي وموثق', 'Consistently Rated Outstanding')}</span>
+            <span className="text-[11px] font-bold text-ink-400 block mb-1">{t('مؤشر رضا المرضى (NPS)', 'Patient Net Promoter Score')}</span>
+            <span className="text-2xl font-extrabold text-brass-400">
+              {kpis.nps !== null ? `${kpis.nps > 0 ? '+' : ''}${kpis.nps}` : '—'}
+            </span>
+            <span className="text-[10px] text-ink-500 block mt-1">
+              {kpis.surveyResponses > 0
+                ? `${kpis.patientSatisfaction}% ${t('رضا عام •', 'overall satisfaction •')} ${kpis.surveyResponses} ${t('تقييم موثق', 'verified surveys')}`
+                : t('لا تقييمات مسجلة في هذه الفترة', 'No surveys recorded in this period')}
+            </span>
           </div>
         </div>
       </div>

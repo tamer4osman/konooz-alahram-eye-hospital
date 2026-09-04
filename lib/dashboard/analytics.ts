@@ -1,5 +1,12 @@
 import { prisma } from '@/lib/prisma'
 import type { Specialty } from '@/data/hospitalData'
+import {
+  computeSatisfactionKpi,
+  computeWaitTimeFunnelForRange,
+  meanFunnelWait,
+  type SatisfactionKpi,
+  type WaitTimeFunnel,
+} from '@/lib/usecases/analytics/rules'
 
 export type AnalyticsTimeframe = 'day' | 'week' | 'month' | 'year'
 
@@ -177,6 +184,8 @@ export interface AnalyticsDTO {
     orUtilizationGrowth: string
     patientSatisfaction: number | null
     averageWaitTimeMin: number | null
+    nps: number | null
+    surveyResponses: number
     revenueLYD: number
     revenueGrowth: string
   }
@@ -191,6 +200,8 @@ export interface AnalyticsDTO {
   }>
   departmentWorkload: Array<{ nameAr: string; nameEn: string; count: number; color: string }>
   surgeonWorkload: Array<{ nameAr: string; nameEn: string; cases: number; avgDurationMin: number }>
+  satisfaction: SatisfactionKpi
+  waitTimeFunnel: WaitTimeFunnel
 }
 
 export async function computeAnalytics(
@@ -199,7 +210,7 @@ export async function computeAnalytics(
 ): Promise<AnalyticsDTO> {
   const range = computeRange(timeframe)
 
-  const [cur, prev, surgeryRows, consultDates, scanDates, invoices, orRoomCount] = await Promise.all([
+  const [cur, prev, surgeryRows, consultDates, scanDates, invoices, orRoomCount, surveyRows, flowRows] = await Promise.all([
     totalsForRange(range.start, range.end),
     totalsForRange(range.prevStart, range.prevEnd),
     prisma.scheduledSurgery.findMany({
@@ -219,7 +230,31 @@ export async function computeAnalytics(
       select: { issuedDate: true, amount: true },
     }),
     prisma.room.count({ where: { type: 'operating_theater' } }),
+    prisma.patientSurvey.findMany({
+      where: { createdAt: { gte: range.start, lt: range.end } },
+      select: { overallRating: true, recommendScore: true },
+    }),
+    prisma.patientFlowStage.findMany({
+      where: { enteredAt: { gte: range.start, lt: range.end } },
+      select: { patientRefId: true, patientId: true, stageType: true, enteredAt: true },
+    }),
   ])
+
+  const satisfaction = computeSatisfactionKpi(
+    surveyRows.map((r) => ({ overallRating: r.overallRating, recommendScore: r.recommendScore })),
+  )
+
+  const waitTimeFunnel = computeWaitTimeFunnelForRange(
+    flowRows.map((r) => ({
+      appointmentId: r.patientRefId ?? r.patientId,
+      stageName: r.stageType,
+      enteredAt: r.enteredAt,
+    })),
+    range.start,
+    range.end,
+    range.labelEn,
+  )
+  const averageWaitTimeMin = meanFunnelWait(waitTimeFunnel)
 
   const orUtilizationRate =
     orRoomCount > 0
@@ -312,13 +347,17 @@ export async function computeAnalytics(
       scansGrowth: growthPct(cur.scans, prev.scans),
       orUtilizationRate,
       orUtilizationGrowth: '+0.0%',
-      patientSatisfaction: null,
-      averageWaitTimeMin: null,
+      patientSatisfaction: satisfaction.satisfactionPercent,
+      averageWaitTimeMin,
+      nps: satisfaction.nps,
+      surveyResponses: satisfaction.responseCount,
       revenueLYD: cur.revenue,
       revenueGrowth: growthPct(cur.revenue, prev.revenue),
     },
     timeline,
     departmentWorkload,
     surgeonWorkload,
+    satisfaction,
+    waitTimeFunnel,
   }
 }
