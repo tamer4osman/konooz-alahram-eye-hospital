@@ -31,6 +31,34 @@ Verification gate for every change: **lint (0 errors, 0 warnings) + typecheck (0
 - Extend `ignoreDependencies` only with a one-line reason in the commit message (build-tooling deps imported by configs are the usual case).
 - Duplication baseline is ~8% (mostly admin-gate boilerplate across staff API routes); refactor opportunistically into shared helpers when touching those files anyway.
 
+## Use-Case Layer Convention (Clean Architecture, targeted)
+
+Domain logic lives in a 3-circle layout — adopted via the invoices + appointments pilot (2026-09). Dependencies point inward only:
+
+```text
+app/api/**/route.ts        thin handlers: auth gate → validate → use case → respond
+lib/usecases/<module>/     ports.ts (ISP interfaces) + rules.ts (pure business rules) + use-cases.ts (orchestration)
+lib/adapters/prisma/       implements ports; Prisma error codes → typed use-case errors here
+lib/ pure code             validation schemas, permissions, DTO mappers = the entities layer
+```
+
+Rules:
+
+- **Use cases are framework-free**: no `prisma`, no `next/*` imports in `lib/usecases/`. Ports are injected as first arguments; one minimal interface per use case (ISP), not module-level fat repositories.
+- **Prisma touches only `lib/adapters/`**: P2025/P2002 → typed errors (`InvoiceNotFoundError`, etc.), row → DTO mapping (`lib/dashboard/billing.ts` mappers) happen there. Prisma types never cross the boundary.
+- **Business rules are pure functions** in `rules.ts` (defaults, snapshots, fallbacks, status transitions, honest copy) — unit-testable with stub ports, no `vi.mock('@/lib/prisma')` needed.
+- **New BCK features MUST live in `lib/usecases/`**; existing route handlers migrate only when touched for other reasons (mirrors the duplication-refactor rule). Do not convert all routes in one wave.
+- Reference implementation: `lib/usecases/invoices/`, `lib/usecases/appointments/` + `tests/invoice-usecases.test.ts`, `tests/appointment-usecases.test.ts`.
+
+## Full Quality Loop
+
+After every code change — not only at the end of a task — run all four gates:
+
+1. **Unit tests** (Vitest): new/changed pure logic gets tests with stub ports; run the full suite, all green.
+2. **Fallow**: `npm run intel -- dead-code --changed-since main --format json`; any flag requires `--trace` verification before delete-or-keep, and expected-but-unwired exports (awaiting a later step) must be justified in the summary.
+3. **Chrome-devtools live check**: exercise the affected UI/API flows in the browser (both `/ar` and `/en` when user-facing), check console + network, then **stress test** with CPU throttle 4x + degraded network (Slow 4G / Fast 3G): no hydration errors, no layout overflow, images intact, API round-trips sane.
+4. **Verification gate**: `npx eslint .` (0 errors, 0 warnings) + `npx tsc --noEmit` (0 errors).
+
 ## Commit Attribution
 
 AI commits MUST include:
@@ -59,4 +87,6 @@ components/ public sections, modals, ui/ primitives, dashboard/
 context/    LanguageContext, PatientAuthContext providers
 data/       bilingual AR/EN content datasets (single source of copy)
 hooks/ lib/ shared hooks and utilities
+lib/usecases/    domain use cases (ports + rules + orchestration) — framework-free
+lib/adapters/    Prisma implementations of use-case ports
 ```
