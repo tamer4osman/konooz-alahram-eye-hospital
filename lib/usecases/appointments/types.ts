@@ -82,3 +82,44 @@ export interface BookingConfirmation {
   ref: string;
   status: 'pending_reception';
 }
+
+/** Raw list request from the staff dashboard (pre-normalization). */
+export interface AppointmentListQuery {
+  date?: string;
+  status?: string;
+  take?: number;
+}
+
+/** A calendar day in local time: [from, to). Null range = unbounded. */
+export interface DayRange {
+  from: Date | null;
+  to: Date | null;
+}
+
+/** Validated, clamped list query the adapter executes verbatim. */
+export interface NormalizedAppointmentQuery extends DayRange {
+  status?: LiveAppointmentStatus;
+  take: number;
+}
+
+/** One appointment row on the reception board. */
+export interface AppointmentListItem {
+  id: string;
+  ticketNumber: string;
+  date: Date;
+  time: string;
+  status: LiveAppointmentStatus;
+  cancelReason: CancelReason | null;
+  cancelNote: string | null;
+  doctorDisplayNameAr: string | null;
+  doctorDisplayNameEn: string | null;
+  specialtyAr: string | null;
+  specialtyEn: string | null;
+}
+
+export class InvalidAppointmentQueryError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = 'InvalidAppointmentQueryError';
+  }
+}

@@ -1,13 +1,16 @@
 import type {
+  AppointmentListQuery,
   AppointmentRequestData,
   AppointmentStatusUpdate,
   BookingConfirmation,
+  DayRange,
   DoctorLookupResult,
   LiveAppointmentStatus,
+  NormalizedAppointmentQuery,
   ResolvedAppointmentCreate,
   ResolvedStatusPatch,
 } from './types';
-import { InvalidStatusTransitionError } from './types';
+import { InvalidAppointmentQueryError, InvalidStatusTransitionError } from './types';
 
 // Pure business rules. No framework, no I/O — fully unit-testable.
 
@@ -108,6 +111,57 @@ export function toBookingConfirmation(ticketNumber: string): BookingConfirmation
  * stay truthful.
  */
 const ALLOWED_FROM: ReadonlySet<LiveAppointmentStatus> = new Set(['scheduled', 'confirmed']);
+
+/**
+ * List-query bounds. Only statuses staff can actually see on the board are
+ * accepted — anything else means a client bug, not a data state.
+ */
+const LISTABLE_STATUSES: ReadonlySet<string> = new Set([
+  'scheduled',
+  'confirmed',
+  'cancelled',
+  'completed',
+  'in_queue',
+  'no_show',
+]);
+
+const APPOINTMENT_LIST_MAX_TAKE = 200;
+
+/** Strict local-time day: 'YYYY-MM-DD' -> [that midnight, next midnight). */
+export function resolveDayRange(date: string | undefined): DayRange {
+  if (!date) return { from: null, to: null };
+  const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(date);
+  if (!match) {
+    throw new InvalidAppointmentQueryError(`Invalid date '${date}' — expected YYYY-MM-DD`);
+  }
+  const year = Number(match[1]);
+  const month = Number(match[2]);
+  const day = Number(match[3]);
+  const from = new Date(year, month - 1, day);
+  // Reject rolled-over dates (e.g. 2026-02-30 -> March 2).
+  if (from.getFullYear() !== year || from.getMonth() !== month - 1 || from.getDate() !== day) {
+    throw new InvalidAppointmentQueryError(`Invalid calendar date '${date}'`);
+  }
+  const to = new Date(year, month - 1, day + 1);
+  return { from, to };
+}
+
+export function normalizeAppointmentQuery(
+  input: AppointmentListQuery,
+): NormalizedAppointmentQuery {
+  if (input.status !== undefined && !LISTABLE_STATUSES.has(input.status)) {
+    throw new InvalidAppointmentQueryError(`Unknown appointment status '${input.status}'`);
+  }
+  const takeRaw = input.take ?? APPOINTMENT_LIST_MAX_TAKE;
+  const take = Math.min(Math.max(Math.trunc(takeRaw), 1), APPOINTMENT_LIST_MAX_TAKE);
+  const { from, to } = resolveDayRange(input.date);
+  return {
+    from,
+    to,
+    status: input.status as NormalizedAppointmentQuery['status'],
+    take,
+  };
+}
 
 export function resolveStatusPatch(
   input: AppointmentStatusUpdate,

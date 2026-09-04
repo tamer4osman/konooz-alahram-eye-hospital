@@ -1,11 +1,14 @@
 import { prisma } from '@/lib/prisma';
 import type { Prisma } from '@prisma/client';
 import type {
+  AppointmentListItem,
+  AppointmentListReader,
   AppointmentStatusReader,
   AppointmentStatusWriter,
   AppointmentWriter,
   DoctorReader,
   DoctorLookupResult,
+  NormalizedAppointmentQuery,
   ResolvedAppointmentCreate,
   ResolvedStatusPatch,
 } from '@/lib/usecases/appointments';
@@ -92,5 +95,38 @@ export const prismaAppointmentStatusWriter: AppointmentStatusWriter = {
       if (code === 'P2025') throw new AppointmentNotFoundError();
       throw err;
     }
+  },
+};
+
+export const prismaAppointmentListReader: AppointmentListReader = {
+  async list(query: NormalizedAppointmentQuery): Promise<AppointmentListItem[]> {
+    const rows = await prisma.appointment.findMany({
+      where: {
+        ...(query.from && query.to
+          ? { date: { gte: query.from, lt: query.to } }
+          : {}),
+        ...(query.status ? { status: query.status } : {}),
+      },
+      orderBy: [{ date: 'asc' }, { time: 'asc' }],
+      take: query.take,
+      select: {
+        id: true,
+        ticketNumber: true,
+        date: true,
+        time: true,
+        status: true,
+        cancelReason: true,
+        cancelNote: true,
+        doctorDisplayNameAr: true,
+        doctorDisplayNameEn: true,
+        specialtyAr: true,
+        specialtyEn: true,
+      },
+    });
+    return rows.map((row) => ({
+      ...row,
+      cancelReason: row.cancelReason ?? null,
+      cancelNote: row.cancelNote ?? null,
+    }));
   },
 };

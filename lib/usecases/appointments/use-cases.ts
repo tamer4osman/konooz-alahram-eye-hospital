@@ -1,11 +1,22 @@
-import type { AppointmentRequestData, BookingConfirmation, AppointmentStatusUpdate } from './types';
 import type {
+  AppointmentListQuery,
+  AppointmentRequestData,
+  BookingConfirmation,
+  AppointmentStatusUpdate,
+} from './types';
+import type {
+  AppointmentListReader,
   AppointmentStatusReader,
   AppointmentStatusWriter,
   AppointmentWriter,
   DoctorReader,
 } from './ports';
-import { resolveAppointmentCreate, resolveDoctorSnapshot, resolveStatusPatch } from './rules';
+import {
+  normalizeAppointmentQuery,
+  resolveAppointmentCreate,
+  resolveDoctorSnapshot,
+  resolveStatusPatch,
+} from './rules';
 import { AppointmentNotFoundError } from './types';
 
 // Use case: orchestration only. Business rules live in rules.ts; ports are
@@ -42,4 +53,17 @@ export async function markAppointmentStatus(
   if (!current) throw new AppointmentNotFoundError();
   const resolved = resolveStatusPatch(input, current);
   await writer.applyStatusPatch(id, resolved);
+}
+
+/**
+ * Reception board rows for the dashboard appointments tab. The raw query is
+ * normalized (date -> day range, take clamped, status whitelisted) before it
+ * reaches the adapter.
+ */
+export async function listAppointments(
+  reader: AppointmentListReader,
+  query: AppointmentListQuery,
+): Promise<Awaited<ReturnType<AppointmentListReader['list']>>> {
+  const normalized = normalizeAppointmentQuery(query);
+  return reader.list(normalized);
 }

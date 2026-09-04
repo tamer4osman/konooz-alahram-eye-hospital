@@ -7,6 +7,7 @@
 
 export const DASHBOARD_MODULES = [
   'overview',
+  'appointments',
   'clinical',
   'surgeries',
   'rooms',
@@ -38,6 +39,7 @@ export const ROLE_PRESETS: Record<string, PermissionsMap> = {
   },
   receptionist: {
     overview: 'read',
+    appointments: 'write',
     rooms: 'read',
     beds: 'read',
     personnel: 'read',

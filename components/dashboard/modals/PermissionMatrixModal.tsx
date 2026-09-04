@@ -21,6 +21,7 @@ interface PermissionMatrixModalProps {
 
 const MODULE_LABELS: Record<DashboardModule, { ar: string; en: string }> = {
   overview: { ar: 'لوحة التحكم', en: 'Overview' },
+  appointments: { ar: 'المواعيد', en: 'Appointments' },
   clinical: { ar: 'الكشف السريري', en: 'Clinical' },
   surgeries: { ar: 'العمليات', en: 'Surgeries' },
   rooms: { ar: 'الغرف', en: 'Rooms' },

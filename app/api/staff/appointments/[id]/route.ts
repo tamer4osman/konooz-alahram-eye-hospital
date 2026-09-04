@@ -1,7 +1,7 @@
 import { NextRequest } from 'next/server'
 import { z } from 'zod'
 import { apiSuccess, apiError } from '@/lib/api/response'
-import { requireAdmin, readJson, prismaFailure } from '@/lib/api/admin-route'
+import { requireModuleAccess, readJson, prismaFailure } from '@/lib/api/admin-route'
 import {
   markAppointmentStatus,
   AppointmentNotFoundError,
@@ -21,11 +21,11 @@ const patchSchema = z.object({
 })
 
 // Thin handler: auth gate -> validate -> use case -> respond.
-// Reception marks lifecycle facts (cancelled / no-show). There is no
-// 'appointments' dashboard module yet, so the gate is requireAdmin().
+// Reception marks lifecycle facts (cancelled / no-show) on the appointments
+// module (write level).
 
 export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
-  const auth = await requireAdmin()
+  const auth = await requireModuleAccess('appointments', 'write')
   if (!auth.ok) return auth.response
 
   const { id } = await params

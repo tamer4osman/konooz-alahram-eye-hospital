@@ -69,6 +69,15 @@ describe('ROLE_PRESETS', () => {
     expect(receptionist.overview).toBe('read');
   });
 
+  it('appointments module is registered in the dashboard', () => {
+    expect(DASHBOARD_MODULES).toContain('appointments');
+  });
+
+  it('receptionist preset can record appointment statuses', () => {
+    const receptionist = ROLE_PRESETS.receptionist;
+    expect(receptionist.appointments).toBe('write');
+  });
+
   it('accountant preset has billing write only', () => {
     const accountant = ROLE_PRESETS.accountant;
     expect(accountant.billing).toBe('write');

@@ -1,6 +1,8 @@
 import type {
+  AppointmentListItem,
   DoctorLookupResult,
   LiveAppointmentStatus,
+  NormalizedAppointmentQuery,
   ResolvedAppointmentCreate,
   ResolvedStatusPatch,
 } from './types';
@@ -26,4 +28,9 @@ export interface AppointmentStatusReader {
 
 export interface AppointmentStatusWriter {
   applyStatusPatch(id: string, patch: ResolvedStatusPatch): Promise<void>;
+}
+
+/** Reads the reception-board rows for the dashboard appointments tab. */
+export interface AppointmentListReader {
+  list(query: NormalizedAppointmentQuery): Promise<AppointmentListItem[]>;
 }
