@@ -1,7 +1,7 @@
 import { NextRequest } from 'next/server'
 import { z } from 'zod'
 import { apiSuccess, apiError } from '@/lib/api/response'
-import { requireAdmin, readJson } from '@/lib/api/admin-route'
+import { requireModuleAccess, readJson } from '@/lib/api/admin-route'
 import { updateInvoiceStatus } from '@/lib/usecases/invoices'
 import { prismaInvoiceStatusUpdater } from '@/lib/adapters/prisma/invoice-adapter'
 import {
@@ -19,7 +19,7 @@ const patchSchema = z.object({
 // Thin handler: auth gate -> validate -> use case -> respond.
 
 export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
-  const auth = await requireAdmin()
+  const auth = await requireModuleAccess('billing', 'write')
   if (!auth.ok) return auth.response
 
   const { id } = await params

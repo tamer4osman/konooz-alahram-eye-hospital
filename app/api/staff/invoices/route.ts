@@ -1,7 +1,7 @@
 import { NextRequest } from 'next/server'
 import { z } from 'zod'
 import { apiSuccess, apiError } from '@/lib/api/response'
-import { requireAdmin, readJson } from '@/lib/api/admin-route'
+import { requireModuleAccess, readJson } from '@/lib/api/admin-route'
 import { createInvoice, listInvoices } from '@/lib/usecases/invoices'
 import {
   prismaInvoiceReader,
@@ -35,7 +35,7 @@ const createSchema = z.object({
 // rules live in lib/usecases/invoices; persistence in the Prisma adapter.
 
 export async function GET() {
-  const auth = await requireAdmin()
+  const auth = await requireModuleAccess('billing', 'read')
   if (!auth.ok) return auth.response
 
   const invoices = await listInvoices(prismaInvoiceReader)
@@ -43,7 +43,7 @@ export async function GET() {
 }
 
 export async function POST(req: NextRequest) {
-  const auth = await requireAdmin()
+  const auth = await requireModuleAccess('billing', 'write')
   if (!auth.ok) return auth.response
 
   const body = await readJson(req, createSchema, 'بيانات الفاتورة غير مكتملة', 'Invoice data is incomplete or invalid')

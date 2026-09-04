@@ -2,11 +2,91 @@ import type {
   CreateInvoiceInput,
   InvoiceCreateContext,
   InvoiceStatusPatch,
+  InvoiceStatus,
   ResolvedInvoiceCreate,
 } from './types';
 import type { ResolvedStatusPatch } from './ports';
 
 // Pure business rules. No framework, no I/O — fully unit-testable.
+
+// ---------------------------------------------------------------------------
+// Accounts-receivable aging (pure report rule)
+// ---------------------------------------------------------------------------
+
+export const AR_AGING_BUCKETS = ['0_30', '31_60', '61_90', '90_plus'] as const;
+
+export type ArAgingBucketKey = (typeof AR_AGING_BUCKETS)[number];
+
+/** Minimal invoice facts the aging report consumes (entities vocabulary). */
+export interface AgingInvoiceInput {
+  status: InvoiceStatus;
+  issuedDate: Date;
+  totalGrossLYD: number;
+}
+
+export interface ArAgingBucket {
+  key: ArAgingBucketKey;
+  count: number;
+  totalLYD: number;
+}
+
+export interface ArAgingReport {
+  buckets: ArAgingBucket[];
+  grandTotalLYD: number;
+  outstandingCount: number;
+}
+
+const OUTSTANDING_STATUSES: ReadonlySet<InvoiceStatus> = new Set([
+  'pending_insurance',
+  'pre_auth_approved',
+  'pending',
+  'partially_paid',
+]);
+
+function bucketForAge(days: number): ArAgingBucketKey {
+  if (days <= 30) return '0_30';
+  if (days <= 60) return '31_60';
+  if (days <= 90) return '61_90';
+  return '90_plus';
+}
+
+/**
+ * AR aging: outstanding invoices (not paid/cancelled/draft) bucketed by days
+ * since issue. The full invoice amount counts as outstanding — partial
+ * payments are not tracked yet, and the UI says so. All four buckets are
+ * always present so the report shape is stable.
+ */
+export function computeArAging(
+  invoices: AgingInvoiceInput[],
+  now: Date,
+): ArAgingReport {
+  const totals = new Map<ArAgingBucketKey, { count: number; totalLYD: number }>(
+    AR_AGING_BUCKETS.map((key) => [key, { count: 0, totalLYD: 0 }]),
+  );
+  let grandTotalLYD = 0;
+  let outstandingCount = 0;
+
+  for (const invoice of invoices) {
+    if (!OUTSTANDING_STATUSES.has(invoice.status)) continue;
+    const ageDays = Math.max(0, Math.floor((now.getTime() - invoice.issuedDate.getTime()) / 86_400_000));
+    const bucket = totals.get(bucketForAge(ageDays))!;
+    bucket.count += 1;
+    bucket.totalLYD += invoice.totalGrossLYD;
+    grandTotalLYD += invoice.totalGrossLYD;
+    outstandingCount += 1;
+  }
+
+  const buckets = AR_AGING_BUCKETS.map((key) => {
+    const entry = totals.get(key)!;
+    return { key, count: entry.count, totalLYD: Math.round(entry.totalLYD * 100) / 100 };
+  });
+
+  return {
+    buckets,
+    grandTotalLYD: Math.round(grandTotalLYD * 100) / 100,
+    outstandingCount,
+  };
+}
 
 /** Assign a timestamp-based invoice number when the caller did not supply one. */
 export function generateInvoiceNumber(now: Date): string {
