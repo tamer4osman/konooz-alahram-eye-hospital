@@ -1,5 +1,26 @@
-import type { PatientFlowStage as FlowEvent } from '@prisma/client';
 import type { PatientFlowStage as FlowStageDTO } from '@/data/dashboardData';
+
+// Driver-agnostic event shape: what the pure computation below consumes.
+// Defined here (entities layer) so the use-case port and the Prisma adapter
+// both point inward to it — the use-case layer never names Prisma types.
+
+export type FlowStageType =
+  | 'reception'
+  | 'triage'
+  | 'diagnostics'
+  | 'consultation'
+  | 'pre_op'
+  | 'in_or'
+  | 'pacu'
+  | 'procedure'
+  | 'waiting_discharge'
+  | 'discharged';
+
+export interface FlowEvent {
+  stageType: FlowStageType;
+  enteredAt: Date;
+  exitedAt: Date | null;
+}
 
 // Presentation + clinical-benchmark config stays in code; counts and
 // average times are computed live from PatientFlowStage events.

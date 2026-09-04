@@ -1,9 +1,9 @@
 import { NextRequest } from 'next/server'
 import { z } from 'zod'
-import { prisma } from '@/lib/prisma'
 import { apiSuccess } from '@/lib/api/response'
 import { requireAdmin, readJson } from '@/lib/api/admin-route'
-import { toClinicalDTO } from '@/lib/dashboard/clinical'
+import { createClinicalRecord, listClinicalRecords } from '@/lib/usecases/clinical'
+import { prismaClinicalReader, prismaClinicalWriter } from '@/lib/adapters/prisma/clinical-adapter'
 
 export const dynamic = 'force-dynamic'
 
@@ -58,15 +58,14 @@ const createSchema = z.object({
   prescriptions: z.array(rxSchema).optional(),
 })
 
+// Thin handler: auth gate -> validate -> use case -> respond.
+
 export async function GET() {
   const auth = await requireAdmin()
   if (!auth.ok) return auth.response
 
-  const rows = await prisma.clinicalConsultationRecord.findMany({
-    include: { items: true },
-    orderBy: { createdAt: 'desc' },
-  })
-  return apiSuccess(rows.map(toClinicalDTO))
+  const records = await listClinicalRecords(prismaClinicalReader)
+  return apiSuccess(records)
 }
 
 export async function POST(req: NextRequest) {
@@ -75,64 +74,7 @@ export async function POST(req: NextRequest) {
 
   const body = await readJson(req, createSchema, 'بيانات الاستشارة غير مكتملة', 'Consultation data is incomplete or invalid')
   if (!body.ok) return body.response
-  const input = body.data
 
-  const row = await prisma.clinicalConsultationRecord.create({
-    data: {
-      ticketNumber: input.ticketNumber ?? '',
-      patientId: input.patientId ?? `PT-${Date.now()}`,
-      patientNameAr: input.patientNameAr,
-      patientNameEn: input.patientNameEn ?? null,
-      patientAge: input.patientAge ?? null,
-      patientGender: input.patientGender === 'female' ? 'FEMALE' : 'MALE',
-      patientPhone: input.patientPhone ?? '',
-      doctorNameAr: input.doctorAr ?? '',
-      doctorNameEn: input.doctorEn ?? null,
-      clinicRoom: input.clinicRoom ?? '',
-      visitDate: input.visitDate ?? null,
-      visitTime: input.visitTime ?? '',
-      status: input.status ?? 'completed',
-      chiefComplaintAr: input.chiefComplaintAr ?? null,
-      chiefComplaintEn: input.chiefComplaintEn ?? null,
-      date: input.visitDate ? new Date(input.visitDate) : new Date(),
-      visualAcuityOD_Unaided: input.visualAcuityOD_Unaided ?? '',
-      visualAcuityOD_BCVA: input.visualAcuityOD_BCVA ?? '',
-      visualAcuityOS_Unaided: input.visualAcuityOS_Unaided ?? '',
-      visualAcuityOS_BCVA: input.visualAcuityOS_BCVA ?? '',
-      iopOD_mmHg: input.iopOD_mmHg ?? null,
-      iopOS_mmHg: input.iopOS_mmHg ?? null,
-      corneaAr: input.corneaAr ?? null,
-      corneaEn: input.corneaEn ?? null,
-      anteriorChamberAr: input.anteriorChamberAr ?? null,
-      anteriorChamberEn: input.anteriorChamberEn ?? null,
-      lensStatusAr: input.lensStatusAr ?? null,
-      lensStatusEn: input.lensStatusEn ?? null,
-      fundusMaculaAr: input.fundusMaculaAr ?? null,
-      fundusMaculaEn: input.fundusMaculaEn ?? null,
-      icdCode: input.icdCode ?? '',
-      diagnosisAr: input.diagnosisAr ?? null,
-      diagnosisEn: input.diagnosisEn ?? null,
-      surgicalPlan: input.surgicalPlan ?? null,
-      nextFollowUpDate: input.nextFollowUpDate ?? null,
-      createdBy: auth.user.email,
-      items: input.prescriptions
-        ? {
-            create: input.prescriptions.map((rx) => ({
-              drugNameAr: rx.drugNameAr ?? '',
-              drugNameEn: rx.drugNameEn ?? null,
-              category: rx.category ?? 'lubricant',
-              eye: rx.eye ?? 'OU',
-              dosage: rx.dosage ?? '',
-              frequency: rx.frequency ?? '',
-              durationDays: rx.durationDays ?? 0,
-              instructionsAr: rx.instructionsAr ?? null,
-              instructionsEn: rx.instructionsEn ?? null,
-              taperingSchedule: rx.taperingSchedule ?? [],
-            })),
-          }
-        : undefined,
-    },
-    include: { items: true },
-  })
-  return apiSuccess(toClinicalDTO(row), 201)
+  const record = await createClinicalRecord(prismaClinicalWriter, body.data, auth.user.email)
+  return apiSuccess(record, 201)
 }
