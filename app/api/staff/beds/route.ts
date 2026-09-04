@@ -1,9 +1,9 @@
 import { NextRequest } from 'next/server'
 import { z } from 'zod'
-import { prisma } from '@/lib/prisma'
-import { apiSuccess } from '@/lib/api/response'
-import { requireAdmin, readJson, prismaFailure } from '@/lib/api/admin-route'
-import { toBedDTO } from '@/lib/dashboard/beds'
+import { apiSuccess, apiError } from '@/lib/api/response'
+import { requireAdmin, readJson } from '@/lib/api/admin-route'
+import { createBed, listBeds, BedConflictError } from '@/lib/usecases/beds'
+import { prismaBedReader, prismaBedWriter } from '@/lib/adapters/prisma/bed-adapter'
 
 export const dynamic = 'force-dynamic'
 
@@ -20,12 +20,14 @@ const createSchema = z.object({
   nurseInChargeEn: z.string().optional(),
 })
 
+// Thin handler: auth gate -> validate -> use case -> respond.
+
 export async function GET() {
   const auth = await requireAdmin()
   if (!auth.ok) return auth.response
 
-  const rows = await prisma.bed.findMany({ orderBy: { createdAt: 'asc' } })
-  return apiSuccess(rows.map(toBedDTO))
+  const beds = await listBeds(prismaBedReader)
+  return apiSuccess(beds)
 }
 
 export async function POST(req: NextRequest) {
@@ -34,26 +36,14 @@ export async function POST(req: NextRequest) {
 
   const body = await readJson(req, createSchema, 'بيانات السرير غير مكتملة', 'Bed data is incomplete or invalid')
   if (!body.ok) return body.response
-  const input = body.data
 
   try {
-    const row = await prisma.bed.create({
-      data: {
-        bedNumber: input.bedNumber,
-        wardType: input.wardType,
-        wardNameAr: input.wardNameAr ?? '',
-        wardNameEn: input.wardNameEn ?? null,
-        floorAr: input.floorAr ?? '',
-        floorEn: input.floorEn ?? null,
-        nurseInChargeAr: input.nurseInChargeAr ?? null,
-        nurseInChargeEn: input.nurseInChargeEn ?? null,
-      },
-    })
-    return apiSuccess(toBedDTO(row), 201)
+    const bed = await createBed(prismaBedWriter, body.data)
+    return apiSuccess(bed, 201)
   } catch (err) {
-    return prismaFailure(err, {
-      conflict: { code: 'BED_NUMBER_TAKEN', ar: 'رقم السرير مستخدم مسبقاً', en: 'Bed number already exists' },
-      failure: { code: 'BED_CREATE_FAILED', ar: 'تعذر إنشاء السرير', en: 'Failed to create bed' },
-    })
+    if (err instanceof BedConflictError) {
+      return apiError(409, 'BED_NUMBER_TAKEN', 'رقم السرير مستخدم مسبقاً', 'Bed number already exists')
+    }
+    throw err
   }
 }

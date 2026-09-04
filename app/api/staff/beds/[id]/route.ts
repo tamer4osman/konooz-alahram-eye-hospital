@@ -1,9 +1,9 @@
 import { NextRequest } from 'next/server'
 import { z } from 'zod'
-import { prisma } from '@/lib/prisma'
-import { apiSuccess } from '@/lib/api/response'
-import { requireAdmin, readJson, prismaFailure } from '@/lib/api/admin-route'
-import { toBedDTO } from '@/lib/dashboard/beds'
+import { apiSuccess, apiError } from '@/lib/api/response'
+import { requireAdmin, readJson } from '@/lib/api/admin-route'
+import { updateBed, BedNotFoundError } from '@/lib/usecases/beds'
+import { prismaBedWriter } from '@/lib/adapters/prisma/bed-adapter'
 
 export const dynamic = 'force-dynamic'
 
@@ -28,24 +28,7 @@ const patchSchema = z.object({
   nurseInChargeEn: z.string().nullable().optional(),
 })
 
-// Fields cleared when a bed is marked ready_clean
-const OCCUPANT_FIELDS = {
-  patientId: null,
-  patientNameAr: null,
-  patientNameEn: null,
-  patientAge: null,
-  assignedDoctorAr: null,
-  assignedDoctorEn: null,
-  surgeryPerformedAr: null,
-  surgeryPerformedEn: null,
-  admissionTime: null,
-  estimatedDischargeTime: null,
-  bloodPressure: null,
-  heartRateBpm: null,
-  spO2Percent: null,
-  tempCelsius: null,
-  painScore: null,
-} as const
+// Thin handler: auth gate -> validate -> use case -> respond.
 
 export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const auth = await requireAdmin()
@@ -56,19 +39,13 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
   const body = await readJson(req, patchSchema, 'قيم التحديث غير صالحة', 'Invalid update values')
   if (!body.ok) return body.response
 
-  // Marking a bed ready_clean releases its occupant and clears vitals
-  const data =
-    body.data.status === 'ready_clean'
-      ? { ...body.data, ...OCCUPANT_FIELDS }
-      : { ...body.data }
-
   try {
-    const row = await prisma.bed.update({ where: { id }, data })
-    return apiSuccess(toBedDTO(row))
+    const bed = await updateBed(prismaBedWriter, id, body.data)
+    return apiSuccess(bed)
   } catch (err) {
-    return prismaFailure(err, {
-      notFound: { code: 'BED_NOT_FOUND', ar: 'السرير غير موجود', en: 'Bed not found' },
-      failure: { code: 'BED_UPDATE_FAILED', ar: 'تعذر تحديث السرير', en: 'Failed to update bed' },
-    })
+    if (err instanceof BedNotFoundError) {
+      return apiError(404, 'BED_NOT_FOUND', 'السرير غير موجود', 'Bed not found')
+    }
+    throw err
   }
 }

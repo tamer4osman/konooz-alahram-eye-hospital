@@ -1,9 +1,14 @@
 import { NextRequest } from 'next/server'
 import { z } from 'zod'
-import { prisma } from '@/lib/prisma'
 import { apiSuccess, apiError } from '@/lib/api/response'
-import { requireAdmin, readJson, prismaFailure } from '@/lib/api/admin-route'
-import { toRoomDTO } from '@/lib/dashboard/rooms'
+import { requireAdmin, readJson } from '@/lib/api/admin-route'
+import {
+  createRoom,
+  listRooms,
+  RoomConflictError,
+  RoomNameRequiredError,
+} from '@/lib/usecases/rooms'
+import { prismaRoomReader, prismaRoomWriter } from '@/lib/adapters/prisma/room-adapter'
 
 export const dynamic = 'force-dynamic'
 
@@ -29,12 +34,14 @@ const createRoomSchema = z.object({
   mainDeviceAssignedEn: z.string().optional(),
 })
 
+// Thin handler: auth gate -> validate -> use case -> respond.
+
 export async function GET() {
   const auth = await requireAdmin()
   if (!auth.ok) return auth.response
 
-  const rows = await prisma.room.findMany({ orderBy: { createdAt: 'asc' } })
-  return apiSuccess(rows.map(toRoomDTO))
+  const rooms = await listRooms(prismaRoomReader)
+  return apiSuccess(rooms)
 }
 
 export async function POST(req: NextRequest) {
@@ -43,32 +50,17 @@ export async function POST(req: NextRequest) {
 
   const body = await readJson(req, createRoomSchema, 'بيانات الغرفة غير مكتملة', 'Room data is incomplete or invalid')
   if (!body.ok) return body.response
-  const input = body.data
-  if (!input.nameAr && !input.nameEn) {
-    return apiError(422, 'VALIDATION_ERROR', 'اسم الغرفة مطلوب', 'Room name is required')
-  }
 
   try {
-    const row = await prisma.room.create({
-      data: {
-        code: input.code,
-        nameAr: input.nameAr ?? input.nameEn!,
-        nameEn: input.nameEn ?? input.nameAr,
-        type: input.type,
-        floorAr: input.floorAr ?? '',
-        floorEn: input.floorEn ?? null,
-        capacity: input.capacity ?? 1,
-        tempCelsius: input.tempCelsius ?? 20,
-        humidityPercent: input.humidityPercent ?? 45,
-        mainDeviceAssignedAr: input.mainDeviceAssignedAr ?? '',
-        mainDeviceAssignedEn: input.mainDeviceAssignedEn ?? null,
-      },
-    })
-    return apiSuccess(toRoomDTO(row), 201)
+    const room = await createRoom(prismaRoomWriter, body.data)
+    return apiSuccess(room, 201)
   } catch (err) {
-    return prismaFailure(err, {
-      conflict: { code: 'CODE_TAKEN', ar: 'رمز الغرفة مستخدم مسبقاً', en: 'Room code already exists' },
-      failure: { code: 'ROOM_CREATE_FAILED', ar: 'تعذر إنشاء الغرفة', en: 'Failed to create room' },
-    })
+    if (err instanceof RoomNameRequiredError) {
+      return apiError(422, 'VALIDATION_ERROR', 'اسم الغرفة مطلوب', 'Room name is required')
+    }
+    if (err instanceof RoomConflictError) {
+      return apiError(409, 'CODE_TAKEN', 'رمز الغرفة مستخدم مسبقاً', 'Room code already exists')
+    }
+    throw err
   }
 }
