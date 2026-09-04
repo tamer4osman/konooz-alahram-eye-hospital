@@ -3,7 +3,8 @@
 import React, { useState, useEffect } from 'react';
 import { useLanguage } from '@/context/LanguageContext';
 import { InsuranceProviderInfo, HospitalBillingInvoice, DiagnosticPacsOrder } from '@/data/dashboardData';
-import { Receipt, ShieldCheck, CreditCard, Printer, Plus, CheckCircle2 } from 'lucide-react';
+import { Receipt, ShieldCheck, CreditCard, Printer, Plus, CheckCircle2, Hourglass } from 'lucide-react';
+import type { ArAgingReport } from '@/lib/usecases/invoices';
 
 export default function BillingInsuranceTab() {
   const { lang, t, } = useLanguage();
@@ -11,6 +12,7 @@ export default function BillingInsuranceTab() {
   const [invoices, setInvoices] = useState<HospitalBillingInvoice[]>([]);
   const [insurers, setInsurers] = useState<InsuranceProviderInfo[]>([]);
   const [pacsOrders, _setPacsOrders] = useState<DiagnosticPacsOrder[]>([]);
+  const [aging, setAging] = useState<ArAgingReport | null>(null);
   const [activeSubTab, setActiveSubTab] = useState<'invoices' | 'insurance' | 'pacs'>('invoices');
   const [selectedInvoice, setSelectedInvoice] = useState<HospitalBillingInvoice | null>(null);
   const [isInvoicePrintSuccess, setIsInvoicePrintSuccess] = useState(false);
@@ -27,6 +29,13 @@ export default function BillingInsuranceTab() {
           setInvoices(list);
           if (list.length > 0) setSelectedInvoice(list[0]);
         }
+      })
+      .catch(() => {});
+    fetch('/api/staff/invoices/aging')
+      .then(async (res) => {
+        if (!res.ok) return;
+        const json = await res.json();
+        if (!cancelled && json?.data?.buckets) setAging(json.data as ArAgingReport);
       })
       .catch(() => {});
     fetch('/api/staff/billing')
@@ -52,6 +61,13 @@ export default function BillingInsuranceTab() {
   const totalRevenueGross = invoices.reduce((acc, inv) => acc + inv.totalGrossLYD, 0);
   const totalInsuranceCovered = invoices.reduce((acc, inv) => acc + inv.insuranceCoveredLYD, 0);
   const totalPatientCoPay = invoices.reduce((acc, inv) => acc + inv.patientCoPayLYD, 0);
+
+  const AGING_LABELS: Record<string, { ar: string; en: string }> = {
+    '0_30': { ar: '٠–٣٠ يوماً', en: '0–30 days' },
+    '31_60': { ar: '٣١–٦٠ يوماً', en: '31–60 days' },
+    '61_90': { ar: '٦١–٩٠ يوماً', en: '61–90 days' },
+    '90_plus': { ar: 'أكثر من ٩٠ يوماً', en: '90+ days' },
+  };
 
   const handlePrintReceipt = () => {
     setIsInvoicePrintSuccess(true);
@@ -174,6 +190,56 @@ export default function BillingInsuranceTab() {
           </div>
           <span className="text-[10px] text-pine-700 font-semibold">{t('سداد عبر البطاقة المصرفية والنقد', 'POS / Cash processed')}</span>
         </div>
+      </div>
+
+      {/* AR Aging Report */}
+      <div className="bg-white rounded-2xl border border-pine-200 shadow-xs p-4">
+        <div className="flex items-center justify-between mb-3">
+          <h3 className="text-xs font-extrabold text-pine-900 flex items-center gap-1.5">
+            <Hourglass className="w-4 h-4 text-brass-600" />
+            <span>{t('أعمار الذمم المدينة (المبالغ غير المسددة)', 'Accounts Receivable Aging')}</span>
+          </h3>
+          {aging && (
+            <span className="text-[10px] font-bold text-ink-500">
+              {aging.outstandingCount} {t('فاتورة قائمة', 'outstanding invoices')} •{' '}
+              <span className="font-mono">{aging.grandTotalLYD.toLocaleString()}</span> LYD
+            </span>
+          )}
+        </div>
+        {aging ? (
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+            {aging.buckets.map((bucket) => {
+              const label = AGING_LABELS[bucket.key];
+              const isOldest = bucket.key === '90_plus';
+              return (
+                <div
+                  key={bucket.key}
+                  className={`rounded-xl border p-3 ${
+                    isOldest && bucket.count > 0
+                      ? 'bg-rose-50 border-rose-200'
+                      : 'bg-bone-50 border-pine-200'
+                  }`}
+                >
+                  <p className="text-[10px] font-bold text-ink-500">{lang === 'ar' ? label.ar : label.en}</p>
+                  <p className="text-base font-extrabold text-pine-900 mt-0.5 font-mono">
+                    {bucket.totalLYD.toLocaleString()} <span className="text-[10px] font-normal">LYD</span>
+                  </p>
+                  <p className="text-[10px] text-ink-500">
+                    {bucket.count} {t('فاتورة', 'invoices')}
+                  </p>
+                </div>
+              );
+            })}
+          </div>
+        ) : (
+          <p className="text-[11px] text-ink-500">{t('جارٍ تحميل تقرير الأعمار...', 'Loading aging report...')}</p>
+        )}
+        <p className="text-[10px] text-ink-500 mt-3">
+          {t(
+            'يُحسب المبلغ المستحق كامل قيمة الفاتورة — لا تُتابع الدفعات الجزئية في النظام حالياً. الفواتير المسددة والملغاة والمسودات غير مدرجة.',
+            'Outstanding amounts reflect the full invoice value — partial payments are not tracked yet. Paid, cancelled and draft invoices are excluded.',
+          )}
+        </p>
       </div>
 
       {/* Sub-Tabs: Invoices vs Insurances vs PACS */}
