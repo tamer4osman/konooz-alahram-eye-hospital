@@ -1,9 +1,9 @@
 import { NextRequest } from 'next/server'
 import { z } from 'zod'
-import { prisma } from '@/lib/prisma'
-import { apiSuccess } from '@/lib/api/response'
-import { requireAdmin, readJson, prismaFailure } from '@/lib/api/admin-route'
-import { toEquipmentDTO } from '@/lib/dashboard/equipment'
+import { apiSuccess, apiError } from '@/lib/api/response'
+import { requireAdmin, readJson } from '@/lib/api/admin-route'
+import { deleteEquipment, updateEquipment, EquipmentNotFoundError } from '@/lib/usecases/equipment'
+import { prismaEquipmentWriter } from '@/lib/adapters/prisma/equipment-adapter'
 
 export const dynamic = 'force-dynamic'
 
@@ -21,6 +21,8 @@ const patchSchema = z.object({
   notesEn: z.string().nullable().optional(),
 })
 
+// Thin handler: auth gate -> validate -> use case -> respond.
+
 export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const auth = await requireAdmin()
   if (!auth.ok) return auth.response
@@ -31,13 +33,13 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
   if (!body.ok) return body.response
 
   try {
-    const row = await prisma.equipment.update({ where: { id }, data: body.data })
-    return apiSuccess(toEquipmentDTO(row))
+    const device = await updateEquipment(prismaEquipmentWriter, id, body.data)
+    return apiSuccess(device)
   } catch (err) {
-    return prismaFailure(err, {
-      notFound: { code: 'EQUIPMENT_NOT_FOUND', ar: 'الجهاز غير موجود', en: 'Equipment not found' },
-      failure: { code: 'EQUIPMENT_UPDATE_FAILED', ar: 'تعذر تحديث الجهاز', en: 'Failed to update equipment' },
-    })
+    if (err instanceof EquipmentNotFoundError) {
+      return apiError(404, 'EQUIPMENT_NOT_FOUND', 'الجهاز غير موجود', 'Equipment not found')
+    }
+    throw err
   }
 }
 
@@ -47,12 +49,12 @@ export async function DELETE(_req: NextRequest, { params }: { params: Promise<{ 
 
   const { id } = await params
   try {
-    await prisma.equipment.delete({ where: { id } })
+    await deleteEquipment(prismaEquipmentWriter, id)
     return apiSuccess({ ok: true })
   } catch (err) {
-    return prismaFailure(err, {
-      notFound: { code: 'EQUIPMENT_NOT_FOUND', ar: 'الجهاز غير موجود', en: 'Equipment not found' },
-      failure: { code: 'EQUIPMENT_DELETE_FAILED', ar: 'تعذر حذف الجهاز', en: 'Failed to delete equipment' },
-    })
+    if (err instanceof EquipmentNotFoundError) {
+      return apiError(404, 'EQUIPMENT_NOT_FOUND', 'الجهاز غير موجود', 'Equipment not found')
+    }
+    throw err
   }
 }

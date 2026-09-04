@@ -1,9 +1,9 @@
 import { NextRequest } from 'next/server'
 import { z } from 'zod'
-import { prisma } from '@/lib/prisma'
 import { apiSuccess, apiError } from '@/lib/api/response'
-import { requireAdmin } from '@/lib/api/admin-route'
-import { toEquipmentDTO } from '@/lib/dashboard/equipment'
+import { requireAdmin, readJson } from '@/lib/api/admin-route'
+import { createEquipment, listEquipment, EquipmentNameRequiredError } from '@/lib/usecases/equipment'
+import { prismaEquipmentReader, prismaEquipmentWriter } from '@/lib/adapters/prisma/equipment-adapter'
 
 export const dynamic = 'force-dynamic'
 
@@ -21,38 +21,30 @@ const createSchema = z.object({
   notesEn: z.string().optional(),
 })
 
+// Thin handler: auth gate -> validate -> use case -> respond.
+
 export async function GET() {
   const auth = await requireAdmin()
   if (!auth.ok) return auth.response
 
-  const rows = await prisma.equipment.findMany({ orderBy: { createdAt: 'asc' } })
-  return apiSuccess(rows.map(toEquipmentDTO))
+  const equipment = await listEquipment(prismaEquipmentReader)
+  return apiSuccess(equipment)
 }
 
 export async function POST(req: NextRequest) {
   const auth = await requireAdmin()
   if (!auth.ok) return auth.response
 
-  const parsed = createSchema.safeParse(await req.json().catch(() => null))
-  if (!parsed.success || (!parsed.data.nameAr && !parsed.data.nameEn)) {
-    return apiError(422, 'VALIDATION_ERROR', 'بيانات الجهاز غير مكتملة', 'Equipment data is incomplete or invalid')
-  }
-  const input = parsed.data
+  const body = await readJson(req, createSchema, 'بيانات الجهاز غير مكتملة', 'Equipment data is incomplete or invalid')
+  if (!body.ok) return body.response
 
-  const row = await prisma.equipment.create({
-    data: {
-      nameAr: input.nameAr ?? input.nameEn!,
-      nameEn: input.nameEn ?? input.nameAr,
-      brand: input.brand ?? '',
-      modelNumber: input.model ?? null,
-      serialNumber: input.serialNumber ?? '',
-      departmentAr: input.departmentAr ?? '',
-      departmentEn: input.departmentEn ?? null,
-      roomCode: input.roomCode ?? '',
-      status: input.status ?? 'operational',
-      notesAr: input.notesAr ?? '',
-      notesEn: input.notesEn ?? null,
-    },
-  })
-  return apiSuccess(toEquipmentDTO(row), 201)
+  try {
+    const device = await createEquipment(prismaEquipmentWriter, body.data)
+    return apiSuccess(device, 201)
+  } catch (err) {
+    if (err instanceof EquipmentNameRequiredError) {
+      return apiError(422, 'VALIDATION_ERROR', 'بيانات الجهاز غير مكتملة', 'Equipment data is incomplete or invalid')
+    }
+    throw err
+  }
 }

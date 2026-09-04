@@ -1,9 +1,9 @@
 import { NextRequest } from 'next/server'
 import { z } from 'zod'
-import { prisma } from '@/lib/prisma'
 import { apiSuccess } from '@/lib/api/response'
 import { requireAdmin, readJson } from '@/lib/api/admin-route'
-import { toConsumableDTO } from '@/lib/dashboard/consumables'
+import { createConsumable, listConsumables } from '@/lib/usecases/consumables'
+import { prismaConsumableReader, prismaConsumableWriter } from '@/lib/adapters/prisma/consumable-adapter'
 
 export const dynamic = 'force-dynamic'
 
@@ -26,12 +26,14 @@ const createSchema = z.object({
   unitCostLYD: z.number().min(0).optional(),
 })
 
+// Thin handler: auth gate -> validate -> use case -> respond.
+
 export async function GET() {
   const auth = await requireAdmin()
   if (!auth.ok) return auth.response
 
-  const rows = await prisma.consumableType.findMany({ orderBy: { createdAt: 'asc' } })
-  return apiSuccess(rows.map(toConsumableDTO))
+  const consumables = await listConsumables(prismaConsumableReader)
+  return apiSuccess(consumables)
 }
 
 export async function POST(req: NextRequest) {
@@ -40,25 +42,7 @@ export async function POST(req: NextRequest) {
 
   const body = await readJson(req, createSchema, 'بيانات المستلزم غير مكتملة', 'Consumable data is incomplete or invalid')
   if (!body.ok) return body.response
-  const input = body.data
 
-  const row = await prisma.consumableType.create({
-    data: {
-      nameAr: input.nameAr,
-      nameEn: input.nameEn ?? null,
-      category: input.category,
-      unitAr: input.unitAr,
-      unitEn: input.unitEn ?? null,
-      stockLevel: input.stockCurrent ?? 0,
-      lowStockThreshold: input.stockMinThreshold ?? 10,
-      brand: input.brand ?? '',
-      reorderStatus: input.reorderStatus ?? 'optimal',
-      batchLot: input.batchLot ?? '',
-      expiryDate: input.expiryDate ?? null,
-      locationAr: input.locationAr ?? '',
-      locationEn: input.locationEn ?? null,
-      unitCostLYD: input.unitCostLYD ?? 0,
-    },
-  })
-  return apiSuccess(toConsumableDTO(row), 201)
+  const consumable = await createConsumable(prismaConsumableWriter, body.data)
+  return apiSuccess(consumable, 201)
 }

@@ -1,9 +1,9 @@
 import { NextRequest } from 'next/server'
 import { z } from 'zod'
-import { prisma } from '@/lib/prisma'
-import { apiSuccess } from '@/lib/api/response'
-import { requireAdmin, readJson, prismaFailure } from '@/lib/api/admin-route'
-import { toConsumableDTO } from '@/lib/dashboard/consumables'
+import { apiSuccess, apiError } from '@/lib/api/response'
+import { requireAdmin, readJson } from '@/lib/api/admin-route'
+import { updateConsumable, ConsumableNotFoundError } from '@/lib/usecases/consumables'
+import { prismaConsumableWriter } from '@/lib/adapters/prisma/consumable-adapter'
 
 export const dynamic = 'force-dynamic'
 
@@ -18,6 +18,8 @@ const patchSchema = z.object({
   locationEn: z.string().nullable().optional(),
 })
 
+// Thin handler: auth gate -> validate -> use case -> respond.
+
 export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const auth = await requireAdmin()
   if (!auth.ok) return auth.response
@@ -28,12 +30,12 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
   if (!body.ok) return body.response
 
   try {
-    const row = await prisma.consumableType.update({ where: { id }, data: body.data })
-    return apiSuccess(toConsumableDTO(row))
+    const consumable = await updateConsumable(prismaConsumableWriter, id, body.data)
+    return apiSuccess(consumable)
   } catch (err) {
-    return prismaFailure(err, {
-      notFound: { code: 'CONSUMABLE_NOT_FOUND', ar: 'المستلزم غير موجود', en: 'Consumable not found' },
-      failure: { code: 'CONSUMABLE_UPDATE_FAILED', ar: 'تعذر تحديث المستلزم', en: 'Failed to update consumable' },
-    })
+    if (err instanceof ConsumableNotFoundError) {
+      return apiError(404, 'CONSUMABLE_NOT_FOUND', 'المستلزم غير موجود', 'Consumable not found')
+    }
+    throw err
   }
 }
