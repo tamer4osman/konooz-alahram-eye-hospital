@@ -30,6 +30,7 @@ const MODULE_LABELS: Record<DashboardModule, { ar: string; en: string }> = {
   equipment: { ar: 'الأجهزة', en: 'Equipment' },
   billing: { ar: 'الفوترة', en: 'Billing' },
   analytics: { ar: 'التحليلات', en: 'Analytics' },
+  patient_flow: { ar: 'تدفق المرضى', en: 'Patient Flow' },
 };
 
 export default function PermissionMatrixModal({

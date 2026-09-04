@@ -16,6 +16,7 @@ export const DASHBOARD_MODULES = [
   'equipment',
   'billing',
   'analytics',
+  'patient_flow',
 ] as const;
 
 export type DashboardModule = (typeof DASHBOARD_MODULES)[number];
@@ -36,10 +37,12 @@ export const ROLE_PRESETS: Record<string, PermissionsMap> = {
     clinical: 'write',
     surgeries: 'read',
     rooms: 'read',
+    patient_flow: 'read',
   },
   receptionist: {
     overview: 'read',
     appointments: 'write',
+    patient_flow: 'write',
     rooms: 'read',
     beds: 'read',
     personnel: 'read',
