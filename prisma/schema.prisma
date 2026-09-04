@@ -99,6 +99,7 @@ model PatientProfile {
   pacsOrders DiagnosticPacsOrder[]
   clinicalConsultations ClinicalConsultationRecord[]
   patientFlowStages PatientFlowStage[]
+  surveys PatientSurvey[]
 
   @@index([phone])
   @@map("patient_profiles")
@@ -114,6 +115,17 @@ enum AppointmentStatus {
   in_queue
   completed
   cancelled
+  no_show
+}
+
+/// Why an appointment was cancelled or marked no-show. Powers the
+/// cancellation Pareto report; free-text nuance lives in cancelNote.
+enum AppointmentCancelReason {
+  patient_request
+  clinic_decision
+  duplicate
+  rescheduled
+  other
 }
 
 enum AppointmentSource {
@@ -139,6 +151,9 @@ model Appointment {
   time         String
   status       AppointmentStatus @default(scheduled)
   source       AppointmentSource @default(PATIENT_REQUEST)
+  /// Set only when status is cancelled or no_show (enforced in rules.ts).
+  cancelReason AppointmentCancelReason?
+  cancelNote   String?
   locationAr   String?
   locationEn   String?
   instructionsAr String?
@@ -154,6 +169,7 @@ model Appointment {
   @@index([patientId])
   @@index([doctorId])
   @@index([date])
+  @@index([status, date])
   @@map("appointments")
 }
 
@@ -530,10 +546,12 @@ model ConsumableType {
 
   // Inventory fields (dashboard stock board). Cost column is Decimal(12,2)
   // so stock valuation stays exact; DTO mapper converts to JS number.
+  // expiryDate is a real DATE so expiry-radar math (days remaining, sort by
+  // soonest) is exact; the string ISO form persists at the API boundary.
   brand        String  @default("")
   reorderStatus String @default("optimal")
   batchLot     String  @default("")
-  expiryDate   String?
+  expiryDate   DateTime?
   locationAr   String  @default("")
   locationEn   String?
   unitCostLYD  Decimal @db.Decimal(12, 2) @default(0)
@@ -789,6 +807,7 @@ model HospitalBillingInvoice {
 
   @@index([patientId])
   @@index([issuedDate])
+  @@index([status, issuedDate])
   @@map("hospital_billing_invoices")
 }
 
@@ -1017,6 +1036,34 @@ model ConsentRecord {
 
   @@index([userId])
   @@map("consent_records")
+}
+
+// ──────────────────────────────────────────────
+// PATIENT SATISFACTION — visit survey
+// ──────────────────────────────────────────────
+
+/// One satisfaction survey per visit. Identity-linked by design decision
+/// (2026-09-04 grilling): rows join the account through patientRef, so the
+/// survey write path requires an active consent record (BCK-026) before
+/// persisting anything. One survey per ticket is DB-enforced.
+model PatientSurvey {
+  id           String @id @default(cuid())
+  /// Visit correlation key — the appointment ticket for that visit.
+  ticketNumber String @unique
+  /// Account linkage (identity-linked surveys). Synthetic walk-in tickets
+  /// without an account cannot submit through the authenticated endpoint.
+  patientRefId String
+  patientRef   PatientProfile @relation(fields: [patientRefId], references: [id], onDelete: Cascade)
+  /// 1 (very poor) .. 5 (excellent)
+  overallRating Int
+  /// 0..10 recommendation score — feeds the NPS-style satisfaction KPI.
+  recommendScore Int
+  commentAr    String?
+  commentEn    String?
+  createdAt    DateTime @default(now())
+
+  @@index([createdAt])
+  @@map("patient_surveys")
 }
 
 // ──────────────────────────────────────────────
