@@ -36,7 +36,9 @@ runSeed(async (prisma) => {
       brand: c.brand,
       reorderStatus: c.reorderStatus,
       batchLot: c.batchLot,
-      expiryDate: c.expiryDate,
+      // Seed JSON speaks ISO strings; the column is a real DATE (2026-09-04
+      // reporting-accuracy round), so convert at the seed boundary too.
+      expiryDate: c.expiryDate ? new Date(`${c.expiryDate}T00:00:00.000Z`) : null,
       locationAr: c.locationAr,
       locationEn: c.locationEn,
       unitCostLYD: c.unitCostLYD,
