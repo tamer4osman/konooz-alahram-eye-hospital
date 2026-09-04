@@ -8,6 +8,7 @@ import { HospitalStaff, HospitalRoom, HospitalEquipment, ScheduledSurgery, Surgi
 import { ResponsiveContainer, ComposedChart, Line, Bar, XAxis, YAxis, Tooltip, Legend, CartesianGrid } from 'recharts';
 import { Activity, Award, ShieldCheck, Zap, Download, Building2, Users, Gauge, Package, Timer, Workflow, AlertTriangle, Truck, CalendarClock } from 'lucide-react';
 import type { ConsumablesSummary } from '@/lib/usecases/consumables';
+import type { CataractOutcomeReport } from '@/lib/usecases/analytics';
 import type { RestockModalProps } from './modals/RestockModal';
 
 const RestockModal = dynamic<RestockModalProps>(
@@ -31,7 +32,7 @@ export default function AnalyticsTab({
 }: AnalyticsTabProps) {
   const { lang, t } = useLanguage();
   const [downloadSuccess, setDownloadSuccess] = useState(false);
-  const [activeAnalyticsSubTab, setActiveAnalyticsSubTab] = useState<'kpis' | 'resources' | 'flow' | 'stock'>('kpis');
+  const [activeAnalyticsSubTab, setActiveAnalyticsSubTab] = useState<'kpis' | 'resources' | 'flow' | 'stock' | 'outcomes'>('kpis');
 
   // KPIs are computed server-side from live database records.
   const currentAnalytics = useAnalytics(timeframe);
@@ -94,6 +95,21 @@ export default function AnalyticsTab({
   };
   const nowDate = new Date();
   const todayIsoStr = `${nowDate.getFullYear()}-${String(nowDate.getMonth() + 1).padStart(2, '0')}-${String(nowDate.getDate()).padStart(2, '0')}`;
+
+  // Cataract outcomes report
+  const [outcomeReport, setOutcomeReport] = useState<CataractOutcomeReport | null>(null);
+
+  useEffect(() => {
+    const controller = new AbortController();
+    fetch('/api/staff/reports/cataract-outcomes', { signal: controller.signal })
+      .then(async (res) => {
+        if (!res.ok) return;
+        const json = await res.json();
+        if (json?.data?.visualOutcomes) setOutcomeReport(json.data as CataractOutcomeReport);
+      })
+      .catch(() => {});
+    return () => controller.abort();
+  }, []);
 
   // Dynamic calculations based on live resource arrays
   const totalRooms = roomsList.length || 4;
@@ -190,7 +206,7 @@ export default function AnalyticsTab({
       {/* Sub-Nav Filter Tabs within Analytics */}
       <div className="flex items-center gap-2 border-b border-pine-200 pb-2 overflow-x-auto">
         {[
-          { key: 'kpis', icon: Activity, labelAr: 'المؤشرات العامة والإيرادات', labelEn: 'General KPIs & Revenue' }, { key: 'resources', icon: Gauge, labelAr: 'كفاءة الغرف والموارد وتوفرها', labelEn: 'Resource & Theater Availability' }, { key: 'flow', icon: Workflow, labelAr: 'مسار رحلة المريض (ADT Flow)', labelEn: 'Patient Flow Journey' }, { key: 'stock', icon: Package, labelAr: 'المستهلكات والعدسات الجراحية', labelEn: 'Surgical Stock & IOL Vault' }
+          { key: 'kpis', icon: Activity, labelAr: 'المؤشرات العامة والإيرادات', labelEn: 'General KPIs & Revenue' }, { key: 'resources', icon: Gauge, labelAr: 'كفاءة الغرف والموارد وتوفرها', labelEn: 'Resource & Theater Availability' }, { key: 'flow', icon: Workflow, labelAr: 'مسار رحلة المريض (ADT Flow)', labelEn: 'Patient Flow Journey' }, { key: 'stock', icon: Package, labelAr: 'المستهلكات والعدسات الجراحية', labelEn: 'Surgical Stock & IOL Vault' }, { key: 'outcomes', icon: Award, labelAr: 'نتائج جراحات المياه البيضاء', labelEn: 'Cataract Outcomes' }
         ].map((tab) => {
           const Icon = tab.icon;
           const isActive = activeAnalyticsSubTab === tab.key;
@@ -684,6 +700,108 @@ export default function AnalyticsTab({
         onClose={() => setRestockTarget(null)}
         onSaved={refreshConsumables}
       />
+
+      {/* ========================================================================= */}
+      {/* SECTION 5: CATARACT SURGICAL OUTCOMES (WHO grading) */}
+      {/* ========================================================================= */}
+      {activeAnalyticsSubTab === 'outcomes' && (
+        <div className="space-y-4 animate-fadeIn">
+          <div className="bg-white rounded-2xl p-6 border border-pine-200 shadow-sm">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-3 border-b border-bone-100">
+              <div>
+                <h3 className="text-sm font-extrabold text-pine-900 flex items-center gap-2">
+                  <Award className="w-4 h-4 text-brass-600" />
+                  <span>{t('نتائج جراحات المياه البيضاء (تصنيف منظمة الصحة العالمية)', 'Cataract Surgical Outcomes (WHO Grading)')}</span>
+                </h3>
+                <p className="text-xs text-ink-500 mt-0.5">
+                  {t(
+                    'حجم العمليات وسجل حدة الإبصار المصححة لمرضى المياه البيضاء',
+                    'Procedure volume and best-corrected visual acuity record for cataract patients',
+                  )}
+                </p>
+              </div>
+            </div>
+
+            {!outcomeReport?.hasData ? (
+              <div className="p-8 text-center text-xs text-ink-500">
+                {t(
+                  'لا توجد بيانات كافية بعد — تُملأ النتائج تلقائياً مع تسجيل عمليات المياه البيضاء وسجلات الكشف',
+                  'Not enough data yet — outcomes fill in automatically as cataract procedures and consultation records are logged',
+                )}
+              </div>
+            ) : (
+              <div className="space-y-5 pt-4">
+                {/* Procedure volume */}
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                  <div className="rounded-xl border border-pine-200 bg-bone-50 p-3">
+                    <p className="text-[10px] font-bold text-ink-500">{t('إجمالي العمليات', 'Total Procedures')}</p>
+                    <p className="text-xl font-extrabold text-pine-900 font-mono">{outcomeReport.surgeries.total}</p>
+                  </div>
+                  <div className="rounded-xl border border-pine-200 bg-bone-50 p-3">
+                    <p className="text-[10px] font-bold text-ink-500">{t('منجزة', 'Completed')}</p>
+                    <p className="text-xl font-extrabold text-emerald-700 font-mono">{outcomeReport.surgeries.completed}</p>
+                  </div>
+                  <div className="rounded-xl border border-pine-200 bg-bone-50 p-3">
+                    <p className="text-[10px] font-bold text-ink-500">{t('مجدولة', 'Scheduled')}</p>
+                    <p className="text-xl font-extrabold text-pine-800 font-mono">{outcomeReport.surgeries.scheduled}</p>
+                  </div>
+                  <div className="rounded-xl border border-pine-200 bg-bone-50 p-3">
+                    <p className="text-[10px] font-bold text-ink-500">{t('ملغاة / لم تحضر', 'Cancelled / No-show')}</p>
+                    <p className="text-xl font-extrabold text-rose-700 font-mono">{outcomeReport.surgeries.cancelled}</p>
+                  </div>
+                </div>
+
+                {/* Good-outcome rate */}
+                <div className="rounded-2xl border border-pine-200 bg-gradient-to-br from-pine-50 to-bone-50 p-5 text-center">
+                  <p className="text-xs font-bold text-ink-500">{t('نسبة النتيجة الجيدة (إبصار ٦/١٨ أو أفضل بالعين الأفضل)', 'Good Outcome Rate (≥ 6/18 in the best eye)')}</p>
+                  {outcomeReport.goodOutcomeRate === null ? (
+                    <p className="text-3xl font-extrabold text-ink-400 mt-1">—</p>
+                  ) : (
+                    <p className="text-3xl font-extrabold text-pine-900 mt-1 font-mono">{outcomeReport.goodOutcomeRate}%</p>
+                  )}
+                  <p className="text-[10px] text-ink-400 mt-1">
+                    {t('محسوبة من', 'computed from')} {outcomeReport.gradedCount}{' '}
+                    {t('سجل مُقيَّم بسجل حدة الإبصار', 'graded records with recorded acuity')}
+                  </p>
+                </div>
+
+                {/* WHO outcome buckets */}
+                <div>
+                  <h4 className="text-xs font-extrabold text-pine-900 mb-2">
+                    {t('توزيع حدة الإبصار (العين الأفضل) — تصنيف منظمة الصحة العالمية', 'Visual Acuity Distribution (best eye) — WHO grading')}
+                  </h4>
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                    <div className="rounded-xl border border-emerald-200 bg-emerald-50 p-3">
+                      <p className="text-[10px] font-bold text-emerald-700">{t('جيدة (٦/١٨ أو أفضل)', 'Good (≥ 6/18)')}</p>
+                      <p className="text-2xl font-extrabold text-emerald-800 font-mono">{outcomeReport.visualOutcomes.good}</p>
+                    </div>
+                    <div className="rounded-xl border border-brass-600 bg-brass-50 p-3">
+                      <p className="text-[10px] font-bold text-brass-600">{t('حدية (أقل من ٦/١٨ إلى ٦/٦٠)', 'Borderline (< 6/18 to 6/60)')}</p>
+                      <p className="text-2xl font-extrabold text-brass-600 font-mono">{outcomeReport.visualOutcomes.borderline}</p>
+                    </div>
+                    <div className="rounded-xl border border-rose-200 bg-rose-50 p-3">
+                      <p className="text-[10px] font-bold text-rose-700">{t('ضعيفة (أقل من ٦/٦٠)', 'Poor (< 6/60)')}</p>
+                      <p className="text-2xl font-extrabold text-rose-800 font-mono">{outcomeReport.visualOutcomes.poor}</p>
+                    </div>
+                    <div className="rounded-xl border border-bone-300 bg-bone-100 p-3">
+                      <p className="text-[10px] font-bold text-ink-500">{t('غير مسجلة', 'Not recorded')}</p>
+                      <p className="text-2xl font-extrabold text-ink-500 font-mono">{outcomeReport.visualOutcomes.unknown}</p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Honest limitation */}
+                <p className="text-[10px] text-ink-500 bg-bone-50 border border-bone-200 rounded-xl px-3 py-2.5">
+                  {t(
+                    'ملاحظة منهجية: النظام لا يُقرن بعد حدة الإبصار قبل الجراحة وبعدها لكل مريض — التصنيف أعلاه يعكس حدة الإبصار المصححة الحالية لمرضى المياه البيضاء في سجلات الكشف، وليس التغيّر الناتج عن الجراحة.',
+                    'Methodology note: pre-op/post-op acuity pairing per patient is not tracked yet — the grading above reflects current best-corrected acuity of cataract patients in consultation records, not surgical change.',
+                  )}
+                </p>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
 
       {/* Quality & Safety Indicators (Clinical Governance) */}
       <div className="bg-gradient-to-r from-ink-900  to-pine-950 rounded-2xl p-6 text-white border border-pine-500/20 shadow-xl">
