@@ -1,9 +1,11 @@
 import { prisma } from '@/lib/prisma'
 import type { Specialty } from '@/data/hospitalData'
 import {
+  computeAttendanceKpi,
   computeSatisfactionKpi,
   computeWaitTimeFunnelForRange,
   meanFunnelWait,
+  type AttendanceKpi,
   type SatisfactionKpi,
   type WaitTimeFunnel,
 } from '@/lib/usecases/analytics/rules'
@@ -201,6 +203,7 @@ export interface AnalyticsDTO {
   departmentWorkload: Array<{ nameAr: string; nameEn: string; count: number; color: string }>
   surgeonWorkload: Array<{ nameAr: string; nameEn: string; cases: number; avgDurationMin: number }>
   satisfaction: SatisfactionKpi
+  attendance: AttendanceKpi
   waitTimeFunnel: WaitTimeFunnel
 }
 
@@ -210,7 +213,7 @@ export async function computeAnalytics(
 ): Promise<AnalyticsDTO> {
   const range = computeRange(timeframe)
 
-  const [cur, prev, surgeryRows, consultDates, scanDates, invoices, orRoomCount, surveyRows, flowRows] = await Promise.all([
+  const [cur, prev, surgeryRows, consultDates, scanDates, invoices, orRoomCount, surveyRows, flowRows, appointmentRows] = await Promise.all([
     totalsForRange(range.start, range.end),
     totalsForRange(range.prevStart, range.prevEnd),
     prisma.scheduledSurgery.findMany({
@@ -238,11 +241,17 @@ export async function computeAnalytics(
       where: { enteredAt: { gte: range.start, lt: range.end } },
       select: { patientRefId: true, patientId: true, stageType: true, enteredAt: true },
     }),
+    prisma.appointment.findMany({
+      where: { date: { gte: range.start, lt: range.end } },
+      select: { status: true },
+    }),
   ])
 
   const satisfaction = computeSatisfactionKpi(
     surveyRows.map((r) => ({ overallRating: r.overallRating, recommendScore: r.recommendScore })),
   )
+
+  const attendance = computeAttendanceKpi(appointmentRows)
 
   const waitTimeFunnel = computeWaitTimeFunnelForRange(
     flowRows.map((r) => ({
@@ -358,6 +367,7 @@ export async function computeAnalytics(
     departmentWorkload,
     surgeonWorkload,
     satisfaction,
+    attendance,
     waitTimeFunnel,
   }
 }

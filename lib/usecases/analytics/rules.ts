@@ -350,3 +350,65 @@ export function computeCataractOutcomes(
     hasData,
   };
 }
+
+
+// ---------------------------------------------------------------------------
+// Appointment attendance KPI (from Appointment status rows)
+// ---------------------------------------------------------------------------
+
+export interface AttendanceStatusRow {
+  status: string;
+}
+
+export interface AttendanceKpi {
+  /** Arrived patients: completed + in_queue. */
+  attendedCount: number;
+  /** Attendance universe: all rows except cancelled. */
+  universeCount: number;
+  /**
+   * attended / universe, integer percent. Null when the universe is empty —
+   * an honest "no attendance opportunities" instead of a fabricated 0%.
+   */
+  attendanceRate: number | null;
+  noShowCount: number;
+  cancelledCount: number;
+}
+
+/**
+ * Attendance rate over the appointments of the period. Cancelled
+ * appointments are excluded from the denominator — a cancellation is a
+ * scheduling fact, not an attendance failure. Future statuses
+ * (scheduled/confirmed) count in the universe until the day resolves.
+ */
+export function computeAttendanceKpi(rows: AttendanceStatusRow[]): AttendanceKpi {
+  let attendedCount = 0;
+  let universeCount = 0;
+  let noShowCount = 0;
+  let cancelledCount = 0;
+
+  for (const row of rows) {
+    switch (row.status) {
+      case 'completed':
+      case 'in_queue':
+        attendedCount += 1;
+        universeCount += 1;
+        break;
+      case 'no_show':
+        noShowCount += 1;
+        universeCount += 1;
+        break;
+      case 'scheduled':
+      case 'confirmed':
+        universeCount += 1;
+        break;
+      case 'cancelled':
+        cancelledCount += 1;
+        break;
+    }
+  }
+
+  const attendanceRate =
+    universeCount === 0 ? null : Math.round((attendedCount / universeCount) * 100);
+
+  return { attendedCount, universeCount, attendanceRate, noShowCount, cancelledCount };
+}

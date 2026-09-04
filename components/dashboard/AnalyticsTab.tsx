@@ -42,6 +42,7 @@ export default function AnalyticsTab({
     patientSatisfaction: null, averageWaitTimeMin: null, nps: null, surveyResponses: 0, revenueLYD: 0, revenueGrowth: '+0.0%'
   };
   const waitTimeFunnel = currentAnalytics?.waitTimeFunnel;
+  const attendance = currentAnalytics?.attendance;
 
   // Consumables board state
   const [summary, setSummary] = useState<ConsumablesSummary | null>(null);
@@ -98,6 +99,7 @@ export default function AnalyticsTab({
 
   // Cataract outcomes report
   const [outcomeReport, setOutcomeReport] = useState<CataractOutcomeReport | null>(null);
+  const cataractReport = outcomeReport;
 
   useEffect(() => {
     const controller = new AbortController();
@@ -808,33 +810,55 @@ export default function AnalyticsTab({
         <div className="mb-4 pb-3 border-b border-ink-700/80">
           <h3 className="text-base font-extrabold text-white flex items-center gap-2">
             <ShieldCheck className="w-5 h-5 text-brass-400" />
-            <span>{t('مؤشرات الجودة ومكافحة العدوى والأمان الجراحي', 'Clinical Governance, Sterility & Quality Benchmarks')}</span>
+            <span>{t('مؤشرات الجودة والأمان السريري', 'Clinical Quality & Safety Indicators')}</span>
           </h3>
           <p className="text-xs text-ink-300 mt-0.5">
             {t(
-              'معايير السلامة العالمية لجراحات العيون المطبقة في مستشفى كنوز الأهرام بنغازي',
-              'International ophthalmic surgical safety standards enforced across all suites'
+              'مؤشرات محسوبة من سجلات المستشفى — تظهر “—” عندما لا تتوفر بيانات كافية',
+              'Computed from hospital records — shows “—” when data is not yet sufficient',
             )}
           </p>
         </div>
 
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           <div className="p-4 rounded-xl bg-ink-700/80 border border-ink-700 text-center">
-            <span className="text-[11px] font-bold text-ink-400 block mb-1">{t('نسبة مكافحة العدوى', 'Infection Prevention')}</span>
-            <span className="text-2xl font-extrabold text-brass-400">100.0%</span>
-            <span className="text-[10px] text-ink-500 block mt-1">{t('صفر حالات تلوث جراحي', 'Zero Endophthalmitis Cases')}</span>
+            <span className="text-[11px] font-bold text-ink-400 block mb-1">{t('نسبة الحضور (المواعيد)', 'Appointment Attendance')}</span>
+            <span className="text-2xl font-extrabold text-brass-400">
+              {attendance?.attendanceRate !== null && attendance?.attendanceRate !== undefined
+                ? `${attendance.attendanceRate}%`
+                : '—'}
+            </span>
+            <span className="text-[10px] text-ink-500 block mt-1">
+              {attendance && attendance.universeCount > 0
+                ? `${attendance.attendedCount} / ${attendance.universeCount} ${t('حضر •', 'attended •')} ${attendance.noShowCount} ${t('لم يحضر', 'no-show')}`
+                : t('لا مواعيد في هذه الفترة', 'No appointments in this period')}
+            </span>
           </div>
 
           <div className="p-4 rounded-xl bg-ink-700/80 border border-ink-700 text-center">
-            <span className="text-[11px] font-bold text-ink-400 block mb-1">{t('تحسن حدة الإبصار', 'Visual Acuity Gain')}</span>
-            <span className="text-2xl font-extrabold text-brass-300">99.4%</span>
-            <span className="text-[10px] text-ink-500 block mt-1">{t('نتائج الليزك والفاكو 6/6', '99.4% Achieve 20/20 Target')}</span>
+            <span className="text-[11px] font-bold text-ink-400 block mb-1">{t('نتيجة جيدة للمياه البيضاء', 'Cataract Good Outcome')}</span>
+            <span className="text-2xl font-extrabold text-brass-300">
+              {cataractReport?.goodOutcomeRate !== null && cataractReport?.goodOutcomeRate !== undefined
+                ? `${cataractReport.goodOutcomeRate}%`
+                : '—'}
+            </span>
+            <span className="text-[10px] text-ink-500 block mt-1">
+              {cataractReport && cataractReport.gradedCount > 0
+                ? `${cataractReport.gradedCount} ${t('سجل مُقيَّم (إبصار ٦/١٨ أو أفضل)', 'graded records (≥ 6/18 best eye)')}`
+                : t('لا سجلات إبصار مُقيَّمة بعد', 'No graded acuity records yet')}
+            </span>
           </div>
 
           <div className="p-4 rounded-xl bg-ink-700/80 border border-ink-700 text-center">
-            <span className="text-[11px] font-bold text-ink-400 block mb-1">{t('قائمة التحقق الجراحي WHO', 'WHO Surgical Checklist')}</span>
-            <span className="text-2xl font-extrabold text-brass-300">100.0%</span>
-            <span className="text-[10px] text-ink-500 block mt-1">{t('تطبيق إلزامي لكل مريض', 'Full Sign-In & Time-Out Protocol')}</span>
+            <span className="text-[11px] font-bold text-ink-400 block mb-1">{t('متوسط زمن الانتظار', 'Average Wait Time')}</span>
+            <span className="text-2xl font-extrabold text-brass-300">
+              {kpis.averageWaitTimeMin !== null ? `${kpis.averageWaitTimeMin} ${t('د', 'min')}` : '—'}
+            </span>
+            <span className="text-[10px] text-ink-500 block mt-1">
+              {kpis.averageWaitTimeMin !== null
+                ? t('من مراحل التدفق المسجلة', 'from recorded flow stages')
+                : t('لم تُسجَّل مراحل تدفق في هذه الفترة', 'No flow stages recorded in this period')}
+            </span>
           </div>
 
           <div className="p-4 rounded-xl bg-ink-700/80 border border-ink-700 text-center">

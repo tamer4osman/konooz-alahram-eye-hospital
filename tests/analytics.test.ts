@@ -29,6 +29,9 @@ vi.mock('@/lib/prisma', () => ({
     patientFlowStage: {
       findMany: vi.fn(async () => []),
     },
+    appointment: {
+      findMany: vi.fn(async () => []),
+    },
   },
 }));
 
@@ -132,6 +135,29 @@ describe('computeAnalytics (day timeframe)', () => {
     const dto = await computeAnalytics('day' as AnalyticsTimeframe);
     expect(dto.kpis.patientSatisfaction).toBeNull();
     expect(dto.kpis.averageWaitTimeMin).toBeNull();
+    // no appointments -> no attendance universe -> honest null rate
+    expect(dto.attendance.attendanceRate).toBeNull();
+    expect(dto.attendance.universeCount).toBe(0);
+  });
+
+  it('computes the attendance KPI from appointment statuses (cancelled excluded)', async () => {
+    seedPrisma();
+    const mocked = prisma as unknown as {
+      appointment: { findMany: ReturnType<typeof vi.fn> };
+    };
+    mocked.appointment.findMany.mockResolvedValue([
+      { status: 'completed' },
+      { status: 'in_queue' },
+      { status: 'no_show' },
+      { status: 'scheduled' },
+      { status: 'cancelled' },
+    ]);
+    const dto = await computeAnalytics('day' as AnalyticsTimeframe);
+    expect(dto.attendance.attendedCount).toBe(2);
+    expect(dto.attendance.universeCount).toBe(4);
+    expect(dto.attendance.attendanceRate).toBe(50);
+    expect(dto.attendance.noShowCount).toBe(1);
+    expect(dto.attendance.cancelledCount).toBe(1);
   });
 
   it('builds hourly buckets 08:00-19:00 with OR occupancy capped at 100', async () => {
