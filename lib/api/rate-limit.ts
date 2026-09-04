@@ -81,3 +81,8 @@ export const bookingRateLimiter = createRateLimiter({
   limit: 10,
   windowMs: 60 * 60 * 1000,
 })
+
+export const surveyRateLimiter = createRateLimiter({
+  limit: 5,
+  windowMs: 60 * 60 * 1000,
+})
