@@ -24,7 +24,7 @@ const EMPTY_FORM = {
   departmentEn: 'Diagnostic & Retinal Imaging Unit',
   technicianInChargeAr: 'م. سالم المجبري',
   nextServiceDue: '2026-12-01',
-  notesAr: 'جهاز جديد تم تدشينه وفحص كافة حساسات التصوير الطبقي بدقة 100%'
+  notesAr: 'جهاز جديد تم تدشينه وفحصه عند الاستلام'
 };
 
 export default function AddEquipmentModal({ open, rooms, onClose, onCreated }: AddEquipmentModalProps) {

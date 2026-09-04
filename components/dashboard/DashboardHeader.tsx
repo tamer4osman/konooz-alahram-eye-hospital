@@ -1,14 +1,30 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useLanguage } from '@/context/LanguageContext';
 import { usePatientAuth } from '@/context/PatientAuthContext';
 import { Activity, Calendar, ChevronDown, RefreshCw, Bell, ArrowRight, ArrowLeft, Building2, Plus, Users, Cpu, Radio, LogOut } from 'lucide-react';
+import type { OpsSnapshot } from '@/lib/usecases/ops-status/ports';
 
 interface DashboardHeaderProps {
   timeframe: 'day' | 'week' | 'month' | 'year';
   onChangeTimeframe: (tf: 'day' | 'week' | 'month' | 'year') => void;
   onOpenAddModal: (type: 'staff' | 'surgery' | 'equipment' | 'room' | 'broadcast') => void;
+}
+
+const LEVEL_STYLES: Record<string, string> = {
+  success: 'bg-pine-100 text-pine-800 border-pine-200',
+  warning: 'bg-brass-100 text-brass-600 border-brass-200',
+  info: 'bg-ink-100 text-ink-700 border-ink-200',
+};
+
+/** Relative-time label in minutes; both locales share the compact form. */
+function minutesAgoLabel(iso: string, t: (ar: string, en: string) => string): string {
+  const mins = Math.max(0, Math.round((Date.now() - new Date(iso).getTime()) / 60_000));
+  if (mins < 1) return t('الآن', 'just now');
+  if (mins < 60) return t(`منذ ${mins} دقيقة`, `${mins} mins ago`);
+  const hours = Math.floor(mins / 60);
+  return t(`منذ ${hours} ساعة`, `${hours} hours ago`);
 }
 
 export default function DashboardHeader({
@@ -20,6 +36,20 @@ export default function DashboardHeader({
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
 
+  // Live ops status: system health badge + activity feed, from the database.
+  const [ops, setOps] = useState<OpsSnapshot | null>(null);
+  useEffect(() => {
+    const controller = new AbortController();
+    fetch('/api/staff/ops-status', { signal: controller.signal })
+      .then(async (res) => {
+        if (!res.ok) return;
+        const json = await res.json();
+        if (json?.data) setOps(json.data as OpsSnapshot);
+      })
+      .catch(() => {});
+    return () => controller.abort();
+  }, []);
+
   const adminInitial = (serverUser?.email ?? '?').charAt(0).toUpperCase();
 
   const handleRefresh = () => {
@@ -28,15 +58,6 @@ export default function DashboardHeader({
       setIsRefreshing(false);
     }, 600);
   };
-
-  const notifications = [
-    {
-      id: 1, titleAr: 'اكتمال تعقيم جناح العمليات 2', titleEn: 'OR 2 Sterilization Cycle Completed', timeAr: 'منذ 8 دقائق', timeEn: '8 mins ago', type: 'success' }, {
-      id: 2, titleAr: 'بدء جراحة الشبكية العاجلة (OR-1)', titleEn: 'Urgent Vitrectomy Surgery In Progress (OR-1)', timeAr: 'منذ 18 دقيقة', timeEn: '18 mins ago', type: 'warning'
-    }, {
-      id: 3, titleAr: 'تمت معايرة جهاز Schwind Amaris بنجاح', titleEn: 'Schwind Amaris 1050RS Laser Calibrated', timeAr: 'منذ 45 دقيقة', timeEn: '45 mins ago', type: 'info'
-    }
-  ];
 
   return (
     <header className="bg-ink-900 text-white border-b border-ink-700 sticky top-0 z-30 shadow-lg">
@@ -101,8 +122,16 @@ export default function DashboardHeader({
                 <h1 className="text-base sm:text-lg font-extrabold text-white tracking-tight">
                   {t('لوحة التحكم وإدارة موارد المستشفى', 'Hospital Resource & Operations Command')}
                 </h1>
-                <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-pine-500/20 text-pine-300 border border-pine-500/30">
-                  {t('جميع الأنظمة تعمل بكفاءة 100%', 'All Systems 100% Operational') }
+                <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold border ${
+                  ops?.systemHealth.level === 'operational'
+                    ? 'bg-pine-500/20 text-pine-300 border-pine-500/30'
+                    : ops?.systemHealth.level === 'warning'
+                      ? 'bg-brass-500/20 text-brass-300 border-brass-500/30'
+                      : ops?.systemHealth.level === 'critical'
+                        ? 'bg-rose-500/20 text-rose-300 border-rose-500/30'
+                        : 'bg-ink-700/60 text-ink-400 border-ink-600'
+                }`}>
+                  {ops ? t(ops.systemHealth.labelAr, ops.systemHealth.labelEn) : t('جارٍ فحص الحالة…', 'Checking status…')}
                 </span>
               </div>
               <p className="text-xs text-ink-400 mt-0.5">
@@ -169,20 +198,32 @@ export default function DashboardHeader({
                       <span>{t('تنبيهات العمليات الحية', 'Live Operations Feed')}</span>
                     </span>
                     <span className="text-[10px] font-bold text-brass-400 bg-pine-950 px-2 py-0.5 rounded-full border border-pine-800">
-                      3 {t('جديدة', 'new')}
+                      {ops ? `${ops.activity.length} ${t('أحداث', 'events')}` : t('جارٍ التحميل…', 'Loading…')}
                     </span>
                   </div>
 
                   <div className="space-y-2">
-                    {notifications.map((n) => (
+                    {!ops && (
+                      <p className="text-xs text-ink-500 p-2">{t('جارٍ تحميل الأحداث…', 'Loading events…')}</p>
+                    )}
+                    {ops && ops.activity.length === 0 && (
+                      <p className="text-xs text-ink-500 p-2">
+                        {t('لا أحداث تشغيلية مسجلة بعد', 'No operational events logged yet')}
+                      </p>
+                    )}
+                    {ops?.activity.map((n) => (
                       <div
                         key={n.id}
                         className="p-2 rounded-xl bg-ink-700/80 border border-ink-700/60 text-xs hover:bg-ink-700 transition-colors"
                       >
                         <div className="flex items-start justify-between gap-2">
-                          <p className="font-semibold text-pine-200">{t(n.titleAr, n.titleEn)}</p>
+                          <p className="font-semibold text-pine-200">{t(n.messageAr, n.messageEn ?? '')}</p>
+                          <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded-md border flex-shrink-0 ${LEVEL_STYLES[n.level] ?? LEVEL_STYLES.info}`}>
+                            {t(n.level === 'success' ? 'ناجح' : n.level === 'warning' ? 'تنبيه' : 'معلومة',
+                               n.level === 'success' ? 'OK' : n.level === 'warning' ? 'Alert' : 'Info')}
+                          </span>
                         </div>
-                        <span className="text-[10px] text-ink-500 mt-1 block">{t(n.timeAr, n.timeEn)}</span>
+                        <span className="text-[10px] text-ink-500 mt-1 block">{minutesAgoLabel(n.createdAt, t)}</span>
                       </div>
                     ))}
                   </div>

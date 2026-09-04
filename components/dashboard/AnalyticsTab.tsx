@@ -9,6 +9,7 @@ import { ResponsiveContainer, ComposedChart, Line, Bar, XAxis, YAxis, Tooltip, L
 import { Activity, Award, ShieldCheck, Zap, Download, Building2, Users, Gauge, Package, Timer, Workflow, AlertTriangle, Truck, CalendarClock, TrendingUp, TrendingDown, Minus } from 'lucide-react';
 import type { ConsumablesSummary } from '@/lib/usecases/consumables';
 import type { CataractOutcomeReport, TrendDelta } from '@/lib/usecases/analytics';
+import type { OpsSnapshot } from '@/lib/usecases/ops-status/ports';
 import type { RestockModalProps } from './modals/RestockModal';
 
 const RestockModal = dynamic<RestockModalProps>(
@@ -84,6 +85,20 @@ export default function AnalyticsTab({
   const waitTimeFunnel = currentAnalytics?.waitTimeFunnel;
   const attendance = currentAnalytics?.attendance;
   const trends = currentAnalytics?.trends ?? null;
+
+  // Live ops telemetry from database records (same source as the header).
+  const [opsSnapshot, setOpsSnapshot] = useState<OpsSnapshot | null>(null);
+  useEffect(() => {
+    const controller = new AbortController();
+    fetch('/api/staff/ops-status', { signal: controller.signal })
+      .then(async (res) => {
+        if (!res.ok) return;
+        const json = await res.json();
+        if (json?.data) setOpsSnapshot(json.data as OpsSnapshot);
+      })
+      .catch(() => {});
+    return () => controller.abort();
+  }, []);
 
   // Consumables board state
   const [summary, setSummary] = useState<ConsumablesSummary | null>(null);
@@ -289,8 +304,8 @@ export default function AnalyticsTab({
               <span className="text-xs font-bold">{t('جاهزية الأجهزة والليزر', 'Equipment Uptime') }</span>
               <Zap className="w-4 h-4 text-brass-600" />
             </div>
-            <div className="text-2xl font-extrabold text-pine-900">{dynamicEquipmentReadiness}%</div>
-            <span className="text-[10px] text-emerald-700 font-semibold">{operationalEquipment} {t('أجهزة تعمل بكفاءة 100%', 'units calibrated')}</span>
+            <div className="text-2xl font-extrabold text-pine-900">{opsSnapshot ? (opsSnapshot.equipment.readinessPercent ?? '—') : dynamicEquipmentReadiness}%</div>
+            <span className="text-[10px] text-emerald-700 font-semibold">{opsSnapshot ? opsSnapshot.equipment.readyCount : operationalEquipment} {t('جهاز جاهز من إجمالي', 'units ready of')}</span>
           </div>
 
           <div className="bg-white p-4 rounded-2xl border border-pine-200 shadow-xs">
@@ -304,11 +319,21 @@ export default function AnalyticsTab({
 
           <div className="bg-white p-4 rounded-2xl border border-pine-200 shadow-xs">
             <div className="flex items-center justify-between text-ink-500 mb-1">
-              <span className="text-xs font-bold">{t('زمن تجهيز الغرفة (Turnaround)', 'OR Turnaround Time')}</span>
+              <span className="text-xs font-bold">{t('متوسط مدة العمليات (24 ساعة)', 'Mean Surgery Duration (24h)')}</span>
               <Timer className="w-4 h-4 text-emerald-600" />
             </div>
-            <div className="text-2xl font-extrabold text-emerald-700">16.5 <span className="text-xs font-sans text-ink-500">{t('دقيقة', 'min')}</span></div>
-            <span className="text-[10px] text-ink-500 font-semibold">{t('أسرع بـ 3.5 دقيقة من المعيار', '3.5 min faster than goal') }</span>
+            {opsSnapshot?.surgery.meanDurationMin != null ? (
+              <div className="text-2xl font-extrabold text-emerald-700">
+                {opsSnapshot.surgery.meanDurationMin} <span className="text-xs font-sans text-ink-500">{t('دقيقة', 'min')}</span>
+              </div>
+            ) : (
+              <div className="text-2xl font-extrabold text-ink-300">—</div>
+            )}
+            <span className="text-[10px] text-ink-500 font-semibold">
+              {opsSnapshot
+                ? t(`${opsSnapshot.surgery.completedCount} عملية مكتملة`, `${opsSnapshot.surgery.completedCount} surgeries completed`)
+                : t('جارٍ الحساب…', 'Computing…')}
+            </span>
           </div>
         </div>
       )}
@@ -406,7 +431,9 @@ export default function AnalyticsTab({
                   <Zap className="w-4 h-4 text-brass-500" />
                   <span>{t('جاهزية أجهزة الليزر والفاكو', 'Laser & Phaco Uptime')}</span>
                 </h4>
-                <span className="text-xs font-mono font-bold text-emerald-700">100% {t('معاير', 'calibrated')}</span>
+                <span className="text-xs font-mono font-bold text-emerald-700">
+                  {opsSnapshot ? `${opsSnapshot.equipment.readinessPercent ?? '—'}% ${t('جاهز', 'ready')}` : t('جارٍ الحساب…', 'Computing…')}
+                </span>
               </div>
               <div className="space-y-2">
                 {equipmentList.slice(0, 4).map((eq) => (
@@ -415,8 +442,14 @@ export default function AnalyticsTab({
                       <span className="font-bold text-ink-700 block truncate">{lang === 'ar' ? eq.nameAr : eq.nameEn}</span>
                       <span className="text-[10px] text-ink-500 truncate block">{eq.brand} • {eq.roomCode}</span>
                     </div>
-                    <span className="px-2 py-0.5 rounded-lg text-[10px] font-extrabold bg-pine-100 text-pine-800 flex-shrink-0">
-                      {t('يعمل بكفاءة', 'Operational')}
+                    <span className={`px-2 py-0.5 rounded-lg text-[10px] font-extrabold flex-shrink-0 ${
+                      eq.status === 'operational' ? 'bg-pine-100 text-pine-800'
+                        : eq.status === 'in_use' ? 'bg-brass-100 text-brass-600'
+                        : 'bg-rose-100 text-rose-800'
+                    }`}>
+                      {eq.status === 'operational' ? t('جاهز', 'Ready')
+                        : eq.status === 'in_use' ? t('قيد الاستخدام', 'In Use')
+                        : t('خارج الجاهزية', 'Not Ready')}
                     </span>
                   </div>
                 ))}
@@ -430,20 +463,30 @@ export default function AnalyticsTab({
                   <ShieldCheck className="w-4 h-4 text-emerald-600" />
                   <span>{t('مؤشرات التعقيم والإفاقة', 'PACU & Sterile Services')}</span>
                 </h4>
-                <span className="text-xs font-mono font-bold text-emerald-700">CSSD 100%</span>
+                <span className="text-xs font-mono font-bold text-emerald-700">
+                  {opsSnapshot
+                    ? `${opsSnapshot.sterileSets.totalCount > 0 ? Math.round((opsSnapshot.sterileSets.readyCount / opsSnapshot.sterileSets.totalCount) * 100) : '—'}% ${t('أطقم جاهزة', 'sets ready')}`
+                    : t('جارٍ الحساب…', 'Computing…')}
+                </span>
               </div>
               <div className="space-y-2.5 text-xs">
                 <div className="p-2.5 bg-pine-50 rounded-xl border border-pine-100 flex items-center justify-between">
                   <span className="font-bold text-pine-900">{t('أطقم الجراحة المعقمة الجاهزة', 'Sterile Surgical Sets Ready')}</span>
-                  <span className="font-mono font-extrabold text-pine-800 text-sm">28 / 30</span>
+                  <span className="font-mono font-extrabold text-pine-800 text-sm">
+                    {opsSnapshot ? `${opsSnapshot.sterileSets.readyCount} / ${opsSnapshot.sterileSets.totalCount}` : '—'}
+                  </span>
                 </div>
                 <div className="p-2.5 bg-pine-50 rounded-xl border border-pine-100 flex items-center justify-between">
                   <span className="font-bold text-pine-900">{t('أسرة وحدة الإفاقة PACU', 'PACU Recovery Beds')}</span>
-                  <span className="font-mono font-extrabold text-pine-900 text-sm">4 / 8 {t('مشغول', 'occupied')}</span>
+                  <span className="font-mono font-extrabold text-pine-900 text-sm">
+                    {opsSnapshot ? `${opsSnapshot.pacu.occupied} / ${opsSnapshot.pacu.total} ${t('مشغول', 'occupied')}` : '—'}
+                  </span>
                 </div>
                 <div className="p-2.5 bg-bone-50 rounded-xl border border-bone-100 flex items-center justify-between">
                   <span className="font-bold text-ink-700">{t('متوسط مكوث الإفاقة', 'Avg PACU Stay')}</span>
-                  <span className="font-mono font-extrabold text-ink-900 text-sm">38.0 {t('دقيقة', 'min')}</span>
+                  <span className="font-mono font-extrabold text-ink-900 text-sm">
+                    {opsSnapshot ? (opsSnapshot.pacu.meanStayMin != null ? `${opsSnapshot.pacu.meanStayMin} ${t('دقيقة', 'min')}` : '—') : '—'}
+                  </span>
                 </div>
               </div>
             </div>
@@ -470,7 +513,7 @@ export default function AnalyticsTab({
               </p>
             </div>
             <span className="px-3 py-1 bg-pine-50 text-pine-800 text-xs font-extrabold rounded-xl border border-pine-200">
-              57 {t('مريضاً في المسار حالياً', 'patients active in facility')}
+              {opsSnapshot ? `${opsSnapshot.activeInFlow} ${t('مريضاً في المسار حالياً', 'patients active in facility')}` : t('جارٍ الحساب…', 'Computing…')}
             </span>
           </div>
 

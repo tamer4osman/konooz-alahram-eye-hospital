@@ -1,8 +1,9 @@
 'use client';
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useLanguage } from '@/context/LanguageContext';
 import { useAnalytics } from '@/hooks/use-analytics';
+import type { OpsSnapshot } from '@/lib/usecases/ops-status/ports';
 import {
   HospitalStaff,
   HospitalRoom,
@@ -34,6 +35,21 @@ export default function OverviewTab({
     diagnosticScans: 0, scansGrowth: '+0.0%', orUtilizationRate: 0, orUtilizationGrowth: '+0.0%',
     patientSatisfaction: null, averageWaitTimeMin: null, revenueLYD: 0, revenueGrowth: '+0.0%'
   };
+  const attendanceRate = currentAnalytics?.attendance.attendanceRate ?? null;
+
+  // Live ops telemetry from database records.
+  const [opsSnapshot, setOpsSnapshot] = useState<OpsSnapshot | null>(null);
+  useEffect(() => {
+    const controller = new AbortController();
+    fetch('/api/staff/ops-status', { signal: controller.signal })
+      .then(async (res) => {
+        if (!res.ok) return;
+        const json = await res.json();
+        if (json?.data) setOpsSnapshot(json.data as OpsSnapshot);
+      })
+      .catch(() => {});
+    return () => controller.abort();
+  }, []);
 
   // Real-time Counts
   const onDutyStaff = staffList.filter((s) => s.status === 'on_duty' || s.status === 'in_surgery').length;
@@ -410,7 +426,11 @@ export default function OverviewTab({
               <Users className="w-4 h-4 text-pine-700" />
             </div>
             <div className="text-xl font-extrabold text-pine-900">{onDutyStaff} / {staffList.length}</div>
-            <span className="text-[10px] text-emerald-700 font-semibold">{t('نسبة الحضور 96.4% اليوم', '96.4% on-time attendance')}</span>
+            <span className="text-[10px] text-emerald-700 font-semibold">
+              {attendanceRate != null
+                ? t(`نسبة الحضور ${attendanceRate}% اليوم`, `${attendanceRate}% attendance today`)
+                : t('لا حضور مسجل بعد اليوم', 'No attendance recorded yet today')}
+            </span>
           </button>
 
           {/* Card 2: Operating Suites */}
@@ -438,7 +458,7 @@ export default function OverviewTab({
               <Cpu className="w-4 h-4 text-brass-600" />
             </div>
             <div className="text-xl font-extrabold text-pine-900">{operationalEquipment} / {equipmentList.length}</div>
-            <span className="text-[10px] text-emerald-700 font-semibold">100% {t('معايرة واختبارات الجودة', 'calibrated & certified')}</span>
+            <span className="text-[10px] text-emerald-700 font-semibold">{t('جاهزة للاستخدام السريري', 'ready for clinical use')}</span>
           </button>
 
           {/* Card 4: Clinical Patient Pipeline */}
@@ -451,8 +471,14 @@ export default function OverviewTab({
               <span className="text-xs font-bold text-ink-500 group-hover:text-pine-900">{t('مسار تدفق المرضى', 'Patient Pipeline')}</span>
               <Activity className="w-4 h-4 text-pine-700" />
             </div>
-            <div className="text-xl font-extrabold text-pine-900">57 {t('مريضاً', 'pts')}</div>
-            <span className="text-[10px] text-pine-800 font-semibold">{t('متوسط الانتظار 14.2 دقيقة', 'Avg wait 14.2 min')}</span>
+            <div className="text-xl font-extrabold text-pine-900">
+              {opsSnapshot ? `${opsSnapshot.activeInFlow} ${t('مريضاً', 'pts')}` : '—'}
+            </div>
+            <span className="text-[10px] text-pine-800 font-semibold">
+              {kpis.averageWaitTimeMin != null
+                ? t(`متوسط الانتظار ${kpis.averageWaitTimeMin} دقيقة`, `Avg wait ${kpis.averageWaitTimeMin} min`)
+                : t('لا بيانات انتظار مسجلة', 'No wait data recorded')}
+            </span>
           </button>
         </div>
       </div>

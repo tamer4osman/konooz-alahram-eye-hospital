@@ -52,7 +52,7 @@ export default function EquipmentTab({
           bg: 'bg-rose-500 text-white', text: t('قيد الاستخدام (نشط)', 'In Use'), border: 'border-rose-300' };
       case 'operational':
         return {
-          bg: 'bg-emerald-600 text-white', text: t('جاهز ومعاير 100%', 'Operational'), border: 'border-pine-300'
+          bg: 'bg-emerald-600 text-white', text: t('جاهز ومعاير', 'Operational'), border: 'border-pine-300'
         };
       case 'under_calibration':
         return {

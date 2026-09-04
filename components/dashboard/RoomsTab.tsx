@@ -20,6 +20,8 @@ export default function RoomsTab({
   const [selectedStatus, _setSelectedStatus] = useState<string>('all');
   const [confirmingDeleteId, setConfirmingDeleteId] = useState<string | null>(null);
 
+  const readyCleanCount = roomsList.filter((r) => r.status === 'ready_clean').length;
+
   const types: { id: string; labelAr: string; labelEn: string }[] = [
     { id: 'all', labelAr: 'جميع الغرف والأجنحة', labelEn: 'All Facilities' }, { id: 'operating_theater', labelAr: 'غرف العمليات الكبرى (OR)', labelEn: 'Operating Theaters' }, { id: 'outpatient_clinic', labelAr: 'العيادات الخارجية التخصصية', labelEn: 'Outpatient Clinics' }, { id: 'diagnostic_suite', labelAr: 'مختبرات الأشعة والتشخيص', labelEn: 'Diagnostic Labs' }, { id: 'recovery_ward', labelAr: 'وحدة الإفاقة والأسرّة الفندقية', labelEn: 'Recovery & Daycare Beds' }, { id: 'laser_room', labelAr: 'غرف الليزر الصغرى', labelEn: 'Laser Procedure Rooms' }
   ];
@@ -47,7 +49,7 @@ export default function RoomsTab({
       case 'ready_clean':
         return {
           bg: 'bg-emerald-600 text-white',
-          text: t('جاهزة ومعقمة 100%', 'Ready & Sterile'),
+          text: t('جاهزة ومعقمة', 'Ready & Sterile'),
           border: 'border-pine-300'
         };
       case 'sterilizing':
@@ -95,7 +97,9 @@ export default function RoomsTab({
         <div className="flex items-center gap-2.5">
           <div className="hidden sm:flex px-3 py-2 bg-pine-50 text-pine-800 border border-pine-200 rounded-xl text-xs font-bold items-center gap-2">
             <ShieldCheck className="w-4 h-4 text-emerald-600" />
-            <span>{t('معايير التعقيم: 100% مطابقة', 'Sterility: 100% Verified')}</span>
+            <span>
+              {readyCleanCount} / {roomsList.length} {t('غرف جاهزة ومعقمة', 'rooms ready & sterile')}
+            </span>
           </div>
 
           <button

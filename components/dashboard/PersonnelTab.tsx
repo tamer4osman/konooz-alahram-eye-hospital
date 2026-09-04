@@ -366,7 +366,7 @@ export default function PersonnelTab({
             <div className="flex items-center gap-2">
               <span className="flex items-center gap-1.5 text-xs font-bold text-emerald-700 bg-pine-50 px-3 py-1 rounded-xl border border-pine-200">
                 <span className="w-2 h-2 rounded-full bg-pine-500 animate-pulse" />
-                <span>{t('نظام البصمة نشط 100%', 'Biometrics Live 100%')}</span>
+                <span>{t('سجل الحضور اليدوي نشط', 'Manual attendance register active')}</span>
               </span>
             </div>
           </div>

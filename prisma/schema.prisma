@@ -532,6 +532,50 @@ enum ConsumableCategory {
   phaco_pack
 }
 
+/// CSSD instrument-tray lifecycle. The dashboard sterile-sets telemetry is
+/// derived from these rows (ready count vs total) — never hardcoded.
+enum SterileSetStatus {
+  ready
+  in_use
+  sterilizing
+  dirty
+}
+
+model SterileSet {
+  id           String           @id @default(cuid())
+  nameAr       String
+  nameEn       String?
+  status       SterileSetStatus @default(ready)
+  sterilizedAt DateTime?
+  expiresAt    DateTime?
+  notesAr      String?
+  notesEn      String?
+  createdAt    DateTime         @default(now())
+  updatedAt    DateTime         @updatedAt
+
+  @@index([status])
+  @@map("sterile_sets")
+}
+
+/// Dashboard ops-activity feed (header notifications). Append-only log;
+/// demo rows are seeded until real event emission is wired into use cases.
+enum OpsActivityLevel {
+  info
+  success
+  warning
+}
+
+model OpsActivityLog {
+  id        String           @id @default(cuid())
+  messageAr String
+  messageEn String?
+  level     OpsActivityLevel @default(info)
+  createdAt DateTime         @default(now())
+
+  @@index([createdAt])
+  @@map("ops_activity_logs")
+}
+
 model ConsumableType {
   id         String            @id @default(cuid())
   nameAr     String

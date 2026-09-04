@@ -9,6 +9,7 @@ const OPEN: Array<[PatientFlowStageType, number]> = [
   ['triage', 2],
   ['consultation', 4],
   ['procedure', 2],
+  ['pacu', 1],
   ['waiting_discharge', 1],
 ];
 
@@ -19,6 +20,7 @@ const CLOSED: Array<[PatientFlowStageType, number]> = [
   ['diagnostics', 12], ['diagnostics', 18], ['diagnostics', 9],
   ['consultation', 15], ['consultation', 22],
   ['procedure', 35],
+  ['pacu', 32], ['pacu', 44],
   ['waiting_discharge', 8],
   ['discharged', 5],
 ];
