@@ -52,7 +52,7 @@ export default function Hero() {
           alt={t('غرفة عمليات جراحية في مستشفى كنوز الأهرام', 'Surgical theater at Konooz Al-Ahram Hospital')}
           fill
           sizes="100vw"
-          className="object-cover opacity-25"
+          className="object-cover opacity-95"
           referrerPolicy="no-referrer"
           priority
           aria-hidden="true"
@@ -63,10 +63,10 @@ export default function Hero() {
 
       <div className="relative max-w-7xl mx-auto px-4 sm:px-6">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-8 items-center">
-          
+
           {/* Left Column: Value Proposition & Highlights */}
           <div className="lg:col-span-7 space-y-6">
-            
+
             {/* Top Quality Badge */}
             <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-xl bg-pine-800/60 border border-pine-400/30 text-pine-200 text-[11px] sm:text-sm font-semibold leading-snug max-w-full">
               <Sparkles className="w-4 h-4 text-brass-300" />
@@ -226,7 +226,7 @@ export default function Hero() {
                   {bookingRef && (
                     <div className="inline-flex items-center gap-2 bg-pine-50 border border-pine-200 rounded-lg px-3 py-1.5">
                       <span className="text-[10px] text-ink-500">{t('رقم المرجع:', 'Reference:')}</span>
-                        <span className="font-mono font-extrabold text-sm text-pine-950">{bookingRef}</span>
+                      <span className="font-mono font-extrabold text-sm text-pine-950">{bookingRef}</span>
                     </div>
                   )}
                   <div className="pt-2 flex flex-col gap-2">
@@ -249,11 +249,11 @@ export default function Hero() {
                 </div>
               ) : (
                 <form onSubmit={handleHeroSubmit} className="space-y-3.5">
-                  
+
                   {/* PATIENT INFO SECTION AT THE TOP */}
                   <div className="bg-white border border-pine-900/10 rounded-xl p-3 space-y-2.5">
                     <div className="flex items-center justify-between">
-                        <label className="text-xs font-extrabold text-pine-950 flex items-center gap-1.5">
+                      <label className="text-xs font-extrabold text-pine-950 flex items-center gap-1.5">
                         <User className="w-3.5 h-3.5 text-pine-700" />
                         <span>{t('1. بيانات المريض الأساسية *', '1. Primary Patient Info *')}</span>
                       </label>
@@ -297,9 +297,8 @@ export default function Hero() {
                         onChange={(e) => setPatientName(e.target.value)}
                         readOnly={!!currentPatient}
                         placeholder={t('مثال: أحمد عبد السلام محمد الورفلي', 'e.g., Ahmed Salem Mohamed Al-Warfalli')}
-                        className={`w-full px-3 py-2 text-xs sm:text-sm border border-pine-900/20 rounded-lg focus:ring-2 focus:ring-pine-600 focus:border-pine-600 outline-hidden transition-all text-ink-900 font-medium ${
-                          currentPatient ? 'bg-bone-100 font-bold text-pine-900 cursor-not-allowed' : 'bg-white'
-                        }`}
+                        className={`w-full px-3 py-2 text-xs sm:text-sm border border-pine-900/20 rounded-lg focus:ring-2 focus:ring-pine-600 focus:border-pine-600 outline-hidden transition-all text-ink-900 font-medium ${currentPatient ? 'bg-bone-100 font-bold text-pine-900 cursor-not-allowed' : 'bg-white'
+                          }`}
                       />
                     </div>
 
@@ -317,9 +316,8 @@ export default function Hero() {
                           onChange={(e) => setPatientPhone(e.target.value)}
                           readOnly={!!currentPatient}
                           placeholder={t('091XXXXXXX', '091XXXXXXX')}
-                          className={`w-full px-3 py-2 text-xs sm:text-sm border border-pine-900/20 rounded-lg focus:ring-2 focus:ring-pine-600 focus:border-pine-600 outline-hidden transition-all text-ink-900 font-medium ${
-                            currentPatient ? 'bg-bone-100 font-bold text-pine-950 cursor-not-allowed' : 'bg-white'
-                          }`}
+                          className={`w-full px-3 py-2 text-xs sm:text-sm border border-pine-900/20 rounded-lg focus:ring-2 focus:ring-pine-600 focus:border-pine-600 outline-hidden transition-all text-ink-900 font-medium ${currentPatient ? 'bg-bone-100 font-bold text-pine-950 cursor-not-allowed' : 'bg-white'
+                            }`}
                           dir="ltr"
                         />
                       </div>
@@ -336,9 +334,8 @@ export default function Hero() {
                           onChange={(e) => setPatientEmail(e.target.value)}
                           readOnly={!!currentPatient}
                           placeholder={t('name@example.com', 'name@example.com')}
-                          className={`w-full px-3 py-2 text-xs sm:text-sm border border-pine-900/20 rounded-lg focus:ring-2 focus:ring-pine-600 focus:border-pine-600 outline-hidden transition-all text-ink-900 font-medium ${
-                            currentPatient ? 'bg-bone-100 font-bold text-pine-950 cursor-not-allowed' : 'bg-white'
-                          }`}
+                          className={`w-full px-3 py-2 text-xs sm:text-sm border border-pine-900/20 rounded-lg focus:ring-2 focus:ring-pine-600 focus:border-pine-600 outline-hidden transition-all text-ink-900 font-medium ${currentPatient ? 'bg-bone-100 font-bold text-pine-950 cursor-not-allowed' : 'bg-white'
+                            }`}
                           dir="ltr"
                         />
                       </div>
@@ -356,9 +353,8 @@ export default function Hero() {
                             value={effectiveGender}
                             disabled={!!currentPatient}
                             onChange={(e) => setGender(e.target.value as 'male' | 'female')}
-                            className={`w-full px-3 py-2 text-xs border border-pine-900/20 rounded-lg focus:ring-2 focus:ring-pine-600 focus:border-pine-600 outline-hidden appearance-none transition-all text-ink-900 font-medium ${
-                              currentPatient ? 'bg-bone-100 cursor-not-allowed' : 'bg-white cursor-pointer'
-                            }`}
+                            className={`w-full px-3 py-2 text-xs border border-pine-900/20 rounded-lg focus:ring-2 focus:ring-pine-600 focus:border-pine-600 outline-hidden appearance-none transition-all text-ink-900 font-medium ${currentPatient ? 'bg-bone-100 cursor-not-allowed' : 'bg-white cursor-pointer'
+                              }`}
                           >
                             {GENDER_OPTIONS.map((g) => (
                               <option key={g.id} value={g.id}>
@@ -380,9 +376,8 @@ export default function Hero() {
                             value={effectiveAgeGroup}
                             disabled={!!currentPatient}
                             onChange={(e) => setAgeGroup(e.target.value as 'child' | 'adult' | 'senior')}
-                            className={`w-full px-3 py-2 text-xs border border-pine-900/20 rounded-lg focus:ring-2 focus:ring-pine-600 focus:border-pine-600 outline-hidden appearance-none transition-all text-ink-900 font-medium ${
-                              currentPatient ? 'bg-bone-100 cursor-not-allowed' : 'bg-white cursor-pointer'
-                            }`}
+                            className={`w-full px-3 py-2 text-xs border border-pine-900/20 rounded-lg focus:ring-2 focus:ring-pine-600 focus:border-pine-600 outline-hidden appearance-none transition-all text-ink-900 font-medium ${currentPatient ? 'bg-bone-100 cursor-not-allowed' : 'bg-white cursor-pointer'
+                              }`}
                           >
                             {AGE_GROUP_OPTIONS.map((a) => (
                               <option key={a.id} value={a.id}>
@@ -432,11 +427,10 @@ export default function Hero() {
                             setConsultationType('consultant');
                             setSelectedDoctor('');
                           }}
-                          className={`px-3 py-2 rounded-lg text-xs font-extrabold transition-all flex flex-col items-center justify-center gap-0.5 border text-center cursor-pointer ${
-                            consultationType === 'consultant'
-                              ? 'bg-brass-400 text-pine-950 border-brass-500 shadow-sm'
-                              : 'bg-white hover:bg-pine-50 text-ink-700 border-pine-900/15'
-                          }`}
+                          className={`px-3 py-2 rounded-lg text-xs font-extrabold transition-all flex flex-col items-center justify-center gap-0.5 border text-center cursor-pointer ${consultationType === 'consultant'
+                            ? 'bg-brass-400 text-pine-950 border-brass-500 shadow-sm'
+                            : 'bg-white hover:bg-pine-50 text-ink-700 border-pine-900/15'
+                            }`}
                         >
                           <span className="flex items-center gap-1">
                             <Star className="w-3 h-3" />
@@ -454,11 +448,10 @@ export default function Hero() {
                             setConsultationType('clinic');
                             setSelectedDoctor('');
                           }}
-                          className={`px-3 py-2 rounded-lg text-xs font-extrabold transition-all flex flex-col items-center justify-center gap-0.5 border text-center cursor-pointer ${
-                            consultationType === 'clinic'
-                              ? 'bg-pine-900 text-bone-50 border-pine-800 shadow-sm'
-                              : 'bg-white hover:bg-pine-50 text-ink-700 border-pine-900/15'
-                          }`}
+                          className={`px-3 py-2 rounded-lg text-xs font-extrabold transition-all flex flex-col items-center justify-center gap-0.5 border text-center cursor-pointer ${consultationType === 'clinic'
+                            ? 'bg-pine-900 text-bone-50 border-pine-800 shadow-sm'
+                            : 'bg-white hover:bg-pine-50 text-ink-700 border-pine-900/15'
+                            }`}
                         >
                           <span className="flex items-center gap-1">
                             <Hospital className="w-3.5 h-3.5" />
