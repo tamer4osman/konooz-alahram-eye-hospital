@@ -18,6 +18,7 @@ const TabSkeleton = () => (
 
 const PersonnelTab = dynamic(() => import('./PersonnelTab'), { ssr: false, loading: TabSkeleton });
 const AppointmentsTab = dynamic(() => import('./AppointmentsTab'), { ssr: false, loading: TabSkeleton });
+const FlowTab = dynamic(() => import('./FlowTab'), { ssr: false, loading: TabSkeleton });
 const RoomsTab = dynamic(() => import('./RoomsTab'), { ssr: false, loading: TabSkeleton });
 const EquipmentTab = dynamic(() => import('./EquipmentTab'), { ssr: false, loading: TabSkeleton });
 const SurgeriesScheduleTab = dynamic(() => import('./SurgeriesScheduleTab'), { ssr: false, loading: TabSkeleton });
@@ -61,10 +62,10 @@ const AnalyticsTab = dynamic(() => import('./AnalyticsTab'), {
   ),
 });
 
-import { Activity, Users, Building2, Cpu, Calendar, CalendarCheck, BarChart3, X, Radio, Stethoscope, Bed, Receipt } from 'lucide-react';
+import { Activity, Users, Building2, Cpu, Calendar, CalendarCheck, BarChart3, X, Radio, Stethoscope, Bed, Receipt, GitBranch } from 'lucide-react';
 import { hasModuleAccess, type DashboardModule } from '@/lib/permissions';
 
-type DashboardTab = 'overview' | 'appointments' | 'clinical' | 'surgeries' | 'rooms' | 'beds' | 'personnel' | 'equipment' | 'billing' | 'analytics';
+type DashboardTab = 'overview' | 'appointments' | 'patient_flow' | 'clinical' | 'surgeries' | 'rooms' | 'beds' | 'personnel' | 'equipment' | 'billing' | 'analytics';
 
 export default function HospitalDashboard() {
   const { t } = useLanguage();
@@ -96,6 +97,13 @@ export default function HospitalDashboard() {
       labelAr: 'مواعيد المرضى',
       labelEn: 'Patient Appointments',
       icon: CalendarCheck,
+      count: null
+    },
+    {
+      id: 'patient_flow',
+      labelAr: 'تدفق المرضى',
+      labelEn: 'Patient Flow',
+      icon: GitBranch,
       count: null
     },
     {
@@ -242,6 +250,10 @@ export default function HospitalDashboard() {
 
           {activeTab === 'appointments' && (
             <AppointmentsTab />
+          )}
+
+          {activeTab === 'patient_flow' && (
+            <FlowTab />
           )}
 
           {activeTab === 'clinical' && (
