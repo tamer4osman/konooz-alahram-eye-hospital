@@ -61,8 +61,12 @@ export function useDashboardData(): UseDashboardData {
         .then((r) => r.json())
         .then((json) => {
           if (!cancelled && json?.data) {
-            setUserRole(json.data.role ?? 'STAFF');
-            setUserPermissions(json.data.permissions ?? null);
+            // /api/auth/me returns { data: { user: { role, permissions } } }.
+            // Reading data.role directly fell back to 'STAFF' and hid every
+            // dashboard tab — the dashboard briefly rendered then lost its nav.
+            const user = json.data.user ?? json.data;
+            setUserRole(user.role ?? 'STAFF');
+            setUserPermissions(user.permissions ?? null);
           }
         })
         .catch(() => {});
