@@ -1,9 +1,13 @@
 import { NextRequest } from 'next/server'
 import { z } from 'zod'
-import { prisma } from '@/lib/prisma'
-import { apiSuccess } from '@/lib/api/response'
-import { requireAdmin, readJson, prismaFailure } from '@/lib/api/admin-route'
-import { toInvoiceDTO } from '@/lib/dashboard/billing'
+import { apiSuccess, apiError } from '@/lib/api/response'
+import { requireAdmin, readJson } from '@/lib/api/admin-route'
+import { updateInvoiceStatus } from '@/lib/usecases/invoices'
+import { prismaInvoiceStatusUpdater } from '@/lib/adapters/prisma/invoice-adapter'
+import {
+  InvoiceConflictError,
+  InvoiceNotFoundError,
+} from '@/lib/usecases/invoices'
 
 export const dynamic = 'force-dynamic'
 
@@ -11,6 +15,8 @@ const patchSchema = z.object({
   status: z.enum(['paid', 'pending_insurance', 'pre_auth_approved', 'draft', 'pending', 'partially_paid', 'cancelled']).optional(),
   paidDate: z.string().nullable().optional(),
 })
+
+// Thin handler: auth gate -> validate -> use case -> respond.
 
 export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const auth = await requireAdmin()
@@ -21,16 +27,30 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
   const body = await readJson(req, patchSchema, 'قيم التحديث غير صالحة', 'Invalid update values')
   if (!body.ok) return body.response
 
-  const data = { ...body.data }
-  if (data.status === 'paid' && !data.paidDate) data.paidDate = new Date().toISOString()
-
   try {
-    const row = await prisma.hospitalBillingInvoice.update({ where: { id }, data })
-    return apiSuccess(toInvoiceDTO(row))
+    const invoice = await updateInvoiceStatus(
+      prismaInvoiceStatusUpdater,
+      id,
+      body.data,
+    )
+    return apiSuccess(invoice)
   } catch (err) {
-    return prismaFailure(err, {
-      notFound: { code: 'INVOICE_NOT_FOUND', ar: 'الفاتورة غير موجودة', en: 'Invoice not found' },
-      failure: { code: 'INVOICE_UPDATE_FAILED', ar: 'تعذر تحديث الفاتورة', en: 'Failed to update invoice' },
-    })
+    if (err instanceof InvoiceNotFoundError) {
+      return apiError(
+        404,
+        'INVOICE_NOT_FOUND',
+        'الفاتورة غير موجودة',
+        'Invoice not found',
+      )
+    }
+    if (err instanceof InvoiceConflictError) {
+      return apiError(
+        409,
+        'INVOICE_CONFLICT',
+        'تعارض في تحديث الفاتورة',
+        'Invoice update conflict',
+      )
+    }
+    throw err
   }
 }
