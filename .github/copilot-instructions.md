@@ -19,4 +19,4 @@ No test suite exists yet. Lint + typecheck are the gate for every change.
 4. **Honest data model** — patient data stays device-local (`context/PatientAuthContext.tsx`). Never add server calls or claim automatic delivery of anything.
 5. **Accessibility** — jsx-a11y runs at error severity; zero violations allowed.
 6. **Types** — strict mode, no `any` in domain types.
-7. **Commits** — conventional format (`feat:`, `fix:`, `docs:`, …) with `Co-Authored-By: Claude <noreply@anthropic.com>` on AI-assisted commits.
+7. **Commits** — conventional format (`feat:`, `fix:`, `docs:`, …) with `Co-Authored-By: tamer4osman <tamer4osman@users.noreply.github.com>` on AI-assisted commits.

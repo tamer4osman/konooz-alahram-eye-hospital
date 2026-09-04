@@ -64,7 +64,7 @@ After every code change — not only at the end of a task — run all four gates
 AI commits MUST include:
 
 ```text
-Co-Authored-By: Claude <noreply@anthropic.com>
+Co-Authored-By: tamer4osman <tamer4osman@users.noreply.github.com>
 ```
 
 Use conventional commit format (`feat: …`, `fix: …`, `docs: …`, `refactor: …`).

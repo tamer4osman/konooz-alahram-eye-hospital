@@ -50,7 +50,7 @@ docs: expand bilingual content guide
 AI-assisted commits must include:
 
 ```text
-Co-Authored-By: Claude <noreply@anthropic.com>
+Co-Authored-By: tamer4osman <tamer4osman@users.noreply.github.com>
 ```
 
 ## Pull request process
