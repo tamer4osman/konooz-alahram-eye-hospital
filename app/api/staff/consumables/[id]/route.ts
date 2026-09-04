@@ -1,7 +1,7 @@
 import { NextRequest } from 'next/server'
 import { z } from 'zod'
 import { apiSuccess, apiError } from '@/lib/api/response'
-import { requireAdmin, readJson } from '@/lib/api/admin-route'
+import { requireModuleAccess, readJson } from '@/lib/api/admin-route'
 import { updateConsumable, ConsumableNotFoundError } from '@/lib/usecases/consumables'
 import { prismaConsumableWriter } from '@/lib/adapters/prisma/consumable-adapter'
 
@@ -21,7 +21,7 @@ const patchSchema = z.object({
 // Thin handler: auth gate -> validate -> use case -> respond.
 
 export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
-  const auth = await requireAdmin()
+  const auth = await requireModuleAccess('analytics', 'write')
   if (!auth.ok) return auth.response
 
   const { id } = await params

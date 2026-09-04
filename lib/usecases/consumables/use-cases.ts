@@ -1,12 +1,28 @@
 import type { SurgicalConsumable as ConsumableDTO } from '@/data/dashboardData';
 import type { ConsumablePatch, CreateConsumableInput } from './types';
 import type { ConsumableReader, ConsumableWriter } from './ports';
-import { resolveConsumableCreate, resolveConsumablePatch } from './rules';
+import { computeConsumablesSummary, resolveConsumableCreate, resolveConsumablePatch, type ConsumablesSummary } from './rules';
 
 // Use cases: orchestration only.
 
 export async function listConsumables(reader: ConsumableReader): Promise<ConsumableDTO[]> {
   return reader.list();
+}
+
+/** Inventory summary for the consumables board (pure rule). */
+export async function loadConsumablesSummary(reader: ConsumableReader, now: Date = new Date()): Promise<ConsumablesSummary> {
+  const items = await reader.list();
+  return computeConsumablesSummary(
+    items.map((c) => ({
+      category: c.category,
+      stockCurrent: c.stockCurrent,
+      stockMinThreshold: c.stockMinThreshold,
+      reorderStatus: c.reorderStatus,
+      expiryDate: c.expiryDate,
+      unitCostLYD: c.unitCostLYD,
+    })),
+    now,
+  );
 }
 
 export async function createConsumable(

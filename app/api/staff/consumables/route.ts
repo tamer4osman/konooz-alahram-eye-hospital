@@ -1,7 +1,7 @@
 import { NextRequest } from 'next/server'
 import { z } from 'zod'
 import { apiSuccess } from '@/lib/api/response'
-import { requireAdmin, readJson } from '@/lib/api/admin-route'
+import { requireModuleAccess, readJson } from '@/lib/api/admin-route'
 import { createConsumable, listConsumables } from '@/lib/usecases/consumables'
 import { prismaConsumableReader, prismaConsumableWriter } from '@/lib/adapters/prisma/consumable-adapter'
 
@@ -29,7 +29,7 @@ const createSchema = z.object({
 // Thin handler: auth gate -> validate -> use case -> respond.
 
 export async function GET() {
-  const auth = await requireAdmin()
+  const auth = await requireModuleAccess('analytics', 'read')
   if (!auth.ok) return auth.response
 
   const consumables = await listConsumables(prismaConsumableReader)
@@ -37,7 +37,7 @@ export async function GET() {
 }
 
 export async function POST(req: NextRequest) {
-  const auth = await requireAdmin()
+  const auth = await requireModuleAccess('analytics', 'write')
   if (!auth.ok) return auth.response
 
   const body = await readJson(req, createSchema, 'بيانات المستلزم غير مكتملة', 'Consumable data is incomplete or invalid')
