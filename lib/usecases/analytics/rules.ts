@@ -183,3 +183,170 @@ export function meanFunnelWait(funnel: WaitTimeFunnel): number | null {
   if (count === 0) return null;
   return Math.round(total / count);
 }
+
+
+// ---------------------------------------------------------------------------
+// Cataract surgical outcomes (WHO grading over clinical records)
+// ---------------------------------------------------------------------------
+
+export const WHO_GOOD_SIXTY = 6 / 18; // decimal acuity for 6/18
+export const WHO_BORDERLINE_SIXTY = 6 / 60; // decimal acuity for 6/60
+
+/** Minimal surgery facts the cataract report consumes. */
+export interface OutcomeSurgeryInput {
+  procedureEn: string | null;
+  procedureAr: string | null;
+  status: string;
+}
+
+/** Minimal consultation facts the cataract report consumes. */
+export interface OutcomeConsultationInput {
+  icdCode: string;
+  diagnosisEn: string | null;
+  diagnosisAr: string | null;
+  visualAcuityOD_BCVA: string;
+  visualAcuityOS_BCVA: string;
+  surgicalPlan?: string | null;
+}
+
+export interface CataractSurgeryVolume {
+  total: number;
+  completed: number;
+  scheduled: number;
+  cancelled: number;
+}
+
+export interface CataractConsultationVolume {
+  total: number;
+  surgicalPlanned: number;
+}
+
+export interface VisualOutcomeBuckets {
+  good: number;
+  borderline: number;
+  poor: number;
+  unknown: number;
+}
+
+export interface CataractOutcomeReport {
+  surgeries: CataractSurgeryVolume;
+  consultations: CataractConsultationVolume;
+  visualOutcomes: VisualOutcomeBuckets;
+  gradedCount: number;
+  /** % of graded eyes-cases reaching good outcome (>= 6/18). Null when none graded. */
+  goodOutcomeRate: number | null;
+  hasData: boolean;
+}
+
+const CATARACT_KEYWORDS = [
+  'cataract',
+  'phaco',
+  'iol',
+  'المياه البيضاء',
+  'فاكو',
+  'العدسة',
+];
+
+function isCataractProcedure(procedureEn: string | null, procedureAr: string | null): boolean {
+  const hay = `${procedureEn ?? ''} ${procedureAr ?? ''}`.toLowerCase();
+  return CATARACT_KEYWORDS.some((kw) => hay.includes(kw));
+}
+
+function isCataractConsultation(c: OutcomeConsultationInput): boolean {
+  if (c.icdCode.startsWith('H25') || c.icdCode.startsWith('H26')) return true;
+  const hay = `${c.diagnosisEn ?? ''} ${c.diagnosisAr ?? ''}`.toLowerCase();
+  return CATARACT_KEYWORDS.some((kw) => hay.includes(kw));
+}
+
+/**
+ * Parse a Snellen visual-acuity string to a decimal acuity.
+ * Fractions ("6/6", "20/40"), bare decimals ("0.5"), and common
+ * low-vision notation ("CF"/"HM" ≈ 0.005, "PL" ≈ 0.001, "NLP" = 0).
+ * Returns null when the value is blank or unrecognizable — never guesses.
+ */
+export function parseSnellen(raw: string): number | null {
+  const value = raw.trim();
+  if (!value) return null;
+
+  const upper = value.toUpperCase();
+  if (upper === 'CF' || upper === 'HM' || upper.includes('COUNTING')) return 0.005;
+  if (upper === 'PL' || upper.includes('PERCEIVES')) return 0.001;
+  if (upper === 'NLP' || upper.includes('NO PERCEPTION')) return 0;
+
+  const fraction = /^(\d+(?:\.\d+)?)\s*\/\s*(\d+(?:\.\d+)?)\s*p?$/i.exec(upper);
+  if (fraction) {
+    const numerator = Number(fraction[1]);
+    const denominator = Number(fraction[2]);
+    if (denominator <= 0) return null;
+    return numerator / denominator;
+  }
+
+  const decimal = /^0?\.\d+$/.exec(upper);
+  if (decimal) return Number(upper);
+
+  return null;
+}
+
+/** WHO cataract-surgery outcome grading by best-corrected decimal acuity. */
+export function gradeVisualOutcome(acuity: number | null): keyof VisualOutcomeBuckets {
+  if (acuity === null) return 'unknown';
+  if (acuity >= WHO_GOOD_SIXTY) return 'good';
+  if (acuity >= WHO_BORDERLINE_SIXTY) return 'borderline';
+  return 'poor';
+}
+
+/**
+ * Cataract surgical outcomes report.
+ * Volume from cataract-keyword procedures; visual outcomes graded per eye
+ * using the best (higher) of both eyes per consultation. Honest by default:
+ * with no data the report renders empty states, never a fabricated success
+ * rate. Pre-op/post-op pairing is NOT tracked yet — the UI says so.
+ */
+export function computeCataractOutcomes(
+  surgeries: OutcomeSurgeryInput[],
+  consultations: OutcomeConsultationInput[],
+  _now: Date,
+): CataractOutcomeReport {
+  const cataractSurgeries = surgeries.filter((s) => isCataractProcedure(s.procedureEn, s.procedureAr));
+  const surgeriesOut: CataractSurgeryVolume = {
+    total: cataractSurgeries.length,
+    completed: cataractSurgeries.filter((s) => s.status === 'completed').length,
+    scheduled: cataractSurgeries.filter((s) => s.status === 'scheduled').length,
+    cancelled: cataractSurgeries.filter(
+      (s) => s.status === 'cancelled' || s.status === 'no_show',
+    ).length,
+  };
+
+  const cataractConsultations = consultations.filter(isCataractConsultation);
+  const consultationsOut: CataractConsultationVolume = {
+    total: cataractConsultations.length,
+    surgicalPlanned: cataractConsultations.filter((c) => Boolean(c.surgicalPlan && c.surgicalPlan.trim())).length,
+  };
+
+  const visualOutcomes: VisualOutcomeBuckets = { good: 0, borderline: 0, poor: 0, unknown: 0 };
+  for (const c of cataractConsultations) {
+    const od = parseSnellen(c.visualAcuityOD_BCVA);
+    const os = parseSnellen(c.visualAcuityOS_BCVA);
+    const candidates = [od, os].filter((a): a is number => a !== null);
+    const best = candidates.length > 0 ? Math.max(...candidates) : null;
+    visualOutcomes[gradeVisualOutcome(best)] += 1;
+  }
+
+  const gradedCount =
+    visualOutcomes.good + visualOutcomes.borderline + visualOutcomes.poor;
+  const goodOutcomeRate =
+    gradedCount === 0
+      ? null
+      : Math.round((visualOutcomes.good / gradedCount) * 100);
+
+  const hasData = surgeriesOut.total > 0 || consultationsOut.total > 0;
+
+  return {
+    surgeries: surgeriesOut,
+    consultations: consultationsOut,
+    visualOutcomes,
+    gradedCount,
+    goodOutcomeRate,
+    hasData,
+  };
+}

@@ -13,6 +13,27 @@ export interface AnalyticsEngine {
   compute(timeframe: AnalyticsTimeframe, departments: Specialty[]): Promise<unknown>;
 }
 
+/** Minimal cataract-surgery facts for the outcomes report (ISP port). */
+export interface OutcomeSurgeriesReader {
+  listForOutcomes(): Promise<Array<{
+    procedureAr: string | null;
+    procedureEn: string | null;
+    status: string;
+  }>>;
+}
+
+/** Minimal cataract-consultation facts for the outcomes report (ISP port). */
+export interface OutcomeConsultationsReader {
+  listForOutcomes(): Promise<Array<{
+    icdCode: string;
+    diagnosisAr: string | null;
+    diagnosisEn: string | null;
+    visualAcuityOD_BCVA: string;
+    visualAcuityOS_BCVA: string;
+    surgicalPlan: string | null;
+  }>>;
+}
+
 export type { AnalyticsTimeframe };
 
 const VALID_TIMEFRAMES: AnalyticsTimeframe[] = ['day', 'week', 'month', 'year'];
