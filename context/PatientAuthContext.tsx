@@ -5,7 +5,7 @@ import { PatientProfile } from '@/data/patientPortalData';
 import { HOSPITAL_CONTACTS } from '@/data/hospitalData';
 import { AUTH_MESSAGES } from '@/data/authMessages';
 
-type PortalTab = 'profile' | 'appointments' | 'prescriptions' | 'notifications' | 'newsletter' | 'auth';
+type PortalTab = 'profile' | 'appointments' | 'prescriptions' | 'notifications' | 'newsletter' | 'survey' | 'auth';
 
 const EMPTY_SNAPSHOT = 'null';
 

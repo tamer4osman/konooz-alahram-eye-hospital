@@ -3,9 +3,14 @@
 import { useLanguage } from '@/context/LanguageContext';
 import { usePatientAuth } from '@/context/PatientAuthContext';
 import { usePortalActions } from './usePortalActions';
-import { Calendar, Clock, Eye, AlertCircle, Smartphone } from 'lucide-react';
+import { Calendar, Clock, Eye, AlertCircle, Smartphone, MessageSquareHeart } from 'lucide-react';
 
-export default function AppointmentsTab() {
+interface AppointmentsTabProps {
+  /** Opens the survey tab pre-filled with the given ticket (server accounts only). */
+  onRateVisit?: (ticketNumber: string) => void;
+}
+
+export default function AppointmentsTab({ onRateVisit }: AppointmentsTabProps) {
   const { lang, t } = useLanguage();
   const { currentPatient } = usePatientAuth();
   const { triggerTestWhatsAppAlert } = usePortalActions(() => {});
@@ -84,6 +89,15 @@ export default function AppointmentsTab() {
             )}
 
             <div className="flex items-center justify-end gap-2 pt-1">
+              {apt.status === 'completed' && onRateVisit && (
+                <button
+                  onClick={() => onRateVisit(apt.ticketNumber)}
+                  className="px-3 py-1.5 bg-brass-50 hover:bg-brass-100 text-brass-600 border border-brass-300 rounded-lg text-xs font-bold transition-colors flex items-center gap-1.5 cursor-pointer"
+                >
+                  <MessageSquareHeart className="w-3.5 h-3.5" />
+                  <span>{t('قيّم هذه الزيارة', 'Rate this visit')}</span>
+                </button>
+              )}
               <button
                 onClick={() => triggerTestWhatsAppAlert('appointment')}
                 className="px-3 py-1.5 bg-pine-50 hover:bg-pine-100 text-pine-800 border border-pine-200 rounded-lg text-xs font-bold transition-colors flex items-center gap-1.5"

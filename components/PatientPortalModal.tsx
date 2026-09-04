@@ -5,7 +5,7 @@ import dynamic from 'next/dynamic';
 import { useLanguage } from '@/context/LanguageContext';
 import { usePatientAuth } from '@/context/PatientAuthContext';
 import Modal from '@/components/ui/Modal';
-import { X, User, Calendar, Pill, Bell, Mail, ShieldCheck, CheckCircle2, Lock, LogOut } from 'lucide-react';
+import { X, User, Calendar, Pill, Bell, Mail, ShieldCheck, CheckCircle2, Lock, LogOut, MessageSquareHeart } from 'lucide-react';
 
 const PortalTabSkeleton = () => (
   <div className="space-y-4 animate-pulse">
@@ -16,6 +16,7 @@ const PortalTabSkeleton = () => (
 
 const ProfileTab = dynamic(() => import('@/components/portal/ProfileTab'), { ssr: false, loading: PortalTabSkeleton });
 const AppointmentsTab = dynamic(() => import('@/components/portal/AppointmentsTab'), { ssr: false, loading: PortalTabSkeleton });
+const SurveyTab = dynamic(() => import('@/components/portal/SurveyTab'), { ssr: false, loading: PortalTabSkeleton });
 const PrescriptionsTab = dynamic(() => import('@/components/portal/PrescriptionsTab'), { ssr: false, loading: PortalTabSkeleton });
 const NotificationsTab = dynamic(() => import('@/components/portal/NotificationsTab'), { ssr: false, loading: PortalTabSkeleton });
 const NewsletterTab = dynamic(() => import('@/components/portal/NewsletterTab'), { ssr: false, loading: PortalTabSkeleton });
@@ -23,14 +24,17 @@ const AuthTab = dynamic(() => import('@/components/portal/AuthTab'), { ssr: fals
 
 export default function PatientPortalModal() {
   const { t } = useLanguage();
-  const { currentPatient, logout, isPatientPortalOpen, closePatientPortal, activePortalTab, setActivePortalTab } = usePatientAuth();
+  const { currentPatient, logout, serverUser, isPatientPortalOpen, closePatientPortal, activePortalTab, setActivePortalTab } = usePatientAuth();
 
   // Cross-tab feedback banner (owned here so every tab can surface messages)
   const [simulationSentMessage, setSimulationSentMessage] = useState<string | null>(null);
+  const [surveyPrefill, setSurveyPrefill] = useState<string | null>(null);
   const notify = (message: string, timeoutMs = 4000) => {
     setSimulationSentMessage(message);
     setTimeout(() => setSimulationSentMessage(null), timeoutMs);
   };
+
+  const isPatientAccount = serverUser?.role === 'PATIENT';
 
   if (!isPatientPortalOpen) return null;
 
@@ -135,6 +139,20 @@ export default function PatientPortalModal() {
                 <span>{t('الوصفات ومواعيد القطرات', 'Prescriptions & Drops')}</span>
               </button>
 
+              {isPatientAccount && (
+                <button
+                  onClick={() => setActivePortalTab('survey')}
+                  className={`py-3 px-3.5 text-xs sm:text-sm font-bold border-b-2 whitespace-nowrap flex items-center gap-2 transition-colors cursor-pointer ${
+                    activePortalTab === 'survey'
+                      ? 'border-pine-700 text-pine-800 bg-white shadow-xs rounded-t-lg'
+                      : 'border-transparent text-ink-500 hover:text-ink-900'
+                  }`}
+                >
+                  <MessageSquareHeart className="w-4 h-4 text-brass-500" />
+                  <span>{t('قيّم زيارتك', 'Rate Your Visit')}</span>
+                </button>
+              )}
+
               <button
                 onClick={() => setActivePortalTab('notifications')}
                 className={`py-3 px-3.5 text-xs sm:text-sm font-bold border-b-2 whitespace-nowrap flex items-center gap-2 transition-colors cursor-pointer ${
@@ -172,13 +190,28 @@ export default function PatientPortalModal() {
               </button>
             </>
           ) : (
-            <button
-              onClick={() => setActivePortalTab('auth')}
-              className="py-3 px-4 text-sm font-bold border-b-2 border-pine-700 text-pine-800 bg-white rounded-t-lg flex items-center gap-2"
-            >
-              <Lock className="w-4 h-4" />
-              <span>{t('تسجيل الدخول وفتح ملف جديد', 'Sign In / Register Profile')}</span>
-            </button>
+            <>
+              {isPatientAccount && (
+                <button
+                  onClick={() => setActivePortalTab('survey')}
+                  className={`py-3 px-3.5 text-xs sm:text-sm font-bold border-b-2 whitespace-nowrap flex items-center gap-2 transition-colors cursor-pointer ${
+                    activePortalTab === 'survey'
+                      ? 'border-pine-700 text-pine-800 bg-white shadow-xs rounded-t-lg'
+                      : 'border-transparent text-ink-500 hover:text-ink-900'
+                  }`}
+                >
+                  <MessageSquareHeart className="w-4 h-4 text-brass-500" />
+                  <span>{t('قيّم زيارتك', 'Rate Your Visit')}</span>
+                </button>
+              )}
+              <button
+                onClick={() => setActivePortalTab('auth')}
+                className="py-3 px-4 text-sm font-bold border-b-2 border-pine-700 text-pine-800 bg-white rounded-t-lg flex items-center gap-2"
+              >
+                <Lock className="w-4 h-4" />
+                <span>{t('تسجيل الدخول وفتح ملف جديد', 'Sign In / Register Profile')}</span>
+              </button>
+            </>
           )}
         </div>
 
@@ -205,7 +238,17 @@ export default function PatientPortalModal() {
 
           {/* TAB 2: Appointments */}
           {activePortalTab === 'appointments' && currentPatient && (
-            <AppointmentsTab />
+            <AppointmentsTab
+              onRateVisit={(ticket) => {
+                setSurveyPrefill(ticket);
+                setActivePortalTab('survey');
+              }}
+            />
+          )}
+
+          {/* TAB 2b: Visit Survey */}
+          {activePortalTab === 'survey' && isPatientAccount && (
+            <SurveyTab notify={notify} prefillTicket={surveyPrefill} />
           )}
 
           {/* TAB 3: Prescriptions & Eye Drops */}
