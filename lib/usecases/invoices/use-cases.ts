@@ -5,7 +5,8 @@ import type {
   InvoiceStatusPatch,
 } from './types';
 import type { InvoiceReader, InvoiceStatusUpdater, InvoiceWriter } from './ports';
-import { computeArAging, resolveInvoiceCreate, resolveStatusPatch, type ArAgingReport } from './rules';
+import type { AgingSnapshotReader } from './ports';
+import { computeArAging, computeArAgingSnapshot, resolveInvoiceCreate, resolveStatusPatch, AR_TREND_LOOKBACK_DAYS, type ArAgingReport } from './rules';
 
 // Use cases: orchestration only. Business rules live in rules.ts; ports are
 // injected as first arguments. Errors propagate from the adapter unchanged —
@@ -15,17 +16,24 @@ export async function listInvoices(reader: InvoiceReader): Promise<InvoiceDTO[]>
   return reader.list();
 }
 
-/** AR aging report computed from the reader's invoices (pure rule). */
-export async function loadInvoiceAging(reader: InvoiceReader, now: Date = new Date()): Promise<ArAgingReport> {
-  const invoices = await reader.list();
-  return computeArAging(
-    invoices.map((inv) => ({
-      status: inv.status as Parameters<typeof computeArAging>[0][number]['status'],
-      issuedDate: new Date(inv.dateIssued),
-      totalGrossLYD: inv.totalGrossLYD,
-    })),
-    now,
-  );
+/** Aging trend: the live report plus a point-in-time reconstruction from `lookbackDays` ago. */
+export interface ArAgingTrendReport {
+  current: ArAgingReport;
+  previous: ArAgingReport;
+  lookbackDays: number;
+}
+
+export async function loadInvoiceAgingTrend(
+  reader: AgingSnapshotReader,
+  now: Date = new Date(),
+): Promise<ArAgingTrendReport> {
+  const invoices = await reader.listForAging();
+  const previous = new Date(now.getTime() - AR_TREND_LOOKBACK_DAYS * 86_400_000);
+  return {
+    current: computeArAging(invoices, now),
+    previous: computeArAgingSnapshot(invoices, previous),
+    lookbackDays: AR_TREND_LOOKBACK_DAYS,
+  };
 }
 
 export async function createInvoice(

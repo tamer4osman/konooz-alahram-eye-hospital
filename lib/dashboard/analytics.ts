@@ -3,10 +3,12 @@ import type { Specialty } from '@/data/hospitalData'
 import {
   computeAttendanceKpi,
   computeSatisfactionKpi,
+  computeTrendDelta,
   computeWaitTimeFunnelForRange,
   meanFunnelWait,
   type AttendanceKpi,
   type SatisfactionKpi,
+  type TrendDelta,
   type WaitTimeFunnel,
 } from '@/lib/usecases/analytics/rules'
 
@@ -205,6 +207,12 @@ export interface AnalyticsDTO {
   satisfaction: SatisfactionKpi
   attendance: AttendanceKpi
   waitTimeFunnel: WaitTimeFunnel
+  /** Numeric period-over-period deltas; null when a side is unmeasured. */
+  trends: {
+    attendance: TrendDelta | null
+    nps: TrendDelta | null
+    waitTimeMin: TrendDelta | null
+  }
 }
 
 export async function computeAnalytics(
@@ -213,7 +221,7 @@ export async function computeAnalytics(
 ): Promise<AnalyticsDTO> {
   const range = computeRange(timeframe)
 
-  const [cur, prev, surgeryRows, consultDates, scanDates, invoices, orRoomCount, surveyRows, flowRows, appointmentRows] = await Promise.all([
+  const [cur, prev, surgeryRows, consultDates, scanDates, invoices, orRoomCount, surveyRows, flowRows, appointmentRows, prevSurveyRows, prevFlowRows, prevAppointmentRows] = await Promise.all([
     totalsForRange(range.start, range.end),
     totalsForRange(range.prevStart, range.prevEnd),
     prisma.scheduledSurgery.findMany({
@@ -245,6 +253,18 @@ export async function computeAnalytics(
       where: { date: { gte: range.start, lt: range.end } },
       select: { status: true },
     }),
+    prisma.patientSurvey.findMany({
+      where: { createdAt: { gte: range.prevStart, lt: range.prevEnd } },
+      select: { overallRating: true, recommendScore: true },
+    }),
+    prisma.patientFlowStage.findMany({
+      where: { enteredAt: { gte: range.prevStart, lt: range.prevEnd } },
+      select: { patientRefId: true, patientId: true, stageType: true, enteredAt: true },
+    }),
+    prisma.appointment.findMany({
+      where: { date: { gte: range.prevStart, lt: range.prevEnd } },
+      select: { status: true },
+    }),
   ])
 
   const satisfaction = computeSatisfactionKpi(
@@ -252,6 +272,23 @@ export async function computeAnalytics(
   )
 
   const attendance = computeAttendanceKpi(appointmentRows)
+
+  // Previous-period KPIs power the trend chips; empty prev period -> nulls.
+  const prevSatisfaction = computeSatisfactionKpi(
+    prevSurveyRows.map((r) => ({ overallRating: r.overallRating, recommendScore: r.recommendScore })),
+  )
+  const prevAttendance = computeAttendanceKpi(prevAppointmentRows)
+  const prevWaitTimeFunnel = computeWaitTimeFunnelForRange(
+    prevFlowRows.map((r) => ({
+      appointmentId: r.patientRefId ?? r.patientId,
+      stageName: r.stageType,
+      enteredAt: r.enteredAt,
+    })),
+    range.prevStart,
+    range.prevEnd,
+    `${range.labelEn} (previous)`,
+  )
+  const prevAverageWaitTimeMin = meanFunnelWait(prevWaitTimeFunnel)
 
   const waitTimeFunnel = computeWaitTimeFunnelForRange(
     flowRows.map((r) => ({
@@ -264,6 +301,12 @@ export async function computeAnalytics(
     range.labelEn,
   )
   const averageWaitTimeMin = meanFunnelWait(waitTimeFunnel)
+
+  const trends = {
+    attendance: computeTrendDelta(attendance.attendanceRate, prevAttendance.attendanceRate),
+    nps: computeTrendDelta(satisfaction.nps, prevSatisfaction.nps),
+    waitTimeMin: computeTrendDelta(averageWaitTimeMin, prevAverageWaitTimeMin),
+  }
 
   const orUtilizationRate =
     orRoomCount > 0
@@ -369,5 +412,6 @@ export async function computeAnalytics(
     satisfaction,
     attendance,
     waitTimeFunnel,
+    trends,
   }
 }

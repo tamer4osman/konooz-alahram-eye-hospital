@@ -218,6 +218,83 @@ describe('computeAnalytics (day timeframe)', () => {
   });
 });
 
+describe('computeAnalytics (period-over-period trends)', () => {
+  const mocked = () =>
+    prisma as unknown as {
+      patientSurvey: { findMany: ReturnType<typeof vi.fn> };
+      patientFlowStage: { findMany: ReturnType<typeof vi.fn> };
+      appointment: { findMany: ReturnType<typeof vi.fn> };
+    };
+
+  beforeEach(() => {
+    // Default: previous-period queries return nothing (trends honestly null).
+    const m = mocked();
+    m.patientSurvey.findMany.mockImplementation(async () => []);
+    m.patientFlowStage.findMany.mockImplementation(async () => []);
+    m.appointment.findMany.mockImplementation(async () => []);
+  });
+
+  it('computes attendance and wait-time trends against the previous period', async () => {
+    seedPrisma();
+    const m = mocked();
+
+    // Current: 2/2 attended (100%). Previous: 0/2 attended (0%) -> up +100.
+    m.appointment.findMany.mockImplementation(async (args?: { where?: { date?: { gte?: Date } } }) => {
+      const gte = args?.where?.date?.gte?.getTime();
+      return gte === TODAY.getTime() ? [{ status: 'completed' }, { status: 'completed' }] : [{ status: 'no_show' }, { status: 'no_show' }];
+    });
+
+    // Current: 30-min wait. Previous: 60-min wait -> down -30 (faster is better).
+    m.patientFlowStage.findMany.mockImplementation(async (args?: { where?: { enteredAt?: { gte?: Date } } }) => {
+      const gte = args?.where?.enteredAt?.gte?.getTime();
+      const base = gte === TODAY.getTime() ? TODAY : YESTERDAY;
+      const reception = new Date(base);
+      reception.setHours(9, 0, 0, 0);
+      const triage = new Date(base);
+      triage.setHours(9, gte === TODAY.getTime() ? 30 : 0, 0, 0);
+      if (gte !== TODAY.getTime()) triage.setHours(10, 0, 0, 0);
+      return [
+        { patientRefId: 'j1', patientId: null, stageType: 'reception', enteredAt: reception },
+        { patientRefId: 'j1', patientId: null, stageType: 'triage', enteredAt: triage },
+      ];
+    });
+
+    const dto = await computeAnalytics('day' as AnalyticsTimeframe);
+    expect(dto.trends.attendance).toEqual({ direction: 'up', delta: 100 });
+    expect(dto.trends.waitTimeMin).toEqual({ direction: 'down', delta: -30 });
+    // No previous surveys -> NPS trend honestly null.
+    expect(dto.trends.nps).toBeNull();
+  });
+
+  it('computes an NPS trend when both periods have surveys', async () => {
+    seedPrisma();
+    const m = mocked();
+    m.patientSurvey.findMany.mockImplementation(async (args?: { where?: { createdAt?: { gte?: Date } } }) => {
+      const gte = args?.where?.createdAt?.gte?.getTime();
+      return gte === TODAY.getTime()
+        ? [{ overallRating: 5, recommendScore: 10 }]
+        : [{ overallRating: 5, recommendScore: 0 }];
+    });
+    const dto = await computeAnalytics('day' as AnalyticsTimeframe);
+    expect(dto.trends.nps).toEqual({ direction: 'up', delta: 200 });
+  });
+
+  it('leaves every trend null when the previous period has no rows (no fabricated arrows)', async () => {
+    seedPrisma();
+    const m = mocked();
+    m.appointment.findMany.mockImplementation(async (args?: { where?: { date?: { gte?: Date } } }) => {
+      return args?.where?.date?.gte?.getTime() === TODAY.getTime() ? [{ status: 'completed' }] : [];
+    });
+    m.patientFlowStage.findMany.mockImplementation(async (args?: { where?: { enteredAt?: { gte?: Date } } }) => {
+      return args?.where?.enteredAt?.gte?.getTime() === TODAY.getTime()
+        ? [{ patientRefId: 'j1', patientId: null, stageType: 'reception', enteredAt: new Date(TODAY.getTime() + 9 * 3600_000) }]
+        : [];
+    });
+    const dto = await computeAnalytics('day' as AnalyticsTimeframe);
+    expect(dto.trends).toEqual({ attendance: null, nps: null, waitTimeMin: null });
+  });
+});
+
 describe('computeAnalytics (week/month/year buckets)', () => {
   it('returns 7 rolling day buckets ending today, named from a Sat-first week', async () => {
     seedPrisma();

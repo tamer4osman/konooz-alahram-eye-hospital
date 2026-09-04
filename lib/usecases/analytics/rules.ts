@@ -412,3 +412,31 @@ export function computeAttendanceKpi(rows: AttendanceStatusRow[]): AttendanceKpi
 
   return { attendedCount, universeCount, attendanceRate, noShowCount, cancelledCount };
 }
+
+// ---------------------------------------------------------------------------
+// Period-over-period trend deltas
+// ---------------------------------------------------------------------------
+
+export type TrendDirection = 'up' | 'down' | 'flat';
+
+export interface TrendDelta {
+  direction: TrendDirection;
+  /** current - previous, rounded to 1 decimal (percentage points, points, minutes). */
+  delta: number;
+}
+
+/**
+ * Numeric comparison between two period measurements. Metric-agnostic:
+ * 'up' only means the number grew — whether that is good (attendance, NPS)
+ * or bad (wait time) is the UI's call. Returns null when either period is
+ * unmeasured so no trend is ever fabricated from missing data.
+ */
+export function computeTrendDelta(
+  current: number | null,
+  previous: number | null,
+): TrendDelta | null {
+  if (current === null || previous === null) return null;
+  const delta = Math.round((current - previous) * 10) / 10;
+  if (delta === 0) return { direction: 'flat', delta: 0 };
+  return { direction: delta > 0 ? 'up' : 'down', delta };
+}

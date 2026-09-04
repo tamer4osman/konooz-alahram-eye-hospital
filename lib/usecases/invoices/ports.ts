@@ -2,6 +2,7 @@ import type {
   InvoiceStatusPatch,
   ResolvedInvoiceCreate,
 } from './types';
+import type { AgingSnapshotInvoiceInput } from './rules';
 import type { HospitalBillingInvoice as InvoiceDTO } from '@/data/dashboardData';
 
 // Per-use-case minimal ports (ISP): each interface declares only the
@@ -28,4 +29,14 @@ export interface InvoiceStatusUpdater {
 export interface ResolvedStatusPatch {
   status?: InvoiceStatusPatch['status'];
   paidDate?: Date | null;
+}
+
+/**
+ * Reader port for the aging trend use case (extended ISP slice). Rows carry
+ * `paidDate` so the snapshot rule can tell "paid since then" apart from
+ * "still outstanding"; the absence of a cancellation timestamp is a
+ * documented estimate bias of the reconstruction.
+ */
+export interface AgingSnapshotReader {
+  listForAging(): Promise<AgingSnapshotInvoiceInput[]>;
 }

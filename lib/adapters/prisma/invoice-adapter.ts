@@ -5,6 +5,8 @@ import {
   InvoiceNotFoundError,
 } from '@/lib/usecases/invoices';
 import type {
+  AgingSnapshotReader,
+  AgingSnapshotInvoiceInput,
   InvoiceReader,
   InvoiceStatusUpdater,
   InvoiceWriter,
@@ -31,6 +33,20 @@ export const prismaInvoiceReader: InvoiceReader = {
       orderBy: { createdAt: 'desc' },
     });
     return rows.map(toInvoiceDTO);
+  },
+};
+
+export const prismaAgingSnapshotReader: AgingSnapshotReader = {
+  async listForAging(): Promise<AgingSnapshotInvoiceInput[]> {
+    const rows = await prisma.hospitalBillingInvoice.findMany({
+      select: { status: true, issuedDate: true, paidDate: true, totalGrossLYD: true },
+    });
+    return rows.map((row) => ({
+      status: row.status as AgingSnapshotInvoiceInput['status'],
+      issuedDate: row.issuedDate,
+      paidDate: row.paidDate,
+      totalGrossLYD: Number(row.totalGrossLYD),
+    }));
   },
 };
 

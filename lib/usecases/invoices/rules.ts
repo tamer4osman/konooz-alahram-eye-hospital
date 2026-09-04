@@ -15,6 +15,9 @@ import type { ResolvedStatusPatch } from './ports';
 
 export const AR_AGING_BUCKETS = ['0_30', '31_60', '61_90', '90_plus'] as const;
 
+/** Fixed lookback for the aging trend: the reconstruction distance in days. */
+export const AR_TREND_LOOKBACK_DAYS = 30;
+
 export type ArAgingBucketKey = (typeof AR_AGING_BUCKETS)[number];
 
 /** Minimal invoice facts the aging report consumes (entities vocabulary). */
@@ -22,6 +25,11 @@ export interface AgingInvoiceInput {
   status: InvoiceStatus;
   issuedDate: Date;
   totalGrossLYD: number;
+}
+
+/** Aging invoice with payment-date info for point-in-time reconstruction. */
+export interface AgingSnapshotInvoiceInput extends AgingInvoiceInput {
+  paidDate: Date | null;
 }
 
 export interface ArAgingBucket {
@@ -68,6 +76,8 @@ export function computeArAging(
 
   for (const invoice of invoices) {
     if (!OUTSTANDING_STATUSES.has(invoice.status)) continue;
+    // An invoice issued after the reference clock cannot be outstanding yet.
+    if (invoice.issuedDate > now) continue;
     const ageDays = Math.max(0, Math.floor((now.getTime() - invoice.issuedDate.getTime()) / 86_400_000));
     const bucket = totals.get(bucketForAge(ageDays))!;
     bucket.count += 1;
@@ -78,6 +88,51 @@ export function computeArAging(
 
   const buckets = AR_AGING_BUCKETS.map((key) => {
     const entry = totals.get(key)!;
+    return { key, count: entry.count, totalLYD: Math.round(entry.totalLYD * 100) / 100 };
+  });
+
+  return {
+    buckets,
+    grandTotalLYD: Math.round(grandTotalLYD * 100) / 100,
+    outstandingCount,
+  };
+}
+
+/**
+ * Point-in-time aging reconstruction: what AR aging looked like at a past
+ * date. An invoice was outstanding at the snapshot when it was issued on or
+ * before it and not yet paid (no paidDate, or paidDate after the snapshot).
+ * Cancelled invoices issued before the snapshot are counted — their
+ * cancellation date is not tracked, so the estimate slightly overstates
+ * outstanding AR; the UI labels this reconstruction as an estimate.
+ * Drafts never count (never billed).
+ */
+export function computeArAgingSnapshot(
+  invoices: AgingSnapshotInvoiceInput[],
+  asOf: Date,
+): ArAgingReport {
+  const total = new Map<ArAgingBucketKey, { count: number; totalLYD: number }>(
+    AR_AGING_BUCKETS.map((key) => [key, { count: 0, totalLYD: 0 }]),
+  );
+  let grandTotalLYD = 0;
+  let outstandingCount = 0;
+
+  for (const invoice of invoices) {
+    if (invoice.status === 'draft') continue;
+    if (invoice.issuedDate > asOf) continue;
+    const paid = invoice.paidDate !== null && invoice.paidDate <= asOf;
+    if (paid) continue;
+
+    const ageDays = Math.max(0, Math.floor((asOf.getTime() - invoice.issuedDate.getTime()) / 86_400_000));
+    const bucket = total.get(bucketForAge(ageDays))!;
+    bucket.count += 1;
+    bucket.totalLYD += invoice.totalGrossLYD;
+    grandTotalLYD += invoice.totalGrossLYD;
+    outstandingCount += 1;
+  }
+
+  const buckets = AR_AGING_BUCKETS.map((key) => {
+    const entry = total.get(key)!;
     return { key, count: entry.count, totalLYD: Math.round(entry.totalLYD * 100) / 100 };
   });
 

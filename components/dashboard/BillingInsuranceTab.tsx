@@ -3,8 +3,8 @@
 import React, { useState, useEffect } from 'react';
 import { useLanguage } from '@/context/LanguageContext';
 import { InsuranceProviderInfo, HospitalBillingInvoice, DiagnosticPacsOrder } from '@/data/dashboardData';
-import { Receipt, ShieldCheck, CreditCard, Printer, Plus, CheckCircle2, Hourglass } from 'lucide-react';
-import type { ArAgingReport } from '@/lib/usecases/invoices';
+import { Receipt, ShieldCheck, CreditCard, Printer, Plus, CheckCircle2, Hourglass, TrendingUp, TrendingDown } from 'lucide-react';
+import type { ArAgingReport, ArAgingTrendReport } from '@/lib/usecases/invoices';
 
 export default function BillingInsuranceTab() {
   const { lang, t, } = useLanguage();
@@ -13,6 +13,7 @@ export default function BillingInsuranceTab() {
   const [insurers, setInsurers] = useState<InsuranceProviderInfo[]>([]);
   const [pacsOrders, _setPacsOrders] = useState<DiagnosticPacsOrder[]>([]);
   const [aging, setAging] = useState<ArAgingReport | null>(null);
+  const [agingTrend, setAgingTrend] = useState<ArAgingTrendReport | null>(null);
   const [activeSubTab, setActiveSubTab] = useState<'invoices' | 'insurance' | 'pacs'>('invoices');
   const [selectedInvoice, setSelectedInvoice] = useState<HospitalBillingInvoice | null>(null);
   const [isInvoicePrintSuccess, setIsInvoicePrintSuccess] = useState(false);
@@ -35,7 +36,10 @@ export default function BillingInsuranceTab() {
       .then(async (res) => {
         if (!res.ok) return;
         const json = await res.json();
-        if (!cancelled && json?.data?.buckets) setAging(json.data as ArAgingReport);
+        if (!cancelled && json?.data?.current?.buckets) {
+          setAging(json.data.current as ArAgingReport);
+          setAgingTrend(json.data as ArAgingTrendReport);
+        }
       })
       .catch(() => {});
     fetch('/api/staff/billing')
@@ -203,6 +207,25 @@ export default function BillingInsuranceTab() {
             <span className="text-[10px] font-bold text-ink-500">
               {aging.outstandingCount} {t('فاتورة قائمة', 'outstanding invoices')} •{' '}
               <span className="font-mono">{aging.grandTotalLYD.toLocaleString()}</span> LYD
+              {agingTrend && agingTrend.previous.grandTotalLYD !== agingTrend.current.grandTotalLYD && (
+                <span
+                  className={`ms-2 inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md border text-[10px] font-extrabold ${
+                    agingTrend.current.grandTotalLYD > agingTrend.previous.grandTotalLYD
+                      ? 'text-rose-600 bg-rose-50 border-rose-200'
+                      : 'text-emerald-700 bg-emerald-50 border-emerald-200'
+                  }`}
+                >
+                  {agingTrend.current.grandTotalLYD > agingTrend.previous.grandTotalLYD ? (
+                    <TrendingUp className="w-3 h-3" aria-hidden="true" />
+                  ) : (
+                    <TrendingDown className="w-3 h-3" aria-hidden="true" />
+                  )}
+                  {agingTrend.current.grandTotalLYD > agingTrend.previous.grandTotalLYD ? '+' : ''}
+                  {Math.round(agingTrend.current.grandTotalLYD - agingTrend.previous.grandTotalLYD).toLocaleString()} LYD
+                  {' '}
+                  {t(`مقابل ${agingTrend.lookbackDays} يوماً`, `vs ${agingTrend.lookbackDays} days`)}
+                </span>
+              )}
             </span>
           )}
         </div>
@@ -238,6 +261,15 @@ export default function BillingInsuranceTab() {
           {t(
             'يُحسب المبلغ المستحق كامل قيمة الفاتورة — لا تُتابع الدفعات الجزئية في النظام حالياً. الفواتير المسددة والملغاة والمسودات غير مدرجة.',
             'Outstanding amounts reflect the full invoice value — partial payments are not tracked yet. Paid, cancelled and draft invoices are excluded.',
+          )}
+          {agingTrend && (
+            <>
+              {' '}
+              {t(
+                `المقارنة تقديرية مبنية على إعادة بناء الوضع قبل ${agingTrend.lookbackDays} يوماً من تواريخ الإصدار والسداد — تواريخ الإلغاء غير متتبعة فيُحتسب تقدير المرتفع قليلاً.`,
+                `Comparison is an estimate reconstructed from issue/payment dates as of ${agingTrend.lookbackDays} days ago — cancellation dates are not tracked, so it slightly overstates outstanding AR.`,
+              )}
+            </>
           )}
         </p>
       </div>

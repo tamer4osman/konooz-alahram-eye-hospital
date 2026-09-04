@@ -6,9 +6,9 @@ import { useLanguage } from '@/context/LanguageContext';
 import { useAnalytics } from '@/hooks/use-analytics';
 import { HospitalStaff, HospitalRoom, HospitalEquipment, ScheduledSurgery, SurgicalConsumable, PatientFlowStage } from '@/data/dashboardData';
 import { ResponsiveContainer, ComposedChart, Line, Bar, XAxis, YAxis, Tooltip, Legend, CartesianGrid } from 'recharts';
-import { Activity, Award, ShieldCheck, Zap, Download, Building2, Users, Gauge, Package, Timer, Workflow, AlertTriangle, Truck, CalendarClock } from 'lucide-react';
+import { Activity, Award, ShieldCheck, Zap, Download, Building2, Users, Gauge, Package, Timer, Workflow, AlertTriangle, Truck, CalendarClock, TrendingUp, TrendingDown, Minus } from 'lucide-react';
 import type { ConsumablesSummary } from '@/lib/usecases/consumables';
-import type { CataractOutcomeReport } from '@/lib/usecases/analytics';
+import type { CataractOutcomeReport, TrendDelta } from '@/lib/usecases/analytics';
 import type { RestockModalProps } from './modals/RestockModal';
 
 const RestockModal = dynamic<RestockModalProps>(
@@ -27,6 +27,46 @@ interface AnalyticsTabProps {
   patientFlowList?: PatientFlowStage[];
 }
 
+/** Per-metric semantics: which numeric direction is good, and the delta unit. */
+const TREND_METRICS: Record<string, { good: 'up' | 'down'; unitAr: string; unitEn: string }> = {
+  attendance: { good: 'up', unitAr: 'نقطة', unitEn: 'pts' },
+  nps: { good: 'up', unitAr: 'نقطة', unitEn: 'pts' },
+  waitTimeMin: { good: 'down', unitAr: 'دقيقة', unitEn: 'min' },
+};
+
+function TrendChip({ trend, metric, t }: { trend: TrendDelta | null; metric: string; t: (ar: string, en: string) => string }) {
+  if (!trend) return null;
+  const spec = TREND_METRICS[metric];
+  if (!spec) return null;
+  const Icon = trend.direction === 'up' ? TrendingUp : trend.direction === 'down' ? TrendingDown : Minus;
+  const improving = trend.direction !== 'flat' && trend.direction === spec.good;
+  const worsening = trend.direction !== 'flat' && trend.direction !== spec.good;
+  const color = improving
+    ? 'text-emerald-300 bg-emerald-500/10 border-emerald-500/30'
+    : worsening
+      ? 'text-rose-300 bg-rose-500/10 border-rose-500/30'
+      : 'text-ink-400 bg-ink-700/60 border-ink-600';
+  const verdict =
+    trend.direction === 'flat'
+      ? t('مستقر', 'unchanged')
+      : improving
+        ? t('تحسن', 'improved')
+        : t('تراجع', 'worsened');
+  const formatted = `${trend.delta > 0 ? '+' : ''}${trend.delta}`;
+  return (
+    <span
+      className={`inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md border text-[10px] font-bold ${color}`}
+      title={t('مقابل الفترة السابقة', 'vs previous period')}
+    >
+      <Icon className="w-3 h-3" aria-hidden="true" />
+      <span className="font-mono">{formatted}</span>
+      <span>{t(spec.unitAr, spec.unitEn)}</span>
+      <span aria-hidden="true">•</span>
+      <span>{verdict}</span>
+    </span>
+  );
+}
+
 export default function AnalyticsTab({
   timeframe, onChangeTimeframe, staffList = [], roomsList = [], equipmentList = [], surgeriesList: _surgeriesList = [], consumablesList = [], patientFlowList = []
 }: AnalyticsTabProps) {
@@ -43,6 +83,7 @@ export default function AnalyticsTab({
   };
   const waitTimeFunnel = currentAnalytics?.waitTimeFunnel;
   const attendance = currentAnalytics?.attendance;
+  const trends = currentAnalytics?.trends ?? null;
 
   // Consumables board state
   const [summary, setSummary] = useState<ConsumablesSummary | null>(null);
@@ -814,8 +855,8 @@ export default function AnalyticsTab({
           </h3>
           <p className="text-xs text-ink-300 mt-0.5">
             {t(
-              'مؤشرات محسوبة من سجلات المستشفى — تظهر “—” عندما لا تتوفر بيانات كافية',
-              'Computed from hospital records — shows “—” when data is not yet sufficient',
+              'مؤشرات محسوبة من سجلات المستشفى — تظهر “—” عندما لا تتوفر بيانات كافية. المقارنات ضد الفترة السابقة المماثلة.',
+              'Computed from hospital records — shows “—” when data is not yet sufficient. Trend comparisons are against the matching previous period.',
             )}
           </p>
         </div>
@@ -823,7 +864,8 @@ export default function AnalyticsTab({
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           <div className="p-4 rounded-xl bg-ink-700/80 border border-ink-700 text-center">
             <span className="text-[11px] font-bold text-ink-400 block mb-1">{t('نسبة الحضور (المواعيد)', 'Appointment Attendance')}</span>
-            <span className="text-2xl font-extrabold text-brass-400">
+            <TrendChip trend={trends?.attendance ?? null} metric="attendance" t={t} />
+            <span className="text-2xl font-extrabold text-brass-400 block">
               {attendance?.attendanceRate !== null && attendance?.attendanceRate !== undefined
                 ? `${attendance.attendanceRate}%`
                 : '—'}
@@ -837,7 +879,7 @@ export default function AnalyticsTab({
 
           <div className="p-4 rounded-xl bg-ink-700/80 border border-ink-700 text-center">
             <span className="text-[11px] font-bold text-ink-400 block mb-1">{t('نتيجة جيدة للمياه البيضاء', 'Cataract Good Outcome')}</span>
-            <span className="text-2xl font-extrabold text-brass-300">
+            <span className="text-2xl font-extrabold text-brass-300 block">
               {cataractReport?.goodOutcomeRate !== null && cataractReport?.goodOutcomeRate !== undefined
                 ? `${cataractReport.goodOutcomeRate}%`
                 : '—'}
@@ -851,7 +893,8 @@ export default function AnalyticsTab({
 
           <div className="p-4 rounded-xl bg-ink-700/80 border border-ink-700 text-center">
             <span className="text-[11px] font-bold text-ink-400 block mb-1">{t('متوسط زمن الانتظار', 'Average Wait Time')}</span>
-            <span className="text-2xl font-extrabold text-brass-300">
+            <TrendChip trend={trends?.waitTimeMin ?? null} metric="waitTimeMin" t={t} />
+            <span className="text-2xl font-extrabold text-brass-300 block">
               {kpis.averageWaitTimeMin !== null ? `${kpis.averageWaitTimeMin} ${t('د', 'min')}` : '—'}
             </span>
             <span className="text-[10px] text-ink-500 block mt-1">
@@ -863,7 +906,8 @@ export default function AnalyticsTab({
 
           <div className="p-4 rounded-xl bg-ink-700/80 border border-ink-700 text-center">
             <span className="text-[11px] font-bold text-ink-400 block mb-1">{t('مؤشر رضا المرضى (NPS)', 'Patient Net Promoter Score')}</span>
-            <span className="text-2xl font-extrabold text-brass-400">
+            <TrendChip trend={trends?.nps ?? null} metric="nps" t={t} />
+            <span className="text-2xl font-extrabold text-brass-400 block">
               {kpis.nps !== null ? `${kpis.nps > 0 ? '+' : ''}${kpis.nps}` : '—'}
             </span>
             <span className="text-[10px] text-ink-500 block mt-1">
