@@ -1,9 +1,9 @@
 import { NextRequest } from 'next/server'
 import { z } from 'zod'
-import { prisma } from '@/lib/prisma'
-import { apiSuccess } from '@/lib/api/response'
-import { requireAdmin, readJson, prismaFailure } from '@/lib/api/admin-route'
-import { toAttendanceDTO } from '@/lib/dashboard/attendance'
+import { apiSuccess, apiError } from '@/lib/api/response'
+import { requireAdmin, readJson } from '@/lib/api/admin-route'
+import { deleteAttendance, updateAttendance, AttendanceNotFoundError } from '@/lib/usecases/attendance'
+import { prismaAttendanceWriter } from '@/lib/adapters/prisma/attendance-adapter'
 
 export const dynamic = 'force-dynamic'
 
@@ -16,6 +16,8 @@ const patchSchema = z.object({
   overtimeHours: z.number().min(0).optional(),
 })
 
+// Thin handler: auth gate -> validate -> use case -> respond.
+
 export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const auth = await requireAdmin()
   if (!auth.ok) return auth.response
@@ -26,13 +28,13 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
   if (!body.ok) return body.response
 
   try {
-    const row = await prisma.staffAttendanceRecord.update({ where: { id }, data: body.data })
-    return apiSuccess(toAttendanceDTO(row))
+    const record = await updateAttendance(prismaAttendanceWriter, id, body.data)
+    return apiSuccess(record)
   } catch (err) {
-    return prismaFailure(err, {
-      notFound: { code: 'RECORD_NOT_FOUND', ar: 'سجل الحضور غير موجود', en: 'Attendance record not found' },
-      failure: { code: 'ATTENDANCE_UPDATE_FAILED', ar: 'تعذر تحديث سجل الحضور', en: 'Failed to update attendance record' },
-    })
+    if (err instanceof AttendanceNotFoundError) {
+      return apiError(404, 'RECORD_NOT_FOUND', 'سجل الحضور غير موجود', 'Attendance record not found')
+    }
+    throw err
   }
 }
 
@@ -42,12 +44,12 @@ export async function DELETE(_req: NextRequest, { params }: { params: Promise<{ 
 
   const { id } = await params
   try {
-    await prisma.staffAttendanceRecord.delete({ where: { id } })
+    await deleteAttendance(prismaAttendanceWriter, id)
     return apiSuccess({ ok: true })
   } catch (err) {
-    return prismaFailure(err, {
-      notFound: { code: 'RECORD_NOT_FOUND', ar: 'سجل الحضور غير موجود', en: 'Attendance record not found' },
-      failure: { code: 'ATTENDANCE_DELETE_FAILED', ar: 'تعذر حذف السجل', en: 'Failed to delete record' },
-    })
+    if (err instanceof AttendanceNotFoundError) {
+      return apiError(404, 'RECORD_NOT_FOUND', 'سجل الحضور غير موجود', 'Attendance record not found')
+    }
+    throw err
   }
 }

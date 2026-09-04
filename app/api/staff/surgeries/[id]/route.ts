@@ -1,9 +1,9 @@
 import { NextRequest } from 'next/server'
 import { z } from 'zod'
-import { prisma } from '@/lib/prisma'
-import { apiSuccess } from '@/lib/api/response'
-import { requireAdmin, readJson, prismaFailure } from '@/lib/api/admin-route'
-import { toSurgeryDTO } from '@/lib/dashboard/surgeries'
+import { apiSuccess, apiError } from '@/lib/api/response'
+import { requireAdmin, readJson } from '@/lib/api/admin-route'
+import { deleteSurgery, updateSurgery, SurgeryNotFoundError } from '@/lib/usecases/surgeries'
+import { prismaSurgeryWriter } from '@/lib/adapters/prisma/surgery-adapter'
 
 export const dynamic = 'force-dynamic'
 
@@ -17,6 +17,8 @@ const patchSchema = z.object({
   notesEn: z.string().nullable().optional(),
 })
 
+// Thin handler: auth gate -> validate -> use case -> respond.
+
 export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const auth = await requireAdmin()
   if (!auth.ok) return auth.response
@@ -27,13 +29,13 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
   if (!body.ok) return body.response
 
   try {
-    const row = await prisma.scheduledSurgery.update({ where: { id }, data: body.data })
-    return apiSuccess(toSurgeryDTO(row))
+    const surgery = await updateSurgery(prismaSurgeryWriter, id, body.data)
+    return apiSuccess(surgery)
   } catch (err) {
-    return prismaFailure(err, {
-      notFound: { code: 'SURGERY_NOT_FOUND', ar: 'العملية غير موجودة', en: 'Surgery not found' },
-      failure: { code: 'SURGERY_UPDATE_FAILED', ar: 'تعذر تحديث العملية', en: 'Failed to update surgery' },
-    })
+    if (err instanceof SurgeryNotFoundError) {
+      return apiError(404, 'SURGERY_NOT_FOUND', 'العملية غير موجودة', 'Surgery not found')
+    }
+    throw err
   }
 }
 
@@ -43,12 +45,12 @@ export async function DELETE(_req: NextRequest, { params }: { params: Promise<{ 
 
   const { id } = await params
   try {
-    await prisma.scheduledSurgery.delete({ where: { id } })
+    await deleteSurgery(prismaSurgeryWriter, id)
     return apiSuccess({ ok: true })
   } catch (err) {
-    return prismaFailure(err, {
-      notFound: { code: 'SURGERY_NOT_FOUND', ar: 'العملية غير موجودة', en: 'Surgery not found' },
-      failure: { code: 'SURGERY_DELETE_FAILED', ar: 'تعذر حذف العملية', en: 'Failed to delete surgery' },
-    })
+    if (err instanceof SurgeryNotFoundError) {
+      return apiError(404, 'SURGERY_NOT_FOUND', 'العملية غير موجودة', 'Surgery not found')
+    }
+    throw err
   }
 }

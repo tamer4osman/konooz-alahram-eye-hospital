@@ -1,9 +1,12 @@
 import { NextRequest } from 'next/server'
 import { z } from 'zod'
-import { prisma } from '@/lib/prisma'
 import { apiSuccess } from '@/lib/api/response'
 import { requireAdmin, readJson } from '@/lib/api/admin-route'
-import { toAttendanceDTO } from '@/lib/dashboard/attendance'
+import { createAttendance, listAttendance } from '@/lib/usecases/attendance'
+import {
+  prismaAttendanceReader,
+  prismaAttendanceWriter,
+} from '@/lib/adapters/prisma/attendance-adapter'
 
 export const dynamic = 'force-dynamic'
 
@@ -25,12 +28,14 @@ const createSchema = z.object({
   badgeCode: z.string().optional(),
 })
 
+// Thin handler: auth gate -> validate -> use case -> respond.
+
 export async function GET() {
   const auth = await requireAdmin()
   if (!auth.ok) return auth.response
 
-  const rows = await prisma.staffAttendanceRecord.findMany({ orderBy: { createdAt: 'asc' } })
-  return apiSuccess(rows.map(toAttendanceDTO))
+  const records = await listAttendance(prismaAttendanceReader)
+  return apiSuccess(records)
 }
 
 export async function POST(req: NextRequest) {
@@ -39,27 +44,7 @@ export async function POST(req: NextRequest) {
 
   const body = await readJson(req, createSchema, 'بيانات الحضور غير مكتملة', 'Attendance data is incomplete or invalid')
   if (!body.ok) return body.response
-  const input = body.data
 
-  const row = await prisma.staffAttendanceRecord.create({
-    data: {
-      staffId: input.staffId ?? null,
-      staffNameAr: input.staffNameAr,
-      staffNameEn: input.staffNameEn ?? null,
-      roleAr: input.roleAr ?? '',
-      roleEn: input.roleEn ?? null,
-      avatar: input.avatar ?? '',
-      category: input.category ?? 'consultant',
-      departmentAr: input.departmentAr ?? '',
-      departmentEn: input.departmentEn ?? null,
-      shiftType: input.shiftType,
-      shiftNameAr: input.shiftNameAr ?? '',
-      shiftNameEn: input.shiftNameEn ?? null,
-      shiftTiming: input.shiftTiming ?? '',
-      scheduledTime: input.scheduledTime ?? '',
-      badgeCode: input.badgeCode ?? '',
-      date: new Date(),
-    },
-  })
-  return apiSuccess(toAttendanceDTO(row), 201)
+  const record = await createAttendance(prismaAttendanceWriter, body.data)
+  return apiSuccess(record, 201)
 }
