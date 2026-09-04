@@ -17,6 +17,6 @@ export function toConsumableDTO(row: ConsumableType): SurgicalConsumable {
     expiryDate: row.expiryDate ?? '',
     locationAr: row.locationAr,
     locationEn: row.locationEn ?? '',
-    unitCostLYD: row.unitCostLYD,
+    unitCostLYD: Number(row.unitCostLYD),
   };
 }
