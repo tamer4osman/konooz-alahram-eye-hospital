@@ -54,15 +54,5 @@ export function usePortalActions(notify: (message: string, timeoutMs?: number) =
     openWhatsAppAlert(`*مستشفى كنوز الأهرام لطب وجراحة العيون*\n\n📋 *${titleAr}*\n${bodyAr}\n\n📍 بنغازي - حي الفويهات\n📞 ${HOSPITAL_CONTACTS.primaryWhatsAppDisplay}`);
   };
 
-  const triggerTestEmailAlert = () => {
-    if (!currentPatient) return;
-    const titleAr = 'التقرير الطبي وملخص المواعيد - مستشفى كنوز الأهرام';
-    const titleEn = 'Medical Summary & Appointments - Konooz Al-Ahram';
-
-    const pendingMessage = t('الإرسال البريدي التلقائي سيُفعّل عند اكتمال ربط النظام الطبي.', 'Automated email delivery activates once system integration is complete.');
-    sendLiveNotificationSimulation('email', titleAr, titleEn, pendingMessage, pendingMessage);
-    notify(t('سُجّل الطلب في سجلك — الإرسال البريدي الفعلي سيكون متاحاً قريباً.', 'Logged in your history — actual email delivery is coming soon.'), 4000);
-  };
-
-  return { triggerTestWhatsAppAlert, triggerTestEmailAlert };
+  return { triggerTestWhatsAppAlert };
 }
