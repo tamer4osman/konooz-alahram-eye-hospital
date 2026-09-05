@@ -1,6 +1,6 @@
 import type { NextRequest } from 'next/server'
 import type { z } from 'zod'
-import type { User } from '@prisma/client'
+import type { StaffUser } from '@/lib/auth/guards'
 import { getStaffUser } from '@/lib/auth/guards'
 import { apiError } from '@/lib/api/response'
 import { hasModuleAccess, type DashboardModule, type ModuleAccess } from '@/lib/permissions'
@@ -10,7 +10,7 @@ import { hasModuleAccess, type DashboardModule, type ModuleAccess } from '@/lib/
 // dashboard permission today (see lib/auth/guards.ts).
 
 export type AdminGate =
-  | { ok: true; user: User }
+  | { ok: true; user: StaffUser }
   | { ok: false; response: Response }
 
 export async function requireAdmin(): Promise<AdminGate> {
@@ -28,7 +28,6 @@ export async function requireAdmin(): Promise<AdminGate> {
  * Like requireAdmin(), but also verifies the user has access to a specific
  * dashboard module. ADMIN role always passes; STAFF role checks permissions.
  */
-// fallow-ignore-next-line
 export async function requireModuleAccess(
   module: DashboardModule,
   level: ModuleAccess = 'read',
