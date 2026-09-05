@@ -8,7 +8,7 @@ const LOCALES = ['ar', 'en'] as const;
 const privacyContent = {
   ar: {
     title: 'سياسة الخصوصية وحماية البيانات',
-    lastUpdated: 'آخر تحديث: أغسطس 2026',
+    lastUpdated: 'آخر تحديث: سبتمبر 2026',
     sections: [
       {
         heading: '1. مقدمة',
@@ -16,15 +16,15 @@ const privacyContent = {
       },
       {
         heading: '2. البيانات التي نجمعها',
-        text: 'نجمع فقط المعلومات التي تقدمها طواعية: الاسم الكامل، البريد الإلكتروني، رقم الهاتف، المدينة، الجنس، والمعلومات السريرية ذات الصلة بطلب الحجز. لا نجمع بيانات الدفع أو بطاقات الائتمان.',
+        text: 'نجمع فقط المعلومات التي تقدمها طواعية عند إنشاء حسابك: الاسم الكامل، البريد الإلكتروني، رقم الهاتف، المدينة، الجنس، ومعلوماتك الطبية التي يسجلها طاقمنا أثناء زياراتك (الاستشارات، الوصفات، الفواتير المرتبطة بحسابك). لا نجمع بيانات الدفع أو بطاقات الائتمان.',
       },
       {
         heading: '3. كيف نستخدم بياناتك',
-        text: 'نستخدم بياناتك فقط لـ: تأكيد مواعيدك عبر الواتساب، تذكرك بمواعيدك القادمة، تحسين خدماتنا. لا نبيع أو نشارك بياناتك مع أطراف ثالثة لأغراض تسويقية.',
+        text: 'نستخدم بياناتك فقط لـ: عرض ملفك الطبي ومواعيدك داخل بوابة المريض، تأكيد مواعيدك عبر الواتساب، تحسين خدماتنا. لا نبيع أو نشارك بياناتك مع أطراف ثالثة لأغراض تسويقية.',
       },
       {
         heading: '4. حماية البيانات',
-        text: 'نستخدم تشفير البيانات أثناء النقل والتخزين. يتم تخزين بياناتك على خوادم آمنة داخل ليبيا. لا ننقل بياناتك خارج البلاد.',
+        text: 'كلمات المرور مشفرة بخوارزمية argon2id ولا يمكن لأي شخص — بما في ذلك فريقنا — قراءتها. جلسات الدخول محفوظة كرموز مشفرة في كوكيز آمنة (HttpOnly) لا يستطيع أي سكربت في المتصفح الوصول إليها. بياناتك الطبية مخزنة على خوادمنا ولا تُحفظ على جهازك.',
       },
       {
         heading: '5. حقوقك',
@@ -38,7 +38,7 @@ const privacyContent = {
   },
   en: {
     title: 'Privacy Policy & Data Protection',
-    lastUpdated: 'Last updated: August 2026',
+    lastUpdated: 'Last updated: September 2026',
     sections: [
       {
         heading: '1. Introduction',
@@ -46,15 +46,15 @@ const privacyContent = {
       },
       {
         heading: '2. Data We Collect',
-        text: 'We only collect information you voluntarily provide: full name, email, phone number, city, gender, and clinical information relevant to your booking request. We do not collect payment data or credit card information.',
+        text: 'We only collect information you voluntarily provide when creating your account: full name, email, phone number, city, gender, and the medical information our staff record during your visits (consultations, prescriptions, and invoices linked to your account). We do not collect payment data or credit card information.',
       },
       {
         heading: '3. How We Use Your Data',
-        text: 'We use your data only to: confirm your appointments via WhatsApp, remind you of upcoming visits, and improve our services. We do not sell or share your data with third parties for marketing purposes.',
+        text: 'We use your data only to: present your medical profile and appointments inside the patient portal, confirm your appointments via WhatsApp, and improve our services. We do not sell or share your data with third parties for marketing purposes.',
       },
       {
         heading: '4. Data Protection',
-        text: 'We use data encryption during transit and storage. Your data is stored on secure servers within Libya. We do not transfer your data outside the country.',
+        text: 'Passwords are hashed with argon2id and cannot be read by anyone — including our team. Login sessions are stored as hashed tokens in secure HttpOnly cookies that no browser script can access. Your medical data lives on our servers and is never stored on your device.',
       },
       {
         heading: '5. Your Rights',

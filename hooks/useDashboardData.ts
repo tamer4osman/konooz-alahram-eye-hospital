@@ -54,23 +54,18 @@ export function useDashboardData(): UseDashboardData {
   useEffect(() => {
     let cancelled = false;
 
-    // Auth check
-    const hasSession = document.cookie.split(';').some((c) => c.trim().startsWith('konooz_auth='));
-    if (hasSession) {
-      fetch('/api/auth/me')
-        .then((r) => r.json())
-        .then((json) => {
-          if (!cancelled && json?.data) {
-            // /api/auth/me returns { data: { user: { role, permissions } } }.
-            // Reading data.role directly fell back to 'STAFF' and hid every
-            // dashboard tab — the dashboard briefly rendered then lost its nav.
-            const user = json.data.user ?? json.data;
-            setUserRole(user.role ?? 'STAFF');
-            setUserPermissions(user.permissions ?? null);
-          }
-        })
-        .catch(() => {});
-    }
+    // Auth check — the staff session cookie is httpOnly, so the /me fetch is
+    // the only honest check (a document.cookie gate can never see it).
+    fetch('/api/staff/auth/me')
+      .then((r) => r.json())
+      .then((json) => {
+        if (!cancelled && json?.data) {
+          const user = json.data.user ?? json.data;
+          setUserRole(user.role ?? 'STAFF');
+          setUserPermissions(user.permissions ?? null);
+        }
+      })
+      .catch(() => {});
 
     // Parallel data fetches
     Promise.all([

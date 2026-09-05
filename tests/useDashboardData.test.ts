@@ -25,7 +25,7 @@ function errorResponse() {
 
 // URL → response mapping (avoids non-deterministic Promise.all ordering)
 const MOCK_DATA: Record<string, any> = {
-  '/api/auth/me': { role: 'ADMIN', permissions: null },
+  '/api/staff/auth/me': { role: 'ADMIN', permissions: null },
   '/api/staff/rooms': { data: [{ id: 'r1', name: 'OR-1', status: 'available' }] },
   '/api/staff/equipment': { data: [{ id: 'e1', name: 'Laser', status: 'operational' }] },
   '/api/staff/surgeries': { data: [{ id: 'sg1', patient: 'Ahmed', status: 'scheduled' }] },
@@ -93,7 +93,7 @@ describe('useDashboardData', () => {
   });
 
   it('defaults to STAFF role when auth check returns no role', async () => {
-    setupFetch({ '/api/auth/me': 'error' });
+    setupFetch({ '/api/staff/auth/me': 'error' });
 
     const { result } = renderHook(() => useDashboardData());
 
@@ -103,7 +103,7 @@ describe('useDashboardData', () => {
   });
 
   it('handles auth check failure gracefully', async () => {
-    setupFetch({ '/api/auth/me': 'error' });
+    setupFetch({ '/api/staff/auth/me': 'error' });
 
     const { result } = renderHook(() => useDashboardData());
 
@@ -153,3 +153,4 @@ describe('useDashboardData', () => {
     expect(result.current.roomsList).toEqual([]);
   });
 });
+
