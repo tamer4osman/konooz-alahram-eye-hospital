@@ -51,7 +51,7 @@
 
 **Plan:** `docs/superpowers/plans/2026-09-05-phase1-identity-split.md`
 
-## Phase 2 — Operations Hub route + staff isolation
+## Phase 2 — Operations Hub route + staff isolation ✅ DONE
 
 **Deliverable:** `/[locale]/ops` renders the dashboard with inline staff login; `StaffAuthContext` owns the staff session; homepage swap behavior deleted; middleware bounces staff sessions off all marketing routes (D11).
 
@@ -61,7 +61,7 @@
 - `HomePageClient` loses the dashboard branch; `middleware.ts` gains the staff-redirect rule; `robots.txt` disallows `/ops`.
 - Staff auth UI + gate tests; live check: logged-in staff visiting `/ar`, `/ar/blog` → redirected.
 
-## Phase 3 — Record linking (schema-first, D5)
+## Phase 3 — Record linking (schema-first, D5) ✅ DONE
 
 **Deliverable:** Staff-authored records can reference a patient account; staff clinical form gains an account picker; patient-side reads are exact, not fuzzy.
 
@@ -71,7 +71,7 @@
 - Use-case rules: link validation, patient-scoped read queries (own records only).
 - Tests: link rules, scoping rules (stub ports).
 
-## Phase 4 — Patient portal route (D1, D2, D10)
+## Phase 4 — Patient portal route (D1, D2, D10) ✅ DONE
 
 **Deliverable:** `/[locale]/portal` is a real page hosting the portal tabs; `PatientAuthContext` is server-only (no localStorage); entry CTAs across `Navbar`/`Hero`/`FloatingWidgets`/`Footer` become links; `PatientPortalModal` and its homepage plumbing are deleted.
 
@@ -81,7 +81,7 @@
 - Delete `PatientPortalModal`, `openPatientPortal` plumbing, localStorage code paths.
 - Live check: patient signup → portal; homepage untouched; `/en` mirrors.
 
-## Phase 5 — Bridge, derived notifications, cleanup (D8, D9)
+## Phase 5 — Bridge, derived notifications, cleanup (D8, D9) ✅ DONE
 
 **Deliverable:** One-time local-profile merge bridge; derived notifications tab; privacy page + portal copy updated to server-storage-with-consent language; legacy code fully removed.
 
