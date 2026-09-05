@@ -21,6 +21,15 @@ export function synthesizePatientId(now: Date): string {
   return `PT-${now.getTime()}`;
 }
 
+/**
+ * D5: normalize the optional staff-picked account link. Empty/whitespace
+ * means "walk-in without a portal account" — the record stays unlinked.
+ */
+export function resolveAccountLink(accountId?: string): string | null {
+  const trimmed = accountId?.trim();
+  return trimmed ? trimmed : null;
+}
+
 /** Map wire gender to persistence enum; male default. */
 export function resolveGender(gender: 'male' | 'female' | undefined): 'MALE' | 'FEMALE' {
   return gender === 'female' ? 'FEMALE' : 'MALE';
@@ -54,6 +63,7 @@ export function resolveClinicalCreate(
   return {
     ticketNumber: input.ticketNumber ?? '',
     patientId: input.patientId ?? synthesizePatientId(now),
+    patientRefId: resolveAccountLink(input.patientRefId),
     patientNameAr: input.patientNameAr,
     patientNameEn: input.patientNameEn ?? null,
     patientAge: input.patientAge ?? null,

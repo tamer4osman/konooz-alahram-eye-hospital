@@ -10,3 +10,8 @@ export interface ClinicalReader {
 export interface ClinicalWriter {
   create(resolved: ResolvedClinicalCreate, actorEmail: string): Promise<ClinicalDTO>;
 }
+
+/** D5: resolves a staff-picked portal account id to its profile id. */
+export interface LinkedProfileReader {
+  profileIdForAccount(accountId: string): Promise<string | null>;
+}

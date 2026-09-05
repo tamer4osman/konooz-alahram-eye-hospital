@@ -79,7 +79,7 @@ describe('clinical rules', () => {
 
   it('create use case passes actor email to writer', async () => {
     const writer: ClinicalWriter = { create: vi.fn().mockResolvedValue(SAMPLE) };
-    await createClinicalRecord(writer, { patientNameAr: 'مريض' }, 'admin@test.com', NOW);
+    await createClinicalRecord(writer, { profileIdForAccount: vi.fn() }, { patientNameAr: 'مريض' }, 'admin@test.com', NOW);
     const [resolved, actor] = vi.mocked(writer.create).mock.calls[0];
     expect(actor).toBe('admin@test.com');
     expect(resolved.patientNameAr).toBe('مريض');

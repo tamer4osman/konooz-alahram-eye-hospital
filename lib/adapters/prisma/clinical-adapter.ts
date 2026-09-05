@@ -4,6 +4,7 @@ import type {
   ResolvedClinicalCreate,
   ClinicalReader,
   ClinicalWriter,
+  LinkedProfileReader,
 } from '@/lib/usecases/clinical';
 import type { ClinicalConsultationRecord as ClinicalDTO } from '@/data/dashboardData';
 
@@ -32,5 +33,15 @@ export const prismaClinicalWriter: ClinicalWriter = {
       include: { items: true },
     });
     return toClinicalDTO(row);
+  },
+};
+
+export const prismaLinkedProfileReader: LinkedProfileReader = {
+  async profileIdForAccount(accountId: string): Promise<string | null> {
+    const row = await prisma.patientProfile.findUnique({
+      where: { accountId },
+      select: { id: true },
+    });
+    return row?.id ?? null;
   },
 };

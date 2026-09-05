@@ -40,6 +40,8 @@ export interface ResolvedPrescriptionItem {
 export interface CreateClinicalInput {
   ticketNumber?: string;
   patientId?: string;
+  /** D5: portal-account link picked by staff at entry time; null for walk-ins. */
+  patientRefId?: string;
   patientNameAr: string;
   patientNameEn?: string;
   patientAge?: number;
@@ -78,6 +80,7 @@ export interface CreateClinicalInput {
 export interface ResolvedClinicalCreate {
   ticketNumber: string;
   patientId: string;
+  patientRefId: string | null;
   patientNameAr: string;
   patientNameEn: string | null;
   patientAge: number | null;

@@ -1,9 +1,9 @@
 import { NextRequest } from 'next/server'
 import { z } from 'zod'
-import { apiSuccess } from '@/lib/api/response'
+import { apiSuccess, apiError } from '@/lib/api/response'
 import { requireAdmin, readJson } from '@/lib/api/admin-route'
-import { createClinicalRecord, listClinicalRecords } from '@/lib/usecases/clinical'
-import { prismaClinicalReader, prismaClinicalWriter } from '@/lib/adapters/prisma/clinical-adapter'
+import { createClinicalRecord, listClinicalRecords, PatientLinkNotFoundError } from '@/lib/usecases/clinical'
+import { prismaClinicalReader, prismaClinicalWriter, prismaLinkedProfileReader } from '@/lib/adapters/prisma/clinical-adapter'
 
 export const dynamic = 'force-dynamic'
 
@@ -23,6 +23,7 @@ const rxSchema = z.object({
 const createSchema = z.object({
   ticketNumber: z.string().optional(),
   patientId: z.string().optional(),
+  patientRefId: z.string().min(1).optional(),
   patientNameAr: z.string().min(1),
   patientNameEn: z.string().optional(),
   patientAge: z.number().int().min(0).max(130).optional(),
@@ -75,6 +76,13 @@ export async function POST(req: NextRequest) {
   const body = await readJson(req, createSchema, 'بيانات الاستشارة غير مكتملة', 'Consultation data is incomplete or invalid')
   if (!body.ok) return body.response
 
-  const record = await createClinicalRecord(prismaClinicalWriter, body.data, auth.user.email)
-  return apiSuccess(record, 201)
+  try {
+    const record = await createClinicalRecord(prismaClinicalWriter, prismaLinkedProfileReader, body.data, auth.user.email)
+    return apiSuccess(record, 201)
+  } catch (err) {
+    if (err instanceof PatientLinkNotFoundError) {
+      return apiError(422, 'PATIENT_LINK_NOT_FOUND', 'الحساب المريض المختار غير موجود — أعد البحث واختر الحساب من جديد', 'The selected patient account was not found — search and pick the account again')
+    }
+    throw err
+  }
 }

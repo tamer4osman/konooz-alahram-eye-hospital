@@ -36,6 +36,42 @@ export default function ClinicalConsultationTab(_: ClinicalConsultationTabProps)
   const [isNewRecordModalOpen, setIsNewRecordModalOpen] = useState(false);
   const [isPrintSuccess, setIsPrintSuccess] = useState(false);
 
+  // D5: portal-account picker — staff link the record to a real patient
+  // account at entry time. Walk-ins stay unlinked (patientRefId absent).
+  interface AccountHit {
+    accountId: string;
+    profileId: string;
+    labelAr: string;
+    labelEn: string;
+    phone: string;
+    email: string;
+  }
+  const [accountQuery, setAccountQuery] = useState('');
+  const [accountResults, setAccountResults] = useState<AccountHit[]>([]);
+  const [linkedAccount, setLinkedAccount] = useState<AccountHit | null>(null);
+  const [accountSearching, setAccountSearching] = useState(false);
+
+  useEffect(() => {
+    if (!isNewRecordModalOpen) return;
+    const q = accountQuery.trim();
+    if (q.length < 2) {
+      setAccountResults([]);
+      return;
+    }
+    const timer = setTimeout(() => {
+      setAccountSearching(true);
+      fetch(`/api/staff/patient-accounts/search?q=${encodeURIComponent(q)}`)
+        .then(async (res) => {
+          if (!res.ok) return;
+          const json = await res.json();
+          if (Array.isArray(json?.data)) setAccountResults(json.data as AccountHit[]);
+        })
+        .catch(() => {})
+        .finally(() => setAccountSearching(false));
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [accountQuery, isNewRecordModalOpen]);
+
   // New Consultation Form State
   const [newConsultation, setNewConsultation] = useState<Partial<ClinicalConsultationRecord>>({
     ticketNumber: 'KZ-8960', patientNameAr: '', patientNameEn: '', patientAge: 45, patientGender: 'male', patientPhone: '+218 91 000 0000', doctorAr: 'أ.د. محمود الحسيني', doctorEn: 'Prof. Dr. Mahmoud Al-Husseini', clinicRoom: 'عيادة 101', visitDate: '2026-08-18', visitTime: '11:00', status: 'in_progress', chiefComplaintAr: '', chiefComplaintEn: '', visualAcuityOD_Unaided: '6/18', visualAcuityOD_BCVA: '6/6', visualAcuityOS_Unaided: '6/12', visualAcuityOS_BCVA: '6/6', iopOD_mmHg: 16, iopOS_mmHg: 15, corneaAr: 'شفافة وسليمة', corneaEn: 'Clear and compact', anteriorChamberAr: 'عمق طبيعي وهادئ', anteriorChamberEn: 'Deep and quiet', lensStatusAr: 'شفافة بدون عتامات', lensStatusEn: 'Clear crystalline lens', fundusMaculaAr: 'قاع العين والعصب البصري والماقولا طبيعية', fundusMaculaEn: 'Normal optic disc and macula', icdCode: 'H52.1', diagnosisAr: 'قصر نظر بسيط', diagnosisEn: 'Simple Myopia', prescriptions: [
@@ -65,6 +101,7 @@ export default function ClinicalConsultationTab(_: ClinicalConsultationTabProps)
 
     const payload = {
       ticketNumber: newConsultation.ticketNumber || 'KZ-9999',
+      patientRefId: linkedAccount?.accountId || undefined,
       patientNameAr: newConsultation.patientNameAr || '',
       patientNameEn: newConsultation.patientNameEn || newConsultation.patientNameAr || '',
       patientAge: Number(newConsultation.patientAge) || 30,
@@ -502,6 +539,60 @@ export default function ClinicalConsultationTab(_: ClinicalConsultationTabProps)
                     />
                   </div>
                 </div>
+              </div>
+
+              {/* D5: link to portal account (optional) */}
+              <div className="text-xs">
+                {linkedAccount ? (
+                  <div className="flex items-center justify-between gap-2 p-2.5 rounded-xl bg-pine-50 border border-pine-200">
+                    <span className="font-bold text-pine-900">
+                      {lang === 'ar' ? 'مرتبط بحساب:' : 'Linked to account:'}{' '}
+                      <span className="font-mono" dir="ltr">{linkedAccount.email}</span>
+                      <span className="text-ink-500 font-mono" dir="ltr"> · {linkedAccount.phone}</span>
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => { setLinkedAccount(null); setAccountQuery(''); }}
+                      className="px-2 py-1 rounded-lg bg-rose-50 text-rose-700 border border-rose-200 font-bold hover:bg-rose-100 transition-colors cursor-pointer"
+                    >
+                      {t('إلغاء الربط', 'Unlink')}
+                    </button>
+                  </div>
+                ) : (
+                  <div className="relative">
+                    <label className="font-bold text-ink-700 block mb-1">
+                      {t('ربط بحساب المريض (اختياري — يظهر في بوابة المريض)', 'Link to patient account (optional — visible in the patient portal)')}
+                    </label>
+                    <input
+                      type="text"
+                      value={accountQuery}
+                      onChange={(e) => setAccountQuery(e.target.value)}
+                      placeholder={t('ابحث برقم الهاتف أو البريد أو الاسم…', 'Search by phone, email, or name…')}
+                      className="w-full p-2.5 rounded-xl border border-pine-200 bg-bone-50 focus:bg-white focus:outline-none focus:border-pine-500"
+                    />
+                    {accountSearching && (
+                      <p className="absolute inset-x-0 top-full mt-1 p-2 rounded-xl bg-white border border-pine-100 shadow-sm text-ink-500 z-10">
+                        {t('جارٍ البحث…', 'Searching…')}
+                      </p>
+                    )}
+                    {!accountSearching && accountResults.length > 0 && (
+                      <ul className="absolute inset-x-0 top-full mt-1 rounded-xl bg-white border border-pine-100 shadow-md z-10 max-h-44 overflow-y-auto">
+                        {accountResults.map((hit) => (
+                          <li key={hit.accountId}>
+                            <button
+                              type="button"
+                              onClick={() => { setLinkedAccount(hit); setAccountResults([]); setAccountQuery(''); }}
+                              className="w-full text-start px-3 py-2 hover:bg-pine-50 transition-colors cursor-pointer"
+                            >
+                              <span className="font-bold text-ink-900">{lang === 'ar' ? hit.labelAr : hit.labelEn}</span>
+                              <span className="font-mono text-ink-500" dir="ltr"> · {hit.phone} · {hit.email}</span>
+                            </button>
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+                  </div>
+                )}
               </div>
 
               {/* Tonometry & Visual Acuity */}
