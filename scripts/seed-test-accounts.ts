@@ -4,19 +4,18 @@ import { hash } from '@node-rs/argon2';
 const prisma = new PrismaClient();
 
 async function main() {
-  // 1. Test patient account
+  // 1. Test patient account — lives in the patient identity store (D6)
   const patientEmail = 'patient@test.com';
   const patientPassword = 'Test1234!';
   const patientHash = await hash(patientPassword);
 
-  const patientUser = await prisma.user.upsert({
+  const patientAccount = await prisma.patientAccount.upsert({
     where: { email: patientEmail },
-    update: {},
+    update: { passwordHash: patientHash },
     create: {
       email: patientEmail,
       passwordHash: patientHash,
-      role: 'PATIENT',
-      patientProfile: {
+      profile: {
         create: {
           fullNameAr: 'مريض تجريبي',
           fullNameEn: 'Test Patient',
@@ -27,9 +26,9 @@ async function main() {
         },
       },
     },
-    include: { patientProfile: true },
+    include: { profile: true },
   });
-  console.log(`✓ Patient: ${patientEmail} / ${patientPassword} (id: ${patientUser.id})`);
+  console.log(`✓ Patient: ${patientEmail} / ${patientPassword} (id: ${patientAccount.id})`);
 
   // 2. Test staff account (ADMIN)
   const staffEmail = 'admin@test.com';
