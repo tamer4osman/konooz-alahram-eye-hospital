@@ -3,6 +3,7 @@ import { NextRequest, NextResponse } from 'next/server';
 const LOCALES = ['ar', 'en'];
 const DEFAULT_LOCALE = 'ar';
 const LOCALE_COOKIE = 'konooz_lang';
+const STAFF_SESSION_COOKIE = 'konooz_staff_session';
 
 function detectLocale(request: NextRequest): string {
   const cookie = request.cookies.get(LOCALE_COOKIE)?.value;
@@ -17,7 +18,22 @@ export function middleware(request: NextRequest) {
   const { pathname, searchParams } = request.nextUrl;
 
   const firstSegment = pathname.split('/')[1];
-  if (LOCALES.includes(firstSegment)) return NextResponse.next();
+  if (LOCALES.includes(firstSegment)) {
+    // D11: Staff sessions are redirected from ALL marketing routes to /ops.
+    // A staff cookie can never coexist with marketing content in a tab.
+    const isMarketingPath = !pathname.startsWith('/ar/ops') && !pathname.startsWith('/en/ops') &&
+                             !pathname.startsWith('/ar/portal') && !pathname.startsWith('/en/portal') &&
+                             !pathname.startsWith('/api') && !pathname.startsWith('/_next');
+    const hasStaffSession = request.cookies.get(STAFF_SESSION_COOKIE)?.value;
+
+    if (isMarketingPath && hasStaffSession) {
+      const url = request.nextUrl.clone();
+      url.pathname = `/${firstSegment}/ops`;
+      return NextResponse.redirect(url);
+    }
+
+    return NextResponse.next();
+  }
 
   const queryLang = searchParams.get('lang');
   const target =
