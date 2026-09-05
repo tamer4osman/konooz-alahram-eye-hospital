@@ -1,7 +1,12 @@
 import { expect, test } from '@playwright/test';
 
-const ADMIN_EMAIL = 'staff@konooz.test';
-const ADMIN_PASSWORD = 'Staff@12345';
+// Credentials come from the environment (SEED_ADMIN_EMAIL / SEED_ADMIN_PASSWORD,
+// shared with scripts/seed-staff.ts). Nothing is hardcoded here. The specs skip
+// when the vars are absent so the rest of the suite still runs.
+const ADMIN_EMAIL = process.env.SEED_ADMIN_EMAIL ?? '';
+const ADMIN_PASSWORD = process.env.SEED_ADMIN_PASSWORD ?? '';
+
+test.skip(!ADMIN_EMAIL || !ADMIN_PASSWORD, 'SEED_ADMIN_EMAIL / SEED_ADMIN_PASSWORD missing — set them in .env to run the admin specs');
 
 test.use({
   extraHTTPHeaders: {
@@ -10,7 +15,7 @@ test.use({
 });
 
 async function adminSessionCookie(request: any): Promise<{ name: string; value: string }> {
-  const login = await request.post('/api/auth/login', {
+  const login = await request.post('/api/staff/auth/login', {
     data: { email: ADMIN_EMAIL, password: ADMIN_PASSWORD },
   });
   expect(login.status()).toBe(200);
@@ -34,18 +39,17 @@ test('admin session unlocks the operations dashboard', async ({
     },
   ]);
 
-  await page.goto('/en');
-  await page.locator('#btn-nav-dashboard').click();
+  await page.goto('/en/ops');
 
   await expect(page.getByText(ADMIN_EMAIL).first()).toBeVisible({
     timeout: 20_000,
   });
 });
 
-test('non-admin cannot reach the dashboard', async ({ page }) => {
-  await page.goto('/en');
+test('unauthenticated visitor is stopped at the staff login gate', async ({ page }) => {
+  await page.goto('/en/ops');
 
-  await page.locator('#btn-nav-dashboard').click();
-
-  await expect(page.getByRole('dialog')).toBeVisible({ timeout: 15_000 });
+  await expect(
+    page.getByRole('heading', { name: /Operations Hub/ }),
+  ).toBeVisible({ timeout: 15_000 });
 });

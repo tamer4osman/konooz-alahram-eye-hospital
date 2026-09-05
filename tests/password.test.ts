@@ -3,9 +3,9 @@ import { hashPassword, verifyPassword } from '@/lib/auth/password';
 
 describe('password hashing (argon2)', () => {
   it('produces a hash that verifies against the original password', async () => {
-    const stored = await hashPassword('Staff@12345');
-    expect(stored).not.toBe('Staff@12345');
-    expect(await verifyPassword('Staff@12345', stored)).toBe(true);
+    const stored = await hashPassword('correct-horse-battery-staple');
+    expect(stored).not.toBe('correct-horse-battery-staple');
+    expect(await verifyPassword('correct-horse-battery-staple', stored)).toBe(true);
   });
 
   it('rejects a wrong password without leaking timing-based truthiness', async () => {

@@ -29,7 +29,7 @@ function makeStubUpdater(row: InvoiceDTO): InvoiceStatusUpdater {
 }
 
 const NOW = new Date('2026-09-03T10:00:00.000Z');
-const CTX = { actorEmail: 'staff@konooz.test', now: NOW };
+const CTX = { actorEmail: 'actor@example.com', now: NOW };
 
 const SAMPLE_DTO: InvoiceDTO = {
   id: 'inv-1',
@@ -70,7 +70,7 @@ describe('resolveInvoiceCreate', () => {
     expect(resolved.status).toBe('pending_insurance');
     expect(resolved.amount).toBe(0);
     expect(resolved.issuedDate).toBe(NOW);
-    expect(resolved.createdBy).toBe('staff@konooz.test');
+    expect(resolved.createdBy).toBe('actor@example.com');
     expect(resolved.insuranceNameAr).toBe('');
     expect(resolved.insuranceNameEn).toBeNull();
   });
@@ -145,7 +145,7 @@ describe('createInvoice', () => {
     const call = vi.mocked(writer.create).mock.calls[0][0];
     expect(call.patientId).toBe('PT-T-100');
     expect(call.amount).toBe(2600);
-    expect(call.createdBy).toBe('staff@konooz.test');
+    expect(call.createdBy).toBe('actor@example.com');
     expect(result).toEqual(SAMPLE_DTO);
   });
 });

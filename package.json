@@ -10,7 +10,9 @@
     "intel": "fallow",
     "test": "vitest run",
     "clean": "next clean",
-    "test:e2e": "playwright test"
+    "test:e2e": "playwright test",
+    "seed:staff": "tsx --env-file=.env scripts/seed-staff.ts",
+    "seed:test-accounts": "tsx --env-file=.env scripts/seed-test-accounts.ts"
   },
   "dependencies": {
     "@node-rs/argon2": "^2.1.0",

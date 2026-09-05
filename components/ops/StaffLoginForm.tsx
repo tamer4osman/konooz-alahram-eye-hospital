@@ -61,7 +61,6 @@ export default function StaffLoginForm() {
               autoComplete="username"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              placeholder="staff@konooz.test"
               className="w-full p-3 bg-slate-800 border border-slate-600 rounded-xl font-bold text-white focus:ring-2 focus:ring-pine-500 outline-hidden"
             />
           </div>

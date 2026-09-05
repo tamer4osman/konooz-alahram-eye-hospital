@@ -23,7 +23,7 @@ function makeRow(overrides: Partial<HospitalBillingInvoice> = {}): HospitalBilli
     paidDate: null,
     notesAr: null,
     notesEn: null,
-    createdBy: 'staff@konooz.test',
+    createdBy: 'actor@example.com',
     createdAt: new Date('2026-09-03T10:00:00.000Z'),
     updatedAt: new Date('2026-09-03T10:00:00.000Z'),
     invoiceNumber: 'INV-1',
