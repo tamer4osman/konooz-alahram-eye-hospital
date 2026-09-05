@@ -1,8 +1,9 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { useLanguage } from '@/context/LanguageContext';
-import { usePatientAuth } from '@/context/PatientAuthContext';
+import { useStaffAuth } from '@/context/StaffAuthContext';
 import { Activity, Calendar, ChevronDown, RefreshCw, Bell, ArrowRight, ArrowLeft, Building2, Plus, Users, Cpu, Radio, LogOut } from 'lucide-react';
 import type { OpsSnapshot } from '@/lib/usecases/ops-status/ports';
 
@@ -30,8 +31,9 @@ function minutesAgoLabel(iso: string, t: (ar: string, en: string) => string): st
 export default function DashboardHeader({
   timeframe, onChangeTimeframe, onOpenAddModal
 }: DashboardHeaderProps) {
-  const { t, isRTL, setActiveView } = useLanguage();
-  const { serverUser, logoutServer } = usePatientAuth();
+  const { t, lang, isRTL } = useLanguage();
+  const { serverUser, logoutServer } = useStaffAuth();
+  const router = useRouter();
   const [addMenuOpen, setAddMenuOpen] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
@@ -91,7 +93,7 @@ export default function DashboardHeader({
               </span>
             )}
             <button
-              onClick={async () => { await logoutServer(); setActiveView('portal'); }}
+              onClick={async () => { await logoutServer(); router.push('/' + lang); }}
               className="flex items-center gap-1.5 px-3 py-1 bg-rose-950/40 hover:bg-rose-900/50 text-rose-300 hover:text-white border border-rose-800/40 rounded-lg text-xs font-bold transition-colors cursor-pointer"
               title={t('تسجيل خروج الطاقم', 'Staff sign out')}
             >
@@ -99,7 +101,7 @@ export default function DashboardHeader({
               <span>{t('خروج', 'Sign Out')}</span>
             </button>
             <button
-              onClick={() => setActiveView('portal')}
+              onClick={() => { router.push('/' + lang); }}
               className="flex items-center gap-1.5 px-3 py-1 bg-pine-900/40 hover:bg-pine-800/60 text-brass-300 hover:text-white border border-pine-700/40 rounded-lg text-xs font-bold transition-colors cursor-pointer"
             >
               {isRTL ? <ArrowRight className="w-3.5 h-3.5" /> : <ArrowLeft className="w-3.5 h-3.5" />}

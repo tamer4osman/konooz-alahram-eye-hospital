@@ -9,7 +9,7 @@ import { HOSPITAL_CONTACTS } from '@/data/hospitalData';
 import { MapPin, Clock, ExternalLink, ShieldCheck, Mail, Smartphone, CheckCircle2, Sparkles, User, LayoutDashboard } from 'lucide-react';
 
 export default function Footer() {
-  const { lang, t, openBookingModal, doctors, specialties, setActiveView } = useLanguage();
+  const { lang, t, openBookingModal, doctors, specialties } = useLanguage();
   const { subscribeNewsletter, openPatientPortal } = usePatientAuth();
 
   const [newsletterEmail, setNewsletterEmail] = useState('');
@@ -237,14 +237,14 @@ export default function Footer() {
           </div>
 
           <div className="flex items-center gap-4">
-            <button
-              onClick={() => setActiveView('dashboard')}
+            <a
+              href={`/${lang}/ops`}
               className="flex items-center gap-1.5 text-brass-300 hover:text-brass-200 font-bold transition-colors cursor-pointer"
               title={t('لوحة التحكم', 'Operations Hub')}
             >
               <LayoutDashboard className="w-3.5 h-3.5" />
               <span>{t('إدارة المستشفى', 'Operations Hub')}</span>
-            </button>
+            </a>
             <span className="text-pine-300 font-semibold">
               {t('رؤية أوضح لحياة أفضل', 'Clearer Vision for a Better Life')}
             </span>

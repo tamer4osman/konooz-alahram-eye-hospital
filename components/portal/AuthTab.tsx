@@ -13,9 +13,9 @@ interface AuthTabProps {
 }
 
 export default function AuthTab({ notify, onProfileCreated }: AuthTabProps) {
-  const { lang, t, setActiveView } = useLanguage();
+  const { lang, t } = useLanguage();
   const {
-    currentPatient, createLocalProfile, closePatientPortal,
+    currentPatient, createLocalProfile,
     setActivePortalTab, serverUser, isServerAuthenticated, loginWithServer, registerWithServer, logoutServer
   } = usePatientAuth();
   const { removeLocalProfile } = usePortalActions(notify);
@@ -119,13 +119,12 @@ export default function AuthTab({ notify, onProfileCreated }: AuthTabProps) {
               {t('تسجيل الخروج من الحساب السحابي', 'Sign Out of Cloud Account')}
             </button>
             {serverUser?.role === 'ADMIN' && (
-              <button
-                type="button"
-                onClick={() => { closePatientPortal(); setActiveView('dashboard'); }}
-                className="w-full py-3 bg-pine-700 hover:bg-pine-800 text-white font-extrabold text-xs rounded-xl shadow-sm transition-all cursor-pointer"
+              <a
+                href={`/${lang}/ops`}
+                className="w-full py-3 bg-pine-700 hover:bg-pine-800 text-white font-extrabold text-xs rounded-xl shadow-sm transition-all cursor-pointer block text-center"
               >
                 {t('فتح لوحة تحكم المستشفى', 'Open Hospital Operations Dashboard')}
-              </button>
+              </a>
             )}
           </div>
         ) : (
