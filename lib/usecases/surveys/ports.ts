@@ -10,13 +10,13 @@ export interface SurveyTicketReader {
    */
   findOwnedTicketPatientRef(
     ticketNumber: string,
-    userId: string,
+    accountId: string,
   ): Promise<string | null>;
 }
 
 /** Reads the caller's active data-collection consent (BCK-026). */
 export interface ConsentReader {
-  hasActiveConsent(userId: string, consentType: string): Promise<boolean>;
+  hasActiveConsent(accountId: string, consentType: string): Promise<boolean>;
 }
 
 export interface SurveyWriter {

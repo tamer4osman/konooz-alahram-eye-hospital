@@ -1,7 +1,7 @@
 import { NextRequest } from 'next/server'
 import { z } from 'zod'
 import { apiSuccess, apiError } from '@/lib/api/response'
-import { getSessionUser } from '@/lib/auth/session'
+import { getPatientAccount } from '@/lib/api/patient-route'
 import { surveyRateLimiter, getClientIp, tooManyRequests } from '@/lib/api/rate-limit'
 import { submitSurvey } from '@/lib/usecases/surveys'
 import {
@@ -31,8 +31,8 @@ const surveySchema = z.object({
 // patient session AND an active consent record (BCK-026) before any write.
 
 export async function POST(req: NextRequest) {
-  const user = await getSessionUser()
-  if (!user || user.role !== 'PATIENT') {
+  const account = await getPatientAccount()
+  if (!account) {
     return apiError(
       401,
       'PATIENT_AUTH_REQUIRED',
@@ -67,7 +67,7 @@ export async function POST(req: NextRequest) {
       prismaSurveyTicketReader,
       prismaSurveyWriter,
       parsed.data,
-      user.id,
+      account.accountId,
     )
     return apiSuccess({ ok: true }, 201)
   } catch (err) {

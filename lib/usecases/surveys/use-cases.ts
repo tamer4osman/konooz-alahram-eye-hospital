@@ -17,12 +17,12 @@ export async function submitSurvey(
   tickets: SurveyTicketReader,
   writer: SurveyWriter,
   input: SurveyInput,
-  userId: string,
+  accountId: string,
 ): Promise<void> {
-  const consented = await consent.hasActiveConsent(userId, 'privacy_policy');
+  const consented = await consent.hasActiveConsent(accountId, 'privacy_policy');
   if (!consented) throw new ConsentRequiredError();
 
-  const patientRefId = await tickets.findOwnedTicketPatientRef(input.ticketNumber, userId);
+  const patientRefId = await tickets.findOwnedTicketPatientRef(input.ticketNumber, accountId);
   if (!patientRefId) throw new SurveyTicketNotFoundError();
 
   const resolved = resolveSurveyCreate(input, patientRefId);

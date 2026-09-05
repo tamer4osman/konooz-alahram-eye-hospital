@@ -11,9 +11,9 @@ import type { ResolvedSurveyCreate } from '@/lib/usecases/surveys';
 // the typed SurveyAlreadySubmittedError.
 
 export const prismaConsentReader: ConsentReader = {
-  async hasActiveConsent(userId: string, consentType: string): Promise<boolean> {
+  async hasActiveConsent(accountId: string, consentType: string): Promise<boolean> {
     const record = await prisma.consentRecord.findFirst({
-      where: { userId, consentType, consented: true },
+      where: { userId: accountId, consentType, consented: true },
       select: { id: true },
     });
     return record !== null;
@@ -23,12 +23,12 @@ export const prismaConsentReader: ConsentReader = {
 export const prismaSurveyTicketReader: SurveyTicketReader = {
   async findOwnedTicketPatientRef(
     ticketNumber: string,
-    userId: string,
+    accountId: string,
   ): Promise<string | null> {
     const row = await prisma.appointment.findFirst({
       where: {
         ticketNumber,
-        patient: { userId },
+        patient: { accountId },
       },
       select: { patient: { select: { id: true } } },
     });
