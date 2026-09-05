@@ -6,15 +6,14 @@ import { HOSPITAL_CONTACTS } from '@/data/hospitalData';
 
 /**
  * Shared patient-portal action helpers used across tabs: pre-filled WhatsApp
- * drafts (honest model — nothing sends automatically), the email log flow,
- * and destructive device-local profile removal. `notify(message, timeoutMs)`
- * surfaces the cross-tab feedback banner owned by PatientPortalModal.
+ * drafts (honest model — nothing sends automatically) and the email log flow.
+ * `notify(message, timeoutMs)` surfaces the cross-tab feedback banner owned by
+ * the portal page.
  */
 export function usePortalActions(notify: (message: string, timeoutMs?: number) => void) {
   const { t } = useLanguage();
   const {
     currentPatient,
-    logout,
     sendLiveNotificationSimulation,
     openWhatsAppAlert
   } = usePatientAuth();
@@ -62,15 +61,8 @@ export function usePortalActions(notify: (message: string, timeoutMs?: number) =
 
     const pendingMessage = t('الإرسال البريدي التلقائي سيُفعّل عند اكتمال ربط النظام الطبي.', 'Automated email delivery activates once system integration is complete.');
     sendLiveNotificationSimulation('email', titleAr, titleEn, pendingMessage, pendingMessage);
-    notify(t('سُجّل الطلب محلياً في سجلك — الإرسال البريدي الفعلي سيكون متاحاً قريباً.', 'Logged locally in your history — actual email delivery is coming soon.'), 4000);
+    notify(t('سُجّل الطلب في سجلك — الإرسال البريدي الفعلي سيكون متاحاً قريباً.', 'Logged in your history — actual email delivery is coming soon.'), 4000);
   };
 
-  const removeLocalProfile = () => {
-    if (typeof window !== 'undefined' && !window.confirm(t('سيتم حذف ملفك المحفوظ على هذا الجهاز نهائياً. متابعة؟', 'This will permanently delete the profile saved on this device. Continue?'))) {
-      return;
-    }
-    logout();
-  };
-
-  return { triggerTestWhatsAppAlert, triggerTestEmailAlert, removeLocalProfile };
+  return { triggerTestWhatsAppAlert, triggerTestEmailAlert };
 }

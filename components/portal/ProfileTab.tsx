@@ -3,7 +3,6 @@
 import React, { useState } from 'react';
 import { useLanguage } from '@/context/LanguageContext';
 import { usePatientAuth } from '@/context/PatientAuthContext';
-import { usePortalActions } from './usePortalActions';
 import { Bell, Mail, Phone, ShieldCheck, AlertCircle, Smartphone, Eye, Printer, FileText } from 'lucide-react';
 
 interface ProfileTabProps {
@@ -12,8 +11,7 @@ interface ProfileTabProps {
 
 export default function ProfileTab({ notify }: ProfileTabProps) {
   const { lang, t } = useLanguage();
-  const { currentPatient, updateProfile, setActivePortalTab } = usePatientAuth();
-  const { removeLocalProfile } = usePortalActions(notify);
+  const { currentPatient, updateProfile } = usePatientAuth();
 
   // Local form state for editing profile
   const [isEditingProfile, setIsEditingProfile] = useState(false);
@@ -333,7 +331,7 @@ export default function ProfileTab({ notify }: ProfileTabProps) {
 
       </div>
 
-      {/* Data Storage Notice — honest local-first model */}
+      {/* Data Storage Notice — honest server-backed model */}
       <div className="bg-white rounded-2xl p-5 sm:p-6 border border-pine-200 shadow-xs space-y-4">
         <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3 border-b border-bone-100 pb-3">
           <div className="flex items-center gap-3">
@@ -346,34 +344,24 @@ export default function ProfileTab({ notify }: ProfileTabProps) {
               </h4>
               <p className="text-xs text-ink-500 mt-0.5 max-w-md">
                 {t(
-                  'ملفك الطبي محفوظ محلياً في متصفح هذا الجهاز فقط، ولا يُرسل إلى أي خادم حالياً.',
-                  "Your medical profile is stored locally in this device's browser only — nothing is sent to any server."
+                  'ملفك الطبي محفوظ في خوادم المستشفى تحت حسابك الشخصي، ولا يُرسل أي شيء تلقائياً دون إرادتك.',
+                  'Your medical profile is stored on the hospital servers under your personal account — nothing is sent automatically without your consent.'
                 )}
               </p>
             </div>
           </div>
-
-          <button
-            onClick={removeLocalProfile}
-            className="px-3.5 py-2 rounded-xl text-xs font-bold bg-rose-50 hover:bg-rose-100 text-rose-800 border border-rose-200 transition-colors cursor-pointer self-start sm:self-auto"
-          >
-            <span>{t('حذف الملف من هذا الجهاز', 'Delete from this device')}</span>
-          </button>
         </div>
 
         {/* Honest Status Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
           <div className="p-3 bg-bone-50 rounded-xl border border-bone-100">
             <span className="block text-[10px] text-ink-500 font-bold uppercase mb-1">{t('التخزين الحالي', 'Current storage')}</span>
-            <strong className="text-ink-900">{t('محلي على هذا الجهاز فقط', 'Local to this device only')}</strong>
+            <strong className="text-ink-900">{t('خوادم المستشفى — عبر أي جهاز', 'Hospital servers — from any device')}</strong>
           </div>
 
           <div className="p-3 bg-bone-50 rounded-xl border border-bone-100">
-            <span className="block text-[10px] text-ink-500 font-bold uppercase mb-1">{t('الحسابات السحابية وكلمات المرور', 'Online accounts & passwords')}</span>
-            <strong className="text-brass-600">{t('قريباً — لم تُفعّل بعد', 'Coming soon — not active yet')}</strong>
-            <p className="text-[11px] text-ink-500 mt-0.5">
-              {t('سيتم تشغيلها عند اكتمال ربط النظام الطبي.', 'Activates when hospital system integration completes.')}
-            </p>
+            <span className="block text-[10px] text-ink-500 font-bold uppercase mb-1">{t('الحسابات وكلمات المرور', 'Accounts & passwords')}</span>
+            <strong className="text-pine-700">{t('مفعّل — محمي بكلمة مرور', 'Active — password protected')}</strong>
           </div>
 
           <div className="p-3 bg-bone-50 rounded-xl border border-bone-100">
@@ -402,20 +390,30 @@ export default function ProfileTab({ notify }: ProfileTabProps) {
         </div>
 
         <div className="flex items-center gap-2">
-          <button
-            onClick={() => setActivePortalTab('notifications')}
+          <a
+            href="#portal-tab-notifications"
+            onClick={(e) => {
+              e.preventDefault();
+              const tabButton = document.querySelector<HTMLButtonElement>('[data-portal-tab="notifications"]');
+              tabButton?.click();
+            }}
             className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl text-xs shadow-xs transition-colors cursor-pointer flex items-center gap-1.5"
           >
             <Bell className="w-3.5 h-3.5" />
             <span>{t('إدارة التنبيهات', 'Manage Alerts')}</span>
-          </button>
-          <button
-            onClick={() => setActivePortalTab('newsletter')}
+          </a>
+          <a
+            href="#portal-tab-newsletter"
+            onClick={(e) => {
+              e.preventDefault();
+              const tabButton = document.querySelector<HTMLButtonElement>('[data-portal-tab="newsletter"]');
+              tabButton?.click();
+            }}
             className="px-4 py-2 bg-pine-800 hover:bg-pine-700 text-white font-bold rounded-xl text-xs shadow-xs transition-colors cursor-pointer flex items-center gap-1.5"
           >
             <Mail className="w-3.5 h-3.5" />
             <span>{t('النشرة الطبية', 'Newsletter')}</span>
-          </button>
+          </a>
         </div>
       </div>
 
