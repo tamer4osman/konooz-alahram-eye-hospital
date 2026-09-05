@@ -12,25 +12,26 @@ datasource db {
 // ──────────────────────────────────────────────
 
 enum UserRole {
-  PATIENT
   STAFF
   ADMIN
 }
 
+/// STAFF IDENTITY STORE (D6, 2026-09-05 desegregation). Admin-controlled:
+/// rows are created only by an ADMIN via the staff-members flow — never by
+/// public registration. Patient identity lives in PatientAccount.
 model User {
   id           String   @id @default(cuid())
   email        String   @unique
   passwordHash String?  // null for Google-only accounts
   googleId     String?  @unique
-  role         UserRole @default(PATIENT)
+  role         UserRole @default(STAFF)
   /// Granular module permissions for STAFF users. Shape: { [moduleId]: 'read' | 'write' }
   /// ADMIN role bypasses this — always has full access.
   permissions  Json?
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 
-  patientProfile PatientProfile?
-  sessions       Session[]
+  sessions Session[]
 
   @@map("users")
 }
@@ -47,6 +48,35 @@ model Session {
   @@map("sessions")
 }
 
+/// PATIENT IDENTITY STORE (D6, 2026-09-05 desegregation). Public, self-serve
+/// registration. Physically separate from staff identity so a registration
+/// bug can never mint a staff credential; session cookies are disjoint
+/// (konooz_patient_session vs konooz_staff_session).
+model PatientAccount {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  passwordHash String
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  profile  PatientProfile?
+  sessions PatientSession[]
+
+  @@map("patient_accounts")
+}
+
+model PatientSession {
+  id        String         @id @default(cuid())
+  tokenHash String         @unique
+  accountId String
+  account   PatientAccount @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  expiresAt DateTime
+  createdAt DateTime        @default(now())
+
+  @@index([accountId])
+  @@map("patient_sessions")
+}
+
 // ──────────────────────────────────────────────
 // PATIENT DATA
 // ──────────────────────────────────────────────
@@ -58,9 +88,9 @@ enum Gender {
 }
 
 model PatientProfile {
-  id        String @id @default(cuid())
-  userId    String @unique
-  user      User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id        String         @id @default(cuid())
+  accountId String         @unique
+  account   PatientAccount @relation(fields: [accountId], references: [id], onDelete: Cascade)
 
   // Personal — AR required, EN optional
   fullNameAr     String
