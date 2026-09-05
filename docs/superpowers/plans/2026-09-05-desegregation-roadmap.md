@@ -39,7 +39,7 @@
 
 ---
 
-## Phase 1 — Identity & session split (data layer)
+## Phase 1 — Identity & session split (data layer) ✅ DONE
 
 **Deliverable:** Two identity stores exist in the schema with a data migration; session/auth code is split into patient and staff flavors (CA-style); API namespaces mirror the split (`/api/patient/auth/*`, `/api/staff/auth/*`); legacy `/api/auth/*` routes remain as thin facades so the current UI keeps working untouched.
 
