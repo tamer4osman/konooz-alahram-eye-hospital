@@ -3,7 +3,6 @@
 import React from 'react';
 import dynamic from 'next/dynamic';
 import { useLanguage } from '@/context/LanguageContext';
-import { usePatientAuth } from '@/context/PatientAuthContext';
 import { tenantConfig } from '@/config/tenant';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
@@ -18,7 +17,6 @@ const FloatingWidgets = dynamic(() => import('@/components/FloatingWidgets'), { 
 const SpecialtyDetailModal = dynamic(() => import('@/components/SpecialtyDetailModal'), { ssr: false });
 const BookingModal = dynamic(() => import('@/components/BookingModal'), { ssr: false });
 const SurgicalCostCalculatorModal = dynamic(() => import('@/components/SurgicalCostCalculatorModal'), { ssr: false });
-const PatientPortalModal = dynamic(() => import('@/components/PatientPortalModal'), { ssr: false });
 
 interface HomePageClientProps {
   servicesSlot: ReactNode;
@@ -35,7 +33,6 @@ export default function HomePageClient({ servicesSlot, technologiesSlot, testimo
     closeCostCalculatorModal,
     openBookingModal
   } = useLanguage();
-  const { isPatientPortalOpen } = usePatientAuth();
 
   return (
     <div className="min-h-screen flex flex-col bg-bone-50 text-ink-900 overflow-x-clip selection:bg-pine-900 selection:text-bone-50">
@@ -79,7 +76,6 @@ export default function HomePageClient({ servicesSlot, technologiesSlot, testimo
           onOpenBookingModal={() => openBookingModal()}
         />
       )}
-      {isPatientPortalOpen && <PatientPortalModal />}
 
       {/* Floating Action Buttons */}
       <FloatingWidgets />

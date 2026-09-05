@@ -12,7 +12,7 @@ export default function Navbar() {
   const {
     lang, setLang, t, openBookingModal, openVisionTestModal, openCostCalculatorModal
   } = useLanguage();
-  const { currentPatient, openPatientPortal } = usePatientAuth();
+  const { currentPatient } = usePatientAuth();
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
@@ -113,15 +113,15 @@ export default function Navbar() {
             </button>
 
             {/* Patient Portal */}
-            <button
+            <a
               id="btn-nav-patient-portal"
-              onClick={() => openPatientPortal('profile')}
-              className="flex items-center gap-1 px-2 py-1 rounded-md bg-white/10 hover:bg-white/20 border border-white/10 text-pine-100 hover:text-white text-[11px] font-bold transition-colors cursor-pointer whitespace-nowrap"
+              href={`/${lang}/portal`}
+              className="flex items-center gap-1 px-2 py-1 rounded-md bg-white/10 hover:bg-white/20 border border-white/10 text-pine-100 hover:text-white text-[11px] font-bold transition-colors whitespace-nowrap"
               title={t('بوابة المريض والملف الطبي وتنبيهات الواتساب', 'Patient Portal & WhatsApp Alerts')}
             >
               <User className="w-3 h-3" />
               <span className="hidden sm:inline">{t('بوابة المريض', 'Patient Portal')}</span>
-            </button>
+            </a>
           </div>
 
         </div>
@@ -211,11 +211,9 @@ export default function Navbar() {
 
           <div className="pt-3 border-t border-pine-900/10 flex flex-col gap-2.5">
             {/* Patient Portal in Mobile Menu */}
-            <button
-              onClick={() => {
-                setMobileMenuOpen(false);
-                openPatientPortal('profile');
-              }}
+            <a
+              href={`/${lang}/portal`}
+              onClick={() => setMobileMenuOpen(false)}
               className="w-full py-2.5 px-4 bg-white hover:bg-pine-50 border border-pine-900/15 text-ink-900 rounded-lg text-sm font-bold flex items-center justify-between transition-colors"
             >
               <div className="flex items-center gap-2">
@@ -227,7 +225,7 @@ export default function Navbar() {
               <span className="text-[10px] px-2 py-0.5 rounded-md bg-pine-100 text-pine-800 font-bold">
                 {t('تنبيهات الواتساب', 'WhatsApp')}
               </span>
-            </button>
+            </a>
 
             <button
               onClick={() => {

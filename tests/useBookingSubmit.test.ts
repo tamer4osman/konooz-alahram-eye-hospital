@@ -12,11 +12,7 @@ const mockDoctors: Doctor[] = [
   { id: 'doc1', nameAr: 'د. أحمد', nameEn: 'Dr. Ahmed', titleAr: 'أستاذ', titleEn: 'Prof.', specialtyId: 'retina', doctorType: 'visiting', specialtyAr: '', specialtyEn: '', originAr: '', originEn: '', universityAr: '', universityEn: '', status: 'available_now', visitScheduleAr: '', visitScheduleEn: '', experienceYears: 10, surgeriesCount: '100', photoSeed: '', highlightsAr: [], highlightsEn: [] },
 ];
 
-const mockCreateLocalProfile = vi.fn();
-const mockAddAppointment = vi.fn();
 const mockFetch = vi.fn();
-
-let mockCurrentPatient: Record<string, any> | null = null;
 
 vi.mock('@/context/LanguageContext', () => ({
   useLanguage: () => ({
@@ -30,15 +26,12 @@ vi.mock('@/context/LanguageContext', () => ({
 
 vi.mock('@/context/PatientAuthContext', () => ({
   usePatientAuth: () => ({
-    currentPatient: mockCurrentPatient,
-    createLocalProfile: mockCreateLocalProfile,
-    addAppointmentToCurrentPatient: mockAddAppointment,
+    currentPatient: null,
   }),
 }));
 
 beforeEach(() => {
   vi.clearAllMocks();
-  mockCurrentPatient = null;
   vi.stubGlobal('fetch', mockFetch);
   mockFetch.mockResolvedValue({ ok: true, json: () => Promise.resolve({ data: { ref: 'BK-API-123' } }) });
   // Mock window.open
@@ -107,33 +100,17 @@ describe('useBookingSubmit', () => {
     await act(async () => {
       await result.current.submitBooking(baseFormValues);
     });
-    expect(mockCreateLocalProfile).toHaveBeenCalledWith({
-      fullNameAr: 'علي البرعصي',
-      email: 'ali@test.com',
-      phone: '0912345678',
-      gender: 'male',
-    });
+    expect(mockFetch).toHaveBeenCalled();
   });
 
-  it('does not create profile when current patient exists', async () => {
-    mockCurrentPatient = { fullNameAr: 'exists', phone: '091', email: 'e@e.com' };
+  it('submits a booking request without any patient profile', async () => {
     const { result } = renderHook(() => useBookingSubmit());
     await act(async () => {
       await result.current.submitBooking(baseFormValues);
     });
-    expect(mockCreateLocalProfile).not.toHaveBeenCalled();
-  });
-
-  it('saves appointment to patient profile', async () => {
-    const { result } = renderHook(() => useBookingSubmit());
-    await act(async () => {
-      await result.current.submitBooking(baseFormValues);
-    });
-    expect(mockAddAppointment).toHaveBeenCalledTimes(1);
-    const appointment = mockAddAppointment.mock.calls[0][0];
-    expect(appointment.specialtyAr).toBe('الشبكية');
-    expect(appointment.status).toBe('confirmed');
-    expect(appointment.queueNumber).toMatch(/^Q-/);
+    expect(mockFetch).toHaveBeenCalledWith('/api/appointments', expect.objectContaining({
+      method: 'POST',
+    }));
   });
 
   it('POSTs to /api/appointments', async () => {

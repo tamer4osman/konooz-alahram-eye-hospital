@@ -1,6 +1,5 @@
 import { useCallback } from 'react';
 import { useLanguage } from '@/context/LanguageContext';
-import { usePatientAuth } from '@/context/PatientAuthContext';
 import {
   PATIENT_CONDITIONS,
   AFFECTED_EYE_OPTIONS,
@@ -48,7 +47,6 @@ export interface UseBookingSubmit {
 
 export function useBookingSubmit(): UseBookingSubmit {
   const { lang, t, doctors, specialties } = useLanguage();
-  const { currentPatient, createLocalProfile, addAppointmentToCurrentPatient } = usePatientAuth();
 
   const buildTitles = useCallback((form: BookingFormValues): BilingualTitles => {
     const conditionObj = PATIENT_CONDITIONS.find((c) => c.id === form.selectedCondition);
@@ -99,33 +97,11 @@ export function useBookingSubmit(): UseBookingSubmit {
       };
     }
 
-    // Create device-local profile if none exists
-    if (!currentPatient) {
-      createLocalProfile({
-        fullNameAr: finalName,
-        email: finalEmail,
-        phone: finalPhone,
-        gender: form.gender,
-      });
-    }
-
+    // Device-local profile creation is gone: booking requests are recorded
+    // server-side via /api/appointments and confirmed by reception.
     const titles = buildTitles(form);
     const queueTicket = `Q-${Math.floor(100 + Math.random() * 900)}`;
     let bookingRef = `BK-${Math.floor(1000 + Math.random() * 9000)}`;
-
-    // Save appointment into patient profile
-    addAppointmentToCurrentPatient({
-      specialtyAr: titles.specialtyTitle,
-      specialtyEn: titles.specialtyTitle,
-      doctorNameAr: titles.doctorTitle,
-      doctorNameEn: titles.doctorTitle,
-      date: form.preferredDate || new Date().toISOString().split('T')[0],
-      time: '10:00 AM',
-      status: 'confirmed',
-      locationAr: 'مستشفى كنوز الأهرام للعيون - بنغازي',
-      locationEn: 'Konooz Al-Ahram Eye Hospital - Benghazi',
-      queueNumber: queueTicket,
-    });
 
     // POST to API
     const conditionObj = PATIENT_CONDITIONS.find((c) => c.id === form.selectedCondition);
@@ -155,7 +131,7 @@ export function useBookingSubmit(): UseBookingSubmit {
     }
 
     return { ok: true, bookingRef, queueTicket, titles };
-  }, [t, currentPatient, createLocalProfile, addAppointmentToCurrentPatient, buildTitles]);
+  }, [t, buildTitles]);
 
   return { submitBooking, buildTitles };
 }

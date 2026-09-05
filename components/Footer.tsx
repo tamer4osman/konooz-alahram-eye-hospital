@@ -10,7 +10,7 @@ import { MapPin, Clock, ExternalLink, ShieldCheck, Mail, Smartphone, CheckCircle
 
 export default function Footer() {
   const { lang, t, openBookingModal, doctors, specialties } = useLanguage();
-  const { subscribeNewsletter, openPatientPortal } = usePatientAuth();
+  const { subscribeNewsletter } = usePatientAuth();
 
   const [newsletterEmail, setNewsletterEmail] = useState('');
   const [newsletterPhone, setNewsletterPhone] = useState('');
@@ -90,14 +90,13 @@ export default function Footer() {
               )}
 
               <div className="flex items-center gap-2 justify-end">
-                <button
-                  type="button"
-                  onClick={() => openPatientPortal('profile')}
+                <a
+                  href={`/${lang}/portal`}
                   className="min-h-[28px] text-xs font-bold text-brass-300 hover:text-brass-200 flex items-center gap-1 underline underline-offset-2"
                 >
                   <User className="w-3.5 h-3.5" />
                   <span>{t('أو افتح ملفك الطبي وبوابة المريض', 'Or Access Your Patient Medical Portal')}</span>
-                </button>
+                </a>
               </div>
             </div>
           </div>

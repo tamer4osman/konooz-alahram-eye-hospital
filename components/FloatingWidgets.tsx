@@ -2,14 +2,12 @@
 
 import React, { useState, useEffect } from 'react';
 import { useLanguage } from '@/context/LanguageContext';
-import { usePatientAuth } from '@/context/PatientAuthContext';
 import { HOSPITAL_CONTACTS } from '@/data/hospitalData';
 import { buildGreetingMessage, buildWhatsAppUrl } from '@/lib/whatsapp-message-builder';
 import { Phone, ArrowUp, MessageCircle, Calendar, X, User } from 'lucide-react';
 
 export default function FloatingWidgets() {
   const { lang, t, openBookingModal } = useLanguage();
-  const { openPatientPortal } = usePatientAuth();
   const [showBackToTop, setShowBackToTop] = useState(false);
   const [callMenuOpen, setCallMenuOpen] = useState(false);
 
@@ -92,16 +90,16 @@ export default function FloatingWidgets() {
         )}
 
         {/* Patient Portal Floating Icon */}
-        <button
+        <a
           id="btn-floating-patient-portal"
-          onClick={() => openPatientPortal('profile')}
-          className="w-10 h-10 rounded-full bg-pine-800 hover:bg-pine-700 text-bone-50 shadow-md ring-1 ring-brass-400/60 shrink-0 lg:w-12 lg:h-12 lg:ring-2 lg:shadow-xl flex items-center justify-center transition-all transform hover:scale-105 relative cursor-pointer"
+          href={`/${lang}/portal`}
+          className="w-10 h-10 rounded-full bg-pine-800 hover:bg-pine-700 text-bone-50 shadow-md ring-1 ring-brass-400/60 shrink-0 lg:w-12 lg:h-12 lg:ring-2 lg:shadow-xl flex items-center justify-center transition-all transform hover:scale-105 relative"
           title={t('بوابة المريض والملف الطبي وتنبيهات الواتساب', 'Patient Medical Profile & WhatsApp Alerts')}
           aria-label="Patient Portal"
         >
           <User className="w-5 h-5 text-white" />
           <span className="absolute -top-1 -right-1 rtl:-right-auto rtl:-left-1 w-3.5 h-3.5 rounded-full bg-brass-400 ring-2 ring-white" aria-hidden="true" />
-        </button>
+        </a>
 
         {/* Quick Call Speed-Dial Toggle */}
         <button

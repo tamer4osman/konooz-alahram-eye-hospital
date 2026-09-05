@@ -18,7 +18,7 @@ import { Calendar, CheckCircle2, Sparkles, Phone, ShieldCheck, Award, Clock, Arr
 
 export default function Hero() {
   const { lang, t, isRTL, openVisionTestModal, specialties } = useLanguage();
-  const { currentPatient, logout, openPatientPortal } = usePatientAuth();
+  const { currentPatient, logoutServer } = usePatientAuth();
   const form = useHeroBookingForm();
 
   const {
@@ -262,25 +262,24 @@ export default function Hero() {
                         <div className="flex items-center gap-1.5">
                           <span className="text-[10px] bg-pine-100 text-pine-800 font-bold px-2 py-0.5 rounded-md flex items-center gap-1">
                             <CheckCircle2 className="w-3 h-3" />
-                            {t('مسجل بالملف المحلي', 'Local profile active')}
+                            {t('من حسابك المحفوظ', 'From your saved account')}
                           </span>
                           <button
                             type="button"
-                            onClick={logout}
+                            onClick={() => logoutServer()}
                             className="text-[10px] text-ink-500 hover:text-red-700 underline"
                           >
                             {t('تبديل', 'Switch')}
                           </button>
                         </div>
                       ) : (
-                        <button
-                          type="button"
-                          onClick={() => openPatientPortal('auth')}
+                        <a
+                          href={`/${lang}/portal`}
                           className="text-[11px] font-bold text-pine-700 hover:text-pine-900 flex items-center gap-1 hover:underline"
                         >
                           <User className="w-3 h-3" />
-                          <span>{t('أنشئ ملفك المحفوظ', 'Create your saved profile')}</span>
-                        </button>
+                          <span>{t('أنشئ حسابك المحفوظ', 'Create your saved account')}</span>
+                        </a>
                       )}
                     </div>
 

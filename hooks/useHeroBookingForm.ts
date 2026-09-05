@@ -69,7 +69,7 @@ export interface UseHeroBookingForm {
 
 export function useHeroBookingForm(): UseHeroBookingForm {
   const { lang, t, doctors, specialties } = useLanguage();
-  const { currentPatient, createLocalProfile, addAppointmentToCurrentPatient } = usePatientAuth();
+  const { currentPatient } = usePatientAuth();
 
   // Patient info
   const [patientName, setPatientName] = useState('');
@@ -130,14 +130,8 @@ export function useHeroBookingForm(): UseHeroBookingForm {
       return;
     }
 
-    if (!currentPatient) {
-      createLocalProfile({
-        fullNameAr: finalName,
-        email: finalEmail,
-        phone: finalPhone,
-        gender: effectiveGender,
-      });
-    }
+    // Device-local profile creation is gone: booking requests are recorded
+    // server-side via /api/appointments and confirmed by reception.
 
     const conditionObj = PATIENT_CONDITIONS.find((c) => c.id === selectedCondition);
     const specialtyObj = specialties.find((s) => s.id === selectedSpecialty);
@@ -159,18 +153,6 @@ export function useHeroBookingForm(): UseHeroBookingForm {
     const durationTitle = durationObj ? (lang === 'ar' ? durationObj.labelAr : durationObj.labelEn) : '';
     const specialtyTitle = specialtyObj ? (lang === 'ar' ? specialtyObj.titleAr : specialtyObj.titleEn) : (lang === 'ar' ? 'عام' : 'General');
     const doctorTitle = doctorObj ? (lang === 'ar' ? doctorObj.nameAr : doctorObj.nameEn) : t('أقرب استشاري متاح', 'Next Available Consultant');
-
-    addAppointmentToCurrentPatient({
-      specialtyAr: specialtyTitle,
-      specialtyEn: specialtyTitle,
-      doctorNameAr: doctorTitle,
-      doctorNameEn: doctorTitle,
-      date: preferredDate || new Date().toISOString().split('T')[0],
-      time: '10:00 AM',
-      status: 'confirmed',
-      locationAr: 'مستشفى كنوز الأهرام للعيون - بنغازي',
-      locationEn: 'Konooz Al-Ahram Eye Hospital - Benghazi',
-    });
 
     const msg = buildHeroBookingMessage({
       lang,
@@ -223,9 +205,9 @@ export function useHeroBookingForm(): UseHeroBookingForm {
     setFormSubmitted(true);
   }, [
     effectivePatientName, effectivePatientPhone, effectivePatientEmail, effectiveGender,
-    effectiveAgeGroup, currentPatient, createLocalProfile, selectedCondition,
+    effectiveAgeGroup, selectedCondition,
     selectedSpecialty, selectedDoctor, affectedEye, symptomDuration, symptomDetails,
-    preferredDate, consultationType, lang, t, doctors, specialties, addAppointmentToCurrentPatient,
+    preferredDate, consultationType, lang, t, doctors, specialties,
   ]);
 
   return {

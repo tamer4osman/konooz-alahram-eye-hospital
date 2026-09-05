@@ -39,7 +39,7 @@ function BookingModalContent({
 }) {
   const { lang, t } = useLanguage();
   const {
-    currentPatient, logout, sendNotification, openPatientPortal
+    currentPatient, logoutServer, sendNotification
   } = usePatientAuth();
 
   const state = useBookingModalState({ bookingSpecialtyId, bookingDoctorId });
@@ -220,17 +220,15 @@ function BookingModalContent({
 
               {/* Action Buttons */}
               <div className="pt-3 flex flex-col sm:flex-row items-center justify-center gap-2.5">
-                <button
+                <a
                   id="btn-modal-open-portal"
-                  onClick={() => {
-                    onClose();
-                    openPatientPortal('appointments');
-                  }}
+                  href={`/${lang}/portal`}
+                  onClick={onClose}
                   className="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-pine-700 hover:bg-pine-800 text-white text-xs font-extrabold transition-all flex items-center justify-center gap-1.5 shadow-sm cursor-pointer"
                 >
                   <FolderLock className="w-4 h-4 text-pine-200" />
                   <span>{t('عرض الموعد في بوابتي الطبية', 'View in My Medical Portal')}</span>
-                </button>
+                </a>
 
                 <button
                   onClick={onClose}
@@ -276,7 +274,7 @@ function BookingModalContent({
                     </button>
                     <button
                       type="button"
-                      onClick={logout}
+                      onClick={() => logoutServer()}
                       className="px-3 py-2 rounded-xl bg-white hover:bg-bone-100 border border-ink-300 text-ink-700 text-[11px] font-bold transition-colors flex items-center gap-1.5 cursor-pointer"
                     >
                       <LogOut className="w-3.5 h-3.5" />

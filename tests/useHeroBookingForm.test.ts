@@ -18,10 +18,6 @@ vi.mock('@/context/LanguageContext', () => ({
 vi.mock('@/context/PatientAuthContext', () => ({
   usePatientAuth: () => ({
     currentPatient: null,
-    createLocalProfile: vi.fn(),
-    logout: vi.fn(),
-    addAppointmentToCurrentPatient: vi.fn(),
-    openPatientPortal: vi.fn(),
   }),
 }));
 
