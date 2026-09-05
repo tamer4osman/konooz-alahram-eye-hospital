@@ -22,6 +22,8 @@ const PrescriptionsTab = dynamic(() => import('@/components/portal/Prescriptions
 const NotificationsTab = dynamic(() => import('@/components/portal/NotificationsTab'), { ssr: false, loading: PortalTabSkeleton });
 const NewsletterTab = dynamic(() => import('@/components/portal/NewsletterTab'), { ssr: false, loading: PortalTabSkeleton });
 const AuthTab = dynamic(() => import('@/components/portal/AuthTab'), { ssr: false, loading: PortalTabSkeleton });
+// ssr:false: the bridge reads localStorage, which only exists on the client.
+const LocalProfileBridge = dynamic(() => import('@/components/portal/LocalProfileBridge'), { ssr: false });
 
 export default function PatientPortalPage() {
   const { lang, t, isRTL } = useLanguage();
@@ -166,6 +168,11 @@ export default function PatientPortalPage() {
           <AuthTab notify={notify} onProfileCreated={() => setActiveTab('profile')} />
         ) : (
           <>
+            {/* One-time consent-gated import of the old device-local profile */}
+            <div className="mb-4">
+              <LocalProfileBridge />
+            </div>
+
             {activeTab === 'profile' && <ProfileTab notify={notify} />}
 
             {activeTab === 'appointments' && (
@@ -181,7 +188,7 @@ export default function PatientPortalPage() {
 
             {activeTab === 'prescriptions' && <PrescriptionsTab />}
 
-            {activeTab === 'notifications' && <NotificationsTab notify={notify} />}
+            {activeTab === 'notifications' && <NotificationsTab />}
 
             {activeTab === 'newsletter' && <NewsletterTab />}
 
