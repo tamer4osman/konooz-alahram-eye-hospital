@@ -1,17 +1,23 @@
 import { hashPassword } from '../lib/auth/password';
 import { runSeed } from './seed-runner';
 
-
 // Dev/demo admin account with full dashboard permission.
-// Email: staff@konooz.test  Password: Staff@12345  Role: ADMIN
-// Other staff may exist as STAFF members without dashboard access;
-// password management and permission assignment are future work.
+// Credentials come from SEED_ADMIN_EMAIL / SEED_ADMIN_PASSWORD in .env —
+// never hardcode them here. Other staff may exist as STAFF members without
+// dashboard access; password management and permission assignment are future work.
 runSeed(async (prisma) => {
-  const passwordHash = await hashPassword('Staff@12345');
+  const email = process.env.SEED_ADMIN_EMAIL;
+  const password = process.env.SEED_ADMIN_PASSWORD;
+  if (!email || !password) {
+    throw new Error(
+      'SEED_ADMIN_EMAIL / SEED_ADMIN_PASSWORD missing — copy values from .env.example into .env and run `npm run seed:staff`.',
+    );
+  }
+  const passwordHash = await hashPassword(password);
   await prisma.user.upsert({
-    where: { email: 'staff@konooz.test' },
+    where: { email },
     update: { role: 'ADMIN', passwordHash },
-    create: { email: 'staff@konooz.test', passwordHash, role: 'ADMIN' },
+    create: { email, passwordHash, role: 'ADMIN' },
   });
-  console.log('admin account ready: staff@konooz.test / Staff@12345 (ADMIN)');
+  console.log(`admin account ready: ${email} (ADMIN)`);
 });
