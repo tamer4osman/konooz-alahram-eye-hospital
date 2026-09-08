@@ -12,7 +12,9 @@
     "clean": "next clean",
     "test:e2e": "playwright test",
     "seed:staff": "tsx --env-file=.env scripts/seed-staff.ts",
-    "seed:test-accounts": "tsx --env-file=.env scripts/seed-test-accounts.ts"
+    "seed:test-accounts": "tsx --env-file=.env scripts/seed-test-accounts.ts",
+    "cleanup:sessions": "tsx --env-file=.env scripts/cleanup-sessions.ts",
+    "prune:audit": "tsx --env-file=.env scripts/prune-audit-log.ts"
   },
   "dependencies": {
     "@node-rs/argon2": "^2.1.0",

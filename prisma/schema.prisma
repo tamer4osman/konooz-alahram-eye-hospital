@@ -52,7 +52,9 @@ model Session {
 /// record of every staff mutation on clinical/operational data: who, what,
 /// where. No FK to users — the row must survive staff deletion; actorEmail is
 /// denormalized for the same reason. Never updated, never deleted from the
-/// application layer.
+/// application layer; the only sanctioned deletion is the ops-run
+/// `npm run prune:audit` retention script (default 730 days, min 30) — see
+/// lib/usecases/maintenance/rules.ts.
 model StaffAuditLog {
   id         String   @id @default(cuid())
   actorId    String
