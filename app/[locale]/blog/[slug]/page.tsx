@@ -5,6 +5,7 @@ import type { Metadata } from 'next';
 import { blogArticles, getBlogArticleBySlug } from '@/data/blog-articles';
 import { tenantConfig } from '@/config/tenant';
 import { safeJsonLd } from '@/lib/security/jsonld';
+import { getNonce } from '@/lib/security/csp';
 
 export async function generateStaticParams() {
   return blogArticles.map((article) => ({ slug: article.slug }));
@@ -123,10 +124,12 @@ export default async function BlogArticlePage({
     <div className="min-h-screen bg-bone-50">
       <script
         type="application/ld+json"
+        nonce={await getNonce()}
         dangerouslySetInnerHTML={{ __html: safeJsonLd(articleSchema) }}
       />
       <script
         type="application/ld+json"
+        nonce={await getNonce()}
         dangerouslySetInnerHTML={{ __html: safeJsonLd(breadcrumbSchema) }}
       />
 

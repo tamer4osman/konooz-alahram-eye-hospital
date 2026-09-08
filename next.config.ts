@@ -1,7 +1,7 @@
 import type {NextConfig} from 'next';
 
-const isDev = process.env.NODE_ENV === 'development'; // eslint-disable-line no-undef
-
+// Content-Security-Policy is generated per-request in proxy.ts (nonce-based);
+// static headers here cannot carry a per-request nonce.
 const securityHeaders = [
   {key: 'X-Frame-Options', value: 'DENY'},
   {key: 'X-Content-Type-Options', value: 'nosniff'},
@@ -13,22 +13,6 @@ const securityHeaders = [
   {
     key: 'Strict-Transport-Security',
     value: 'max-age=63072000; includeSubDomains',
-  },
-  {
-    key: 'Content-Security-Policy',
-    value: [
-      "default-src 'self'",
-      `script-src 'self' 'unsafe-inline'${isDev ? " 'unsafe-eval'" : ''}`,
-      "style-src 'self' 'unsafe-inline'",
-      "img-src 'self' data: blob:",
-      "font-src 'self'",
-      "connect-src 'self'",
-      "frame-src https://maps.google.com https://www.google.com",
-      "frame-ancestors 'none'",
-      "base-uri 'self'",
-      "form-action 'self'",
-      "object-src 'none'",
-    ].join('; '),
   },
 ];
 

@@ -4,12 +4,14 @@ import { getFaqs } from '@/lib/content/faqs';
 import { getPublicDoctors } from '@/lib/doctors';
 import { getDepartments } from '@/lib/departments';
 import { safeJsonLd } from '@/lib/security/jsonld';
+import { getNonce } from '@/lib/security/csp';
 
 export default async function SEOStructuredData({ locale = 'ar' }: { locale?: string }) {
-  const [doctors, faqs, specialties] = await Promise.all([
+  const [doctors, faqs, specialties, nonce] = await Promise.all([
     getPublicDoctors(),
     getFaqs(),
     getDepartments(),
+    getNonce(),
   ]);
   const BASE = tenantConfig.urls.baseUrl;
   const { contacts, geo, seo, identity } = tenantConfig;
@@ -171,18 +173,22 @@ export default async function SEOStructuredData({ locale = 'ar' }: { locale?: st
     <>
       <script
         type="application/ld+json"
+        nonce={nonce}
         dangerouslySetInnerHTML={{ __html: safeJsonLd(hospitalSchema) }}
       />
       <script
         type="application/ld+json"
+        nonce={nonce}
         dangerouslySetInnerHTML={{ __html: safeJsonLd(faqSchema) }}
       />
       <script
         type="application/ld+json"
+        nonce={nonce}
         dangerouslySetInnerHTML={{ __html: safeJsonLd(doctorsSchema) }}
       />
       <script
         type="application/ld+json"
+        nonce={nonce}
         dangerouslySetInnerHTML={{ __html: safeJsonLd(medicalWebPageSchema) }}
       />
     </>

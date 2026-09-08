@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { buildCsp, cspRequestHeaderName } from '@/lib/security/csp';
 
 const LOCALES = ['ar', 'en'];
 const DEFAULT_LOCALE = 'ar';
@@ -12,6 +13,26 @@ function detectLocale(request: NextRequest): string {
   const accept = (request.headers.get('accept-language') ?? '').toLowerCase();
   const prefersEnglish = accept.includes('en') && !accept.includes('ar');
   return prefersEnglish ? 'en' : DEFAULT_LOCALE;
+}
+
+// Fresh nonce per document request. The CSP header is set on the response
+// AND on the forwarded request headers: Next.js reads the nonce from there
+// to stamp its own bootstrap scripts, and server components read it via
+// getNonce() for custom sinks (JSON-LD).
+function withCsp(request: NextRequest): NextResponse {
+  const nonce = btoa(crypto.randomUUID());
+  const csp = buildCsp({
+    nonce,
+    isDev: process.env.NODE_ENV === 'development', // eslint-disable-line no-undef
+  });
+
+  const requestHeaders = new Headers(request.headers);
+  requestHeaders.set(cspRequestHeaderName(), nonce);
+  requestHeaders.set('content-security-policy', csp);
+
+  const response = NextResponse.next({ request: { headers: requestHeaders } });
+  response.headers.set('Content-Security-Policy', csp);
+  return response;
 }
 
 export function proxy(request: NextRequest) {
@@ -32,7 +53,7 @@ export function proxy(request: NextRequest) {
       return NextResponse.redirect(url);
     }
 
-    return NextResponse.next();
+    return withCsp(request);
   }
 
   const queryLang = searchParams.get('lang');

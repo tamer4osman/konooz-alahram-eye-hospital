@@ -4,6 +4,7 @@ import type { Metadata } from 'next';
 import { blogArticles } from '@/data/blog-articles';
 import { tenantConfig } from '@/config/tenant';
 import { safeJsonLd } from '@/lib/security/jsonld';
+import { getNonce } from '@/lib/security/csp';
 
 export async function generateMetadata({
   params,
@@ -74,6 +75,7 @@ export default async function BlogPage({
     <div className="min-h-screen bg-bone-50">
       <script
         type="application/ld+json"
+        nonce={await getNonce()}
         dangerouslySetInnerHTML={{ __html: safeJsonLd(blogListSchema) }}
       />
 
