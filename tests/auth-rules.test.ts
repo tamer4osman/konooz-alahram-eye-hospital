@@ -1,8 +1,9 @@
 import { describe, expect, it } from 'vitest';
 import {
   PATIENT_COOKIE,
+  PATIENT_SESSION_TTL_MS,
   STAFF_COOKIE,
-  SESSION_TTL_MS,
+  STAFF_SESSION_TTL_MS,
   hashToken,
   isPasswordAcceptable,
   tokenLooksValid,
@@ -15,8 +16,10 @@ describe('auth rules', () => {
     expect(PATIENT_COOKIE).not.toBe(STAFF_COOKIE);
   });
 
-  it('session TTL is 30 days in ms', () => {
-    expect(SESSION_TTL_MS).toBe(60 * 60 * 24 * 30 * 1000);
+  it('session TTLs are split: staff 7 days, patient 30 days (F8)', () => {
+    expect(STAFF_SESSION_TTL_MS).toBe(60 * 60 * 24 * 7 * 1000);
+    expect(PATIENT_SESSION_TTL_MS).toBe(60 * 60 * 24 * 30 * 1000);
+    expect(STAFF_SESSION_TTL_MS).toBeLessThan(PATIENT_SESSION_TTL_MS);
   });
 
   it('hashToken is sha256 hex of the input', () => {

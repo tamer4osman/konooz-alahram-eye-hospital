@@ -1,6 +1,6 @@
 import { prisma } from '@/lib/prisma';
 import type { StaffIdentityStore, StaffSessionStore } from '@/lib/usecases/auth/ports';
-import { SESSION_TTL_MS } from '@/lib/usecases/auth/rules';
+import { STAFF_SESSION_TTL_MS } from '@/lib/usecases/auth/rules';
 
 // Prisma adapter for the staff identity store (D6). After the identity_split
 // migration the users table physically cannot contain a patient row (enum
@@ -31,7 +31,7 @@ export const prismaStaffSessions: StaffSessionStore = {
     }
     await prisma.session.update({
       where: { id: row.id },
-      data: { expiresAt: new Date(now.getTime() + SESSION_TTL_MS) },
+      data: { expiresAt: new Date(now.getTime() + STAFF_SESSION_TTL_MS) },
     });
     return {
       sessionId: row.id,

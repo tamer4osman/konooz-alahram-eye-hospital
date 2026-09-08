@@ -1,4 +1,4 @@
-import { hashToken, SESSION_TTL_MS } from './rules';
+import { hashToken, PATIENT_SESSION_TTL_MS } from './rules';
 import type { PatientIdentityStore, PatientSessionStore } from './ports';
 
 // Patient auth orchestration (D2: patients self-serve; D4: session-token
@@ -55,7 +55,7 @@ export async function registerPatient(
   });
 
   const token = crypto.newToken();
-  await sessions.create(account.id, hashToken(token), new Date(Date.now() + SESSION_TTL_MS));
+  await sessions.create(account.id, hashToken(token), new Date(Date.now() + PATIENT_SESSION_TTL_MS));
   await auditConsent(account.id, 'privacy_policy');
   return { ok: true, accountId: account.id, email: account.email, sessionToken: token };
 }
@@ -73,7 +73,7 @@ export async function loginPatient(
   if (!valid) return { ok: false, code: 'INVALID_CREDENTIALS' };
 
   const token = crypto.newToken();
-  await sessions.create(account.id, hashToken(token), new Date(Date.now() + SESSION_TTL_MS));
+  await sessions.create(account.id, hashToken(token), new Date(Date.now() + PATIENT_SESSION_TTL_MS));
   return { ok: true, accountId: account.id, email: account.email, sessionToken: token };
 }
 

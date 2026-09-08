@@ -6,7 +6,7 @@ import { prisma } from '@/lib/prisma';
 import { apiSuccess, apiError } from '@/lib/api/response';
 import { AUTH_MESSAGES } from '@/data/authMessages';
 import { AUTH_INDICATOR_COOKIE } from '@/lib/api/patient-route';
-import { PATIENT_COOKIE, hashToken, SESSION_TTL_MS, isPasswordAcceptable, WEAK_PASSWORD_MESSAGES, PASSWORD_MAX_LENGTH } from '@/lib/usecases/auth/rules';
+import { PATIENT_COOKIE, hashToken, PATIENT_SESSION_TTL_MS, isPasswordAcceptable, WEAK_PASSWORD_MESSAGES, PASSWORD_MAX_LENGTH } from '@/lib/usecases/auth/rules';
 import { hashPassword, verifyPassword } from '@/lib/auth/password';
 import { randomBytes } from 'crypto';
 import { registerRateLimiter, loginRateLimiter, getClientIp, tooManyRequests } from '@/lib/api/rate-limit';
@@ -41,11 +41,11 @@ function setPatientSessionCookies(response: Response, token: string): Response {
   const secureFlag = process.env.NODE_ENV === 'production' ? '; Secure' : '';
   headers.append(
     'Set-Cookie',
-    `${PATIENT_COOKIE}=${token}; Path=/; HttpOnly; SameSite=Lax; Max-Age=${SESSION_TTL_MS / 1000}${secureFlag}`,
+    `${PATIENT_COOKIE}=${token}; Path=/; HttpOnly; SameSite=Lax; Max-Age=${PATIENT_SESSION_TTL_MS / 1000}${secureFlag}`,
   );
   headers.append(
     'Set-Cookie',
-    `${AUTH_INDICATOR_COOKIE}=1; Path=/; SameSite=Lax; Max-Age=${SESSION_TTL_MS / 1000}${secureFlag}`,
+    `${AUTH_INDICATOR_COOKIE}=1; Path=/; SameSite=Lax; Max-Age=${PATIENT_SESSION_TTL_MS / 1000}${secureFlag}`,
   );
   return new Response(response.body, { status: response.status, headers });
 }

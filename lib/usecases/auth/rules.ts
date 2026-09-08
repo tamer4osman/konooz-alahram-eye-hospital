@@ -4,11 +4,18 @@ import { createHash } from 'crypto';
 // no next/* and no prisma imports — routes and adapters depend on this, never
 // the reverse.
 
-const SESSION_TTL_DAYS = 30;
+// Session TTL split (audit F8, 2026-09-08): staff sessions are the keys to
+// patient records, so they rotate on a 7-day sliding window — every validated
+// request extends expiry, so active staff are never logged out mid-shift, but
+// an abandoned session dies within a week. Patient sessions carry only
+// self-authored device data and keep the gentler 30-day window.
+const STAFF_SESSION_TTL_DAYS = 7;
+const PATIENT_SESSION_TTL_DAYS = 30;
 
 export const PATIENT_COOKIE = 'konooz_patient_session';
 export const STAFF_COOKIE = 'konooz_staff_session';
-export const SESSION_TTL_MS = SESSION_TTL_DAYS * 24 * 60 * 60 * 1000;
+export const STAFF_SESSION_TTL_MS = STAFF_SESSION_TTL_DAYS * 24 * 60 * 60 * 1000;
+export const PATIENT_SESSION_TTL_MS = PATIENT_SESSION_TTL_DAYS * 24 * 60 * 60 * 1000;
 
 /** Tokens are stored hashed; the raw value only ever lives in the cookie. */
 export function hashToken(token: string): string {

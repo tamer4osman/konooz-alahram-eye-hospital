@@ -3,7 +3,7 @@ import { loginStaff, logoutStaff } from '@/lib/usecases/auth/staff-auth';
 import { prismaStaffIdentity, prismaStaffSessions } from '@/lib/adapters/prisma/staff-auth-adapter';
 import { apiSuccess, apiError } from '@/lib/api/response';
 import { AUTH_MESSAGES } from '@/data/authMessages';
-import { STAFF_COOKIE, hashToken, SESSION_TTL_MS } from '@/lib/usecases/auth/rules';
+import { STAFF_COOKIE, hashToken, STAFF_SESSION_TTL_MS } from '@/lib/usecases/auth/rules';
 import { verifyPassword } from '@/lib/auth/password';
 import { randomBytes } from 'crypto';
 import { loginRateLimiter, getClientIp, tooManyRequests } from '@/lib/api/rate-limit';
@@ -22,7 +22,7 @@ function setStaffSessionCookie(response: Response, token: string): Response {
   const secureFlag = process.env.NODE_ENV === 'production' ? '; Secure' : '';
   headers.append(
     'Set-Cookie',
-    `${STAFF_COOKIE}=${token}; Path=/; HttpOnly; SameSite=Lax; Max-Age=${SESSION_TTL_MS / 1000}${secureFlag}`,
+    `${STAFF_COOKIE}=${token}; Path=/; HttpOnly; SameSite=Lax; Max-Age=${STAFF_SESSION_TTL_MS / 1000}${secureFlag}`,
   );
   return new Response(response.body, { status: response.status, headers });
 }

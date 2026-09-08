@@ -1,4 +1,4 @@
-import { hashToken, SESSION_TTL_MS } from './rules';
+import { hashToken, STAFF_SESSION_TTL_MS } from './rules';
 import type { StaffIdentityStore, StaffSessionStore } from './ports';
 
 // Staff auth orchestration (D2: no self-registration — the only entry point
@@ -26,7 +26,7 @@ export async function loginStaff(
   if (!valid) return { ok: false, code: 'INVALID_CREDENTIALS' };
 
   const token = crypto.newToken();
-  await sessions.create(user.id, hashToken(token), new Date(Date.now() + SESSION_TTL_MS));
+  await sessions.create(user.id, hashToken(token), new Date(Date.now() + STAFF_SESSION_TTL_MS));
   return { ok: true, userId: user.id, email: user.email, role: user.role, sessionToken: token };
 }
 

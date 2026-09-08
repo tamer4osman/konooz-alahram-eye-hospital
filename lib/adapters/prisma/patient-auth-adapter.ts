@@ -1,6 +1,6 @@
 import { prisma } from '@/lib/prisma';
 import type { PatientIdentityStore, PatientSessionStore } from '@/lib/usecases/auth/ports';
-import { SESSION_TTL_MS } from '@/lib/usecases/auth/rules';
+import { PATIENT_SESSION_TTL_MS } from '@/lib/usecases/auth/rules';
 
 // Prisma adapter for the patient identity store (D6). Only the adapter knows
 // Prisma types; the use-case layer sees the ports only.
@@ -57,7 +57,7 @@ export const prismaPatientSessions: PatientSessionStore = {
     // Sliding expiry — parity with the pre-split session behavior.
     await prisma.patientSession.update({
       where: { id: row.id },
-      data: { expiresAt: new Date(now.getTime() + SESSION_TTL_MS) },
+      data: { expiresAt: new Date(now.getTime() + PATIENT_SESSION_TTL_MS) },
     });
     return {
       sessionId: row.id,
