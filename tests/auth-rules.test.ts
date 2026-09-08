@@ -4,6 +4,7 @@ import {
   STAFF_COOKIE,
   SESSION_TTL_MS,
   hashToken,
+  isPasswordAcceptable,
   tokenLooksValid,
 } from '@/lib/usecases/auth/rules';
 
@@ -31,5 +32,36 @@ describe('auth rules', () => {
     expect(tokenLooksValid('a'.repeat(43))).toBe(true);
     expect(tokenLooksValid('dGVzdC10b2tlbg')).toBe(false); // too short
     expect(tokenLooksValid('a'.repeat(44))).toBe(false); // too long
+  });
+});
+
+describe('password policy (F4)', () => {
+  it('accepts length >= 8 with at least one letter and one digit', () => {
+    expect(isPasswordAcceptable('Staff@12345')).toBe(true);
+    expect(isPasswordAcceptable('alllowercase1!')).toBe(true); // letter+digit, length ok
+    expect(isPasswordAcceptable('abcdefgh1')).toBe(true);
+    expect(isPasswordAcceptable('pass1234')).toBe(true);
+    // Arabic letters count as letters
+    expect(isPasswordAcceptable('كلمة1234')).toBe(true);
+  });
+
+  it('rejects passwords without a digit', () => {
+    expect(isPasswordAcceptable('onlyletters!')).toBe(false);
+    expect(isPasswordAcceptable('abcdefgh')).toBe(false);
+  });
+
+  it('rejects passwords without a letter', () => {
+    expect(isPasswordAcceptable('12345678')).toBe(false);
+    expect(isPasswordAcceptable('1234!@#$5678')).toBe(false);
+  });
+
+  it('rejects short and oversized passwords', () => {
+    expect(isPasswordAcceptable('ab1')).toBe(false);
+    expect(isPasswordAcceptable('abc12345')).toBe(true); // exactly 8 — boundary
+    expect(isPasswordAcceptable('a'.repeat(128) + '1')).toBe(false);
+  });
+
+  it('rejects empty input', () => {
+    expect(isPasswordAcceptable('')).toBe(false);
   });
 });

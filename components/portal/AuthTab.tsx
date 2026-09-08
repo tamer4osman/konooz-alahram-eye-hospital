@@ -156,7 +156,7 @@ export default function AuthTab({ notify, onProfileCreated }: AuthTabProps) {
             </div>
 
             <div>
-              <label className="block text-ink-700 font-bold mb-1">{t('كلمة المرور * (8 أحرف على الأقل)', 'Password * (min 8 characters)')}</label>
+              <label className="block text-ink-700 font-bold mb-1">{t('كلمة المرور * (8 أحرف على الأقل، حرف ورقم)', 'Password * (min 8 chars, letter + digit)')}</label>
               <input
                 type="password"
                 required

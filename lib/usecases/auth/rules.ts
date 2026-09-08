@@ -22,3 +22,24 @@ const BASE64URL_RE = /^[A-Za-z0-9_-]{43}$/;
 export function tokenLooksValid(token: string): boolean {
   return BASE64URL_RE.test(token);
 }
+
+// Password policy (audit F4, 2026-09-08): length-first, minimal friction —
+// min 8 chars plus at least one letter and one digit. No forced special
+// characters: length and argon2id carry the weight; composition rules that
+// are too strict push users toward predictable patterns.
+const PASSWORD_MIN_LENGTH = 8;
+export const PASSWORD_MAX_LENGTH = 128;
+
+const PASSWORD_HAS_LETTER = /[A-Za-z\u0600-\u06FF]/;
+const PASSWORD_HAS_DIGIT = /[0-9]/;
+
+export function isPasswordAcceptable(plain: string): boolean {
+  if (plain.length < PASSWORD_MIN_LENGTH || plain.length > PASSWORD_MAX_LENGTH) return false;
+  return PASSWORD_HAS_LETTER.test(plain) && PASSWORD_HAS_DIGIT.test(plain);
+}
+
+/** Bilingual user-facing copy for the weak-password rejection (F4). */
+export const WEAK_PASSWORD_MESSAGES = {
+  ar: 'كلمة المرور يجب أن تكون 8 أحرف على الأقل وتحتوي على حرف ورقم على الأقل',
+  en: 'Password must be at least 8 characters and contain at least one letter and one digit',
+} as const;

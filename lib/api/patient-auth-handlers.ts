@@ -6,7 +6,7 @@ import { prisma } from '@/lib/prisma';
 import { apiSuccess, apiError } from '@/lib/api/response';
 import { AUTH_MESSAGES } from '@/data/authMessages';
 import { AUTH_INDICATOR_COOKIE } from '@/lib/api/patient-route';
-import { PATIENT_COOKIE, hashToken, SESSION_TTL_MS } from '@/lib/usecases/auth/rules';
+import { PATIENT_COOKIE, hashToken, SESSION_TTL_MS, isPasswordAcceptable, WEAK_PASSWORD_MESSAGES, PASSWORD_MAX_LENGTH } from '@/lib/usecases/auth/rules';
 import { hashPassword, verifyPassword } from '@/lib/auth/password';
 import { randomBytes } from 'crypto';
 import { registerRateLimiter, loginRateLimiter, getClientIp, tooManyRequests } from '@/lib/api/rate-limit';
@@ -18,7 +18,13 @@ import { registerRateLimiter, loginRateLimiter, getClientIp, tooManyRequests } f
 const registerSchema = z.object({
   fullNameAr: z.string().min(2, 'الاسم مطلوب'),
   email: z.string().email('بريد إلكتروني غير صالح'),
-  password: z.string().min(8, 'كلمة المرور يجب أن تكون 8 أحرف على الأقل'),
+  // F4: policy lives in isPasswordAcceptable (lib/usecases/auth/rules.ts) so
+  // it stays pure and unit-tested; the refine marker maps to bilingual copy.
+  password: z
+    .string()
+    .min(8, 'WEAK_PASSWORD')
+    .max(PASSWORD_MAX_LENGTH, 'WEAK_PASSWORD')
+    .refine(isPasswordAcceptable, { message: 'WEAK_PASSWORD' }),
   phone: z.string().min(8).optional(),
   cityAr: z.string().optional(),
   gender: z.enum(['male', 'female']).optional(),
@@ -75,6 +81,10 @@ export async function handlePatientRegister(req: NextRequest): Promise<Response>
 
   const parsed = registerSchema.safeParse(body);
   if (!parsed.success) {
+    const issue0 = parsed.error.issues[0]?.message;
+    if (issue0 === 'WEAK_PASSWORD') {
+      return apiError(400, 'WEAK_PASSWORD', WEAK_PASSWORD_MESSAGES.ar, WEAK_PASSWORD_MESSAGES.en);
+    }
     const msg = parsed.error.issues[0]?.message ?? 'Invalid input';
     return apiError(400, 'VALIDATION_ERROR', msg, msg);
   }
