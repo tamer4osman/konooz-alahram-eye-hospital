@@ -14,6 +14,17 @@ function requireEnv(name: string): string {
 }
 
 async function main() {
+  // Known-credential accounts must never exist on the production database.
+  // The explicit opt-in keeps this from running by habit on the VPS.
+  if (process.env.ALLOW_TEST_SEED !== '1') {
+    console.error(
+      'Refusing to seed test accounts: set ALLOW_TEST_SEED=1 to run. ' +
+        'These accounts carry known credentials and must never exist on production.',
+    );
+    process.exitCode = 1;
+    return;
+  }
+
   // 1. Test patient account — lives in the patient identity store (D6)
   const patientEmail = requireEnv('SEED_TEST_PATIENT_EMAIL');
   const patientPassword = requireEnv('SEED_TEST_PATIENT_PASSWORD');
