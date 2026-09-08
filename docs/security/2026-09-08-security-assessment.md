@@ -72,6 +72,30 @@ Severity ordering: CRITICAL > HIGH > MEDIUM > LOW > INFO.
 | R11 | `/ar/ops` unauthenticated + robots.txt | ✅ Login page only (no data SSR); `/ops` disallowed in robots |
 | R12 | Patient-scoped reads/patch (notifications, own profile) | ✅ 200, correctly scoped to own accountId |
 | R13 | Registration validation (short password) | ✅ 400 rejected |
+| R14 | **Re-run (2026-09-08, post-hardening, commit `e5571be`): CSP nonce enforcement live attack** | ✅ Parser-inserted nonceless `<script>` (the real stored-XSS shape, via srcdoc iframe inheriting page CSP) **blocked**; external `img-src` exfil attempt **blocked** with console violation; legit nonced JSON-LD and hydration unaffected |
+
+### G5 Re-Run Notes (2026-09-08, against final local build on `:3100`)
+
+Fresh production build after all hardening (Next 16, CSP nonce, audit trail, F8). All 13 original tests re-executed live plus one new CSP-attack test:
+
+| # | Re-run result | Notes |
+|---|---|---|
+| R1 | ✅ 403 on all 14 real staff routes | `/api/staff/staff` + `/api/staff/audit` in the original sweep were wrong route names (404s) — real paths are `/api/staff/staff-members`, `/api/staff/patient-accounts/search`; audit rows are write-only by design (no read API) |
+| R2 | ✅ 403×3 | Patient token vs billing / patient-accounts/search / clinical-records — isolation holds |
+| R3 | ✅ 403 / 401 | Garbage token, forged-tail token vs staff API, forged token vs its own origin — no crash, no oracle |
+| R4 | ✅ 404 / 404 / 405 | Fake-id PATCH on consumables + invoices, wrong method on `[id]` — graceful, no existence oracle |
+| R5 | ✅ 401×4 → 429 | Same-client threshold intact (also incidentally reproduced when the auditor's own repeated logins tripped it mid-suite) |
+| R6 | ✅ **Bypass closed under production topology** | Direct-to-Next requests with single-IP rotating XFF each get fresh buckets (expected — no proxy hop locally); with Caddy-shaped headers (rotating spoof first, real socket IP appended last) rotation is defeated: 401×5 → 429. This is the deployed shape on the VPS |
+| R7 | ✅ 422 | 10 KB name + 60×2 KB intakeData rejected by bounded schema |
+| R8 | ✅ 201, no raw echo | XSS payload stored without echo in response; React escapes on render; JSON-LD sinks escaped + nonced |
+| R9 | ✅ | CSP with per-request nonce + strict-dynamic, **no `unsafe-inline` in prod script-src**; XFO DENY, XCTO nosniff, HSTS, Permissions-Policy |
+| R10 | ✅ | Both staff and patient Set-Cookie: HttpOnly + SameSite=Lax + Secure |
+| R11 | ✅ | robots.txt disallows `/ops`; `/ar/ops` unauthenticated renders login only |
+| R12 | ✅ 200×2 | `/api/patient/auth/me` + notifications correctly scoped |
+| R13 | ✅ 400 | Short password rejected at registration |
+| R14 | ✅ **new** | Live CSP attack (see table above) |
+
+**G5 status: COMPLETE.** `npm audit`: 0 vulnerabilities (achieved at commit `1a48e0e`); R1–R14 re-run notes recorded above against the final hardened build. Test-harness note: the in-memory limiter resets on process restart (F7 accepted tradeoff) — the suite restarted the server once to clear a bucket tripped by the auditor's own attempts mid-run; this also incidentally re-demonstrated that the limiter works.
 
 **Code-review verdict on the auth core:** argon2id hashing, sha256-hashed session tokens, 32-byte CSPRNG tokens, disjoint identity stores, identical error codes for unknown-email vs wrong-password, consent-gated writes, fill-if-empty import semantics, Prisma (no raw SQL). No weaknesses found in this layer beyond F1/F4.
 
@@ -98,17 +122,17 @@ The audit above covers the application. These gates cover what the application r
 | G2 | Backup restore drill: take a fresh `pg_dump`, restore it into a scratch container, run a query against restored data, time the whole thing | Drill log + elapsed time; if restore has never been exercised, there is no backup, only hope |
 | G3 | Secrets path: DATABASE_URL and seed credentials reach the VPS via Docker secrets or a root-readable env file — never baked into the image, never in git | `docker exec env` spot-check; grep image layers for the string |
 | G4 | Caddy serving real TLS (A grade at ssllabs) and HSTS honored end-to-end | ssllabs report URL |
-| G5 | Dependency upgrades from F6 executed (next 16 done in commit `1a48e0e`; when Prisma 8 goes stable, remove the deepmerge-ts override and upgrade) and R1–R13 red-team suite re-run | `npm audit` clean output (achieved: 0 vulnerabilities) + re-run notes |
+| G5 | Dependency upgrades from F6 executed (next 16 done in commit `1a48e0e`; when Prisma 8 goes stable, remove the deepmerge-ts override and upgrade) and R1–R13 red-team suite re-run | **DONE** — `npm audit` 0 + R1–R14 re-run notes recorded in §4 (2026-09-08, commit `e5571be` build) |
 | G6 | Post-deploy smoke: `/api/health` 200, staff login works, booking 201, staff APIs 403 without cookie | curl transcript |
 
 ## 6. Open Items (recommended before/after delivery)
 
-1. **Prisma 8 (when stable):** remove the `deepmerge-ts` override from `package.json`, upgrade `prisma`/`@prisma/client` to 8.x stable, rerun this audit's R1–R13 suite afterwards.
+1. **Prisma 8 (when stable):** remove the `deepmerge-ts` override from `package.json`, upgrade `prisma`/`@prisma/client` to 8.x stable, rerun this audit's R1–R14 suite afterwards.
 2. **Staff audit trail:** **DONE (`88d0bf8`)** — append-only `staff_audit_logs` table (actorId, actorEmail snapshot, action, module, targetId, createdAt); every staff mutation across all 19 staff routes / 23 handlers records one row after commit; no update/delete path exists in the application layer. Verified live (create + update on the production build produced correct rows). Residual honesty note: the append is written after the mutation commits — best-effort by design (a failed append logs loudly but never fails the response); true hash-chained tamper-evidence against a DBA-level actor remains out of scope.
 3. **CSP nonce (hardening):** **DONE** — `script-src` is now `self + per-request nonce + 'strict-dynamic'` with **no `unsafe-inline` in production**. The proxy (`proxy.ts`) generates a fresh nonce per document request, sets the CSP header on both response and forwarded request headers (Next.js propagates the nonce to its own bootstrap scripts), and forwards it to server components via `x-nonce` (`lib/security/csp.ts`: pure `buildCsp()` with 5 unit tests, `getNonce()` reader). All 7 JSON-LD sinks (SEOStructuredData ×4, blog list, blog article ×2) carry the nonce attribute. `style-src 'unsafe-inline'` deliberately retained (UI style attributes; not an execution vector). Verified live on the production build: `/ar`, `/en`, blog list + article, `/portal`, `/ops` all hydrate cleanly with zero CSP console violations; stress test (CPU 4× + Fast 3G) clean; Maps iframe unaffected. Residual: `frame-src` still allows Google Maps hosts by design.
 4. **Session hardening (F8):** **DONE (`e9a4d5d`)** — staff sessions rotate on a 7-day sliding window (active staff never logged out mid-shift); patient sessions keep 30 days.
 5. **Ops runbook:** document restore-from-backup drills for the PostgreSQL volume (backup/restore discipline is currently process-level, not tested).
-6. **Delivery gate G1–G6:** see §5 — VPS host hardening, restore drill, secrets path, TLS, upgrades, post-deploy smoke.
+6. **Delivery gate G1–G6:** see §5 — G5 ✅ complete; remaining VPS-side items: host hardening (G1), restore drill (G2), secrets path (G3), TLS (G4), post-deploy smoke (G6).
 
 ## 7. Verdict
 
