@@ -6,6 +6,18 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+### Added
+
+- `/api/health` liveness endpoint (database ping, honest 200/503, no detail leak)
+- `npm run cleanup:sessions` — removes expired staff/patient auth sessions
+- `npm run prune:audit` — audit-trail retention prune (default 730 days, minimum 30)
+- `ALLOW_TEST_SEED=1` guard on test-account seeding (refuses production habit-runs)
+- Dependabot configuration (npm, Docker, GitHub Actions — weekly)
+
+### Changed
+
+- StaffAuditLog schema docstring documents `prune:audit` as the single sanctioned deletion path
+
 ### Planned
 
 - Backend integration: real accounts, live queue sync, automated notifications

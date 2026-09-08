@@ -134,6 +134,52 @@ The audit above covers the application. These gates cover what the application r
 5. **Ops runbook:** document restore-from-backup drills for the PostgreSQL volume (backup/restore discipline is currently process-level, not tested).
 6. **Delivery gate G1–G6:** see §5 — G5 ✅ complete; remaining VPS-side items: host hardening (G1), restore drill (G2), secrets path (G3), TLS (G4), post-deploy smoke (G6).
 
+### Post-G5 additions (2026-09-08)
+
+| # | Item | Status |
+|---|------|--------|
+| P1 | `/api/health` honest liveness endpoint (200 ok/up · 503 error/down, no detail leak) | DONE (`4e07cd8`) |
+| P2 | Expired-session cleanup (`npm run cleanup:sessions`) | DONE (`e5018ee`) — script shipped, scheduling below |
+| P3 | Audit-log retention (`npm run prune:audit`, default 730 d, min 30) | DONE (`e5018ee`) — script shipped, scheduling below |
+| P4 | Test-seed guard (`ALLOW_TEST_SEED=1` required) | DONE (`169de7c`) |
+| P5 | Dependabot (npm + docker + actions, weekly) | DONE (`6610055`) — activates on GitHub push |
+| P6 | Uptime monitoring of `/api/health` | Operator (recipe below) |
+| P7 | TOTP 2FA for ADMIN | Future — own brainstorm + plan |
+
+**P2/P3 scheduling (VPS systemd timer, one file each):**
+
+```ini
+# /etc/systemd/system/konooz-maintenance.timer
+[Unit]
+Description=Konooz daily housekeeping (sessions + audit retention)
+[Timer]
+OnCalendar=*-*-* 04:00:00
+Persistent=true
+[Install]
+WantedBy=timers.target
+```
+
+```ini
+# /etc/systemd/system/konooz-maintenance.service
+[Unit]
+Description=Konooz housekeeping run
+[Service]
+Type=oneshot
+WorkingDirectory=/opt/konooz
+ExecStart=/usr/bin/docker compose exec -T web npm run cleanup:sessions
+ExecStart=/usr/bin/docker compose exec -T web npm run prune:audit
+```
+
+Enable with `systemctl daemon-reload && systemctl enable --now konooz-maintenance.timer`.
+
+**P6 uptime recipe:** free pinger (e.g. UptimeRobot) → HTTPS monitor on `https://<domain>/api/health`, 5-min interval, alert on non-200. For 429-spike visibility, alert on log lines matching `429` in the web container (`docker compose logs -f web | grep --line-buffered ' 429 '` shipped to the same channel) — a spike usually means an active credential-stuffing attempt.
+
+**Go-live account checklist (extends the Delivery gate):**
+
+1. On the VPS DB, run `npm run seed:staff` with **production** `SEED_ADMIN_EMAIL` / `SEED_ADMIN_PASSWORD` values only.
+2. Never run `npm run seed:test-accounts` in production (it now refuses without `ALLOW_TEST_SEED=1` — keep that variable unset).
+3. Verify: `SELECT email FROM users; SELECT email FROM patient_accounts;` — zero rows containing `@test` or `@konooz.test`.
+
 ## 7. Verdict
 
 **APPROVED — safe to deliver. All 10 findings closed or documented (F1–F6, F8–F10 fixed; F7 accepted tradeoff) and the strict-CSP hardening delivered. Local-side work complete; remaining §6 items are VPS-side (restore drill, TLS, secrets, post-deploy smoke) or a Prisma-8-stable follow-up.**
