@@ -2,6 +2,7 @@ import { NextRequest } from 'next/server'
 import { z } from 'zod'
 import { apiSuccess } from '@/lib/api/response'
 import { requireAdmin, readJson } from '@/lib/api/admin-route'
+import { auditStaffMutation } from '@/lib/api/audit'
 import { createAttendance, listAttendance } from '@/lib/usecases/attendance'
 import {
   prismaAttendanceReader,
@@ -46,5 +47,10 @@ export async function POST(req: NextRequest) {
   if (!body.ok) return body.response
 
   const record = await createAttendance(prismaAttendanceWriter, body.data)
+  await auditStaffMutation(auth.user, {
+    action: 'create',
+    module: 'attendance',
+    targetId: record.id,
+  })
   return apiSuccess(record, 201)
 }

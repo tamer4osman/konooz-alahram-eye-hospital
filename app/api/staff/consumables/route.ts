@@ -2,6 +2,7 @@ import { NextRequest } from 'next/server'
 import { z } from 'zod'
 import { apiSuccess } from '@/lib/api/response'
 import { requireModuleAccess, readJson } from '@/lib/api/admin-route'
+import { auditStaffMutation } from '@/lib/api/audit'
 import { createConsumable, listConsumables } from '@/lib/usecases/consumables'
 import { prismaConsumableReader, prismaConsumableWriter } from '@/lib/adapters/prisma/consumable-adapter'
 
@@ -44,5 +45,10 @@ export async function POST(req: NextRequest) {
   if (!body.ok) return body.response
 
   const consumable = await createConsumable(prismaConsumableWriter, body.data)
+  await auditStaffMutation(auth.user, {
+    action: 'create',
+    module: 'consumables',
+    targetId: consumable.id,
+  })
   return apiSuccess(consumable, 201)
 }

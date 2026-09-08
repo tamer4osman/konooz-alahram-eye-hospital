@@ -2,6 +2,7 @@ import { NextRequest } from 'next/server'
 import { z } from 'zod'
 import { apiSuccess, apiError } from '@/lib/api/response'
 import { requireModuleAccess, readJson } from '@/lib/api/admin-route'
+import { auditStaffMutation } from '@/lib/api/audit'
 import { updateInvoiceStatus } from '@/lib/usecases/invoices'
 import { prismaInvoiceStatusUpdater } from '@/lib/adapters/prisma/invoice-adapter'
 import {
@@ -33,6 +34,11 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
       id,
       body.data,
     )
+    await auditStaffMutation(auth.user, {
+      action: 'update',
+      module: 'invoices',
+      targetId: id,
+    })
     return apiSuccess(invoice)
   } catch (err) {
     if (err instanceof InvoiceNotFoundError) {

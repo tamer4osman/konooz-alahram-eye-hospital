@@ -48,6 +48,26 @@ model Session {
   @@map("sessions")
 }
 
+/// STAFF AUDIT TRAIL (security report open item #2, 2026-09-08). Append-only
+/// record of every staff mutation on clinical/operational data: who, what,
+/// where. No FK to users — the row must survive staff deletion; actorEmail is
+/// denormalized for the same reason. Never updated, never deleted from the
+/// application layer.
+model StaffAuditLog {
+  id         String   @id @default(cuid())
+  actorId    String
+  actorEmail String
+  action     String
+  module     String
+  targetId   String?
+  createdAt  DateTime @default(now())
+
+  @@index([createdAt])
+  @@index([actorId])
+  @@index([module, createdAt])
+  @@map("staff_audit_logs")
+}
+
 /// PATIENT IDENTITY STORE (D6, 2026-09-05 desegregation). Public, self-serve
 /// registration. Physically separate from staff identity so a registration
 /// bug can never mint a staff credential; session cookies are disjoint

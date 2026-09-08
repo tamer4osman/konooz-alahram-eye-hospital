@@ -2,6 +2,7 @@ import { NextRequest } from 'next/server'
 import { z } from 'zod'
 import { apiSuccess, apiError } from '@/lib/api/response'
 import { requireAdmin, readJson } from '@/lib/api/admin-route'
+import { auditStaffMutation } from '@/lib/api/audit'
 import { updateBed, BedNotFoundError } from '@/lib/usecases/beds'
 import { prismaBedWriter } from '@/lib/adapters/prisma/bed-adapter'
 
@@ -41,6 +42,11 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
 
   try {
     const bed = await updateBed(prismaBedWriter, id, body.data)
+    await auditStaffMutation(auth.user, {
+      action: 'update',
+      module: 'beds',
+      targetId: id,
+    })
     return apiSuccess(bed)
   } catch (err) {
     if (err instanceof BedNotFoundError) {

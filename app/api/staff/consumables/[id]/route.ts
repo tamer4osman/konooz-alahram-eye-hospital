@@ -2,6 +2,7 @@ import { NextRequest } from 'next/server'
 import { z } from 'zod'
 import { apiSuccess, apiError } from '@/lib/api/response'
 import { requireModuleAccess, readJson } from '@/lib/api/admin-route'
+import { auditStaffMutation } from '@/lib/api/audit'
 import { updateConsumable, ConsumableNotFoundError } from '@/lib/usecases/consumables'
 import { prismaConsumableWriter } from '@/lib/adapters/prisma/consumable-adapter'
 
@@ -31,6 +32,11 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
 
   try {
     const consumable = await updateConsumable(prismaConsumableWriter, id, body.data)
+    await auditStaffMutation(auth.user, {
+      action: 'update',
+      module: 'consumables',
+      targetId: id,
+    })
     return apiSuccess(consumable)
   } catch (err) {
     if (err instanceof ConsumableNotFoundError) {

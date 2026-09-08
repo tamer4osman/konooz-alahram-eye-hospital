@@ -2,6 +2,7 @@ import { NextRequest } from 'next/server'
 import { z } from 'zod'
 import { apiSuccess, apiError } from '@/lib/api/response'
 import { requireAdmin, readJson } from '@/lib/api/admin-route'
+import { auditStaffMutation } from '@/lib/api/audit'
 import { createBed, listBeds, BedConflictError } from '@/lib/usecases/beds'
 import { prismaBedReader, prismaBedWriter } from '@/lib/adapters/prisma/bed-adapter'
 
@@ -39,6 +40,11 @@ export async function POST(req: NextRequest) {
 
   try {
     const bed = await createBed(prismaBedWriter, body.data)
+    await auditStaffMutation(auth.user, {
+      action: 'create',
+      module: 'beds',
+      targetId: bed.id,
+    })
     return apiSuccess(bed, 201)
   } catch (err) {
     if (err instanceof BedConflictError) {

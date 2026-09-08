@@ -2,6 +2,7 @@ import { NextRequest } from 'next/server'
 import { z } from 'zod'
 import { apiSuccess, apiError } from '@/lib/api/response'
 import { requireAdmin, readJson } from '@/lib/api/admin-route'
+import { auditStaffMutation } from '@/lib/api/audit'
 import { createClinicalRecord, listClinicalRecords, PatientLinkNotFoundError } from '@/lib/usecases/clinical'
 import { prismaClinicalReader, prismaClinicalWriter, prismaLinkedProfileReader } from '@/lib/adapters/prisma/clinical-adapter'
 
@@ -78,6 +79,11 @@ export async function POST(req: NextRequest) {
 
   try {
     const record = await createClinicalRecord(prismaClinicalWriter, prismaLinkedProfileReader, body.data, auth.user.email)
+    await auditStaffMutation(auth.user, {
+      action: 'create',
+      module: 'clinical_records',
+      targetId: record.id,
+    })
     return apiSuccess(record, 201)
   } catch (err) {
     if (err instanceof PatientLinkNotFoundError) {

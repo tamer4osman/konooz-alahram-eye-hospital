@@ -1,5 +1,6 @@
 import { apiSuccess, apiError } from '@/lib/api/response'
 import { requireAdmin } from '@/lib/api/admin-route'
+import { auditStaffMutation } from '@/lib/api/audit'
 import {
   addStaffMember,
   listStaffDirectory,
@@ -35,6 +36,11 @@ export async function POST(request: Request) {
   try {
     const body = await request.json()
     const member = await addStaffMember(prismaStaffDirectoryWriter, body)
+    await auditStaffMutation(auth.user, {
+      action: 'create',
+      module: 'staff_members',
+      targetId: typeof member.id === 'string' ? member.id : null,
+    })
     return apiSuccess(member)
   } catch (err) {
     if (err instanceof StaffMemberNameRequiredError) {
@@ -53,6 +59,11 @@ export async function PATCH(request: Request) {
       return apiError(400, 'NOTHING_TO_UPDATE', 'لا توجد حقول للتحديث', 'Nothing to update')
     }
     const member = await updateStaffMemberStatus(prismaStaffDirectoryWriter, body.id, body.status)
+    await auditStaffMutation(auth.user, {
+      action: 'update',
+      module: 'staff_members',
+      targetId: body.id,
+    })
     return apiSuccess(member)
   } catch {
     return apiError(500, 'UPDATE_FAILED', 'تعذر تحديث عضو الطاقم', 'Failed to update staff member')
@@ -68,6 +79,11 @@ export async function DELETE(request: Request) {
       return apiError(400, 'INVALID_ID', 'معرف غير صالح', 'Invalid id')
     }
     await removeStaffMember(prismaStaffDirectoryWriter, id)
+    await auditStaffMutation(auth.user, {
+      action: 'delete',
+      module: 'staff_members',
+      targetId: id,
+    })
     return apiSuccess({ id })
   } catch {
     return apiError(500, 'DELETE_FAILED', 'تعذر حذف عضو الطاقم', 'Failed to remove staff member')

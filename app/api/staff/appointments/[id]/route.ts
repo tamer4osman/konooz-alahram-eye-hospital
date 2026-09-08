@@ -2,6 +2,7 @@ import { NextRequest } from 'next/server'
 import { z } from 'zod'
 import { apiSuccess, apiError } from '@/lib/api/response'
 import { requireModuleAccess, readJson, prismaFailure } from '@/lib/api/admin-route'
+import { auditStaffMutation } from '@/lib/api/audit'
 import {
   markAppointmentStatus,
   AppointmentNotFoundError,
@@ -40,6 +41,11 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
       id,
       body.data,
     )
+    await auditStaffMutation(auth.user, {
+      action: 'update',
+      module: 'appointments',
+      targetId: id,
+    })
     return apiSuccess({ ok: true })
   } catch (err) {
     if (err instanceof AppointmentNotFoundError) {

@@ -2,6 +2,7 @@ import { NextRequest } from 'next/server'
 import { z } from 'zod'
 import { apiSuccess, apiError } from '@/lib/api/response'
 import { requireAdmin, readJson } from '@/lib/api/admin-route'
+import { auditStaffMutation } from '@/lib/api/audit'
 import {
   createRoom,
   listRooms,
@@ -53,6 +54,11 @@ export async function POST(req: NextRequest) {
 
   try {
     const room = await createRoom(prismaRoomWriter, body.data)
+    await auditStaffMutation(auth.user, {
+      action: 'create',
+      module: 'rooms',
+      targetId: room.id,
+    })
     return apiSuccess(room, 201)
   } catch (err) {
     if (err instanceof RoomNameRequiredError) {

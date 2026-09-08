@@ -2,6 +2,7 @@ import { NextRequest } from 'next/server'
 import { z } from 'zod'
 import { apiSuccess, apiError } from '@/lib/api/response'
 import { requireModuleAccess, readJson, prismaFailure } from '@/lib/api/admin-route'
+import { auditStaffMutation } from '@/lib/api/audit'
 import {
   loadFlowSnapshot,
   openPatientStage,
@@ -59,6 +60,11 @@ export async function POST(req: NextRequest) {
       prismaPatientFlowStageStore,
       body.data,
     )
+    await auditStaffMutation(auth.user, {
+      action: 'create',
+      module: 'patient_flow',
+      targetId: created.id,
+    })
     return apiSuccess(created)
   } catch (err) {
     if (err instanceof StageAlreadyOpenError) {

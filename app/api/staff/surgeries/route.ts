@@ -2,6 +2,7 @@ import { NextRequest } from 'next/server'
 import { z } from 'zod'
 import { apiSuccess, apiError } from '@/lib/api/response'
 import { requireAdmin, readJson } from '@/lib/api/admin-route'
+import { auditStaffMutation } from '@/lib/api/audit'
 import { createSurgery, listSurgeries, SurgeryNameRequiredError } from '@/lib/usecases/surgeries'
 import { prismaSurgeryReader, prismaSurgeryWriter } from '@/lib/adapters/prisma/surgery-adapter'
 
@@ -45,6 +46,11 @@ export async function POST(req: NextRequest) {
 
   try {
     const surgery = await createSurgery(prismaSurgeryWriter, body.data)
+    await auditStaffMutation(auth.user, {
+      action: 'create',
+      module: 'surgeries',
+      targetId: surgery.id,
+    })
     return apiSuccess(surgery, 201)
   } catch (err) {
     if (err instanceof SurgeryNameRequiredError) {

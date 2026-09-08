@@ -2,6 +2,7 @@ import { NextRequest } from 'next/server'
 import { z } from 'zod'
 import { apiSuccess, apiError } from '@/lib/api/response'
 import { requireAdmin, readJson } from '@/lib/api/admin-route'
+import { auditStaffMutation } from '@/lib/api/audit'
 import { deleteRoom, updateRoom, RoomConflictError, RoomNotFoundError } from '@/lib/usecases/rooms'
 import { prismaRoomWriter } from '@/lib/adapters/prisma/room-adapter'
 
@@ -39,6 +40,11 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
 
   try {
     const room = await updateRoom(prismaRoomWriter, id, body.data)
+    await auditStaffMutation(auth.user, {
+      action: 'update',
+      module: 'rooms',
+      targetId: id,
+    })
     return apiSuccess(room)
   } catch (err) {
     if (err instanceof RoomNotFoundError) {
@@ -55,6 +61,11 @@ export async function DELETE(_req: NextRequest, { params }: { params: Promise<{ 
   const { id } = await params
   try {
     await deleteRoom(prismaRoomWriter, id)
+    await auditStaffMutation(auth.user, {
+      action: 'delete',
+      module: 'rooms',
+      targetId: id,
+    })
     return apiSuccess({ ok: true })
   } catch (err) {
     if (err instanceof RoomNotFoundError) {

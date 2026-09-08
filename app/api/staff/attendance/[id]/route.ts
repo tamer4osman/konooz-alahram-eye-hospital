@@ -2,6 +2,7 @@ import { NextRequest } from 'next/server'
 import { z } from 'zod'
 import { apiSuccess, apiError } from '@/lib/api/response'
 import { requireAdmin, readJson } from '@/lib/api/admin-route'
+import { auditStaffMutation } from '@/lib/api/audit'
 import { deleteAttendance, updateAttendance, AttendanceNotFoundError } from '@/lib/usecases/attendance'
 import { prismaAttendanceWriter } from '@/lib/adapters/prisma/attendance-adapter'
 
@@ -29,6 +30,11 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
 
   try {
     const record = await updateAttendance(prismaAttendanceWriter, id, body.data)
+    await auditStaffMutation(auth.user, {
+      action: 'update',
+      module: 'attendance',
+      targetId: id,
+    })
     return apiSuccess(record)
   } catch (err) {
     if (err instanceof AttendanceNotFoundError) {
@@ -45,6 +51,11 @@ export async function DELETE(_req: NextRequest, { params }: { params: Promise<{ 
   const { id } = await params
   try {
     await deleteAttendance(prismaAttendanceWriter, id)
+    await auditStaffMutation(auth.user, {
+      action: 'delete',
+      module: 'attendance',
+      targetId: id,
+    })
     return apiSuccess({ ok: true })
   } catch (err) {
     if (err instanceof AttendanceNotFoundError) {

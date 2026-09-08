@@ -2,6 +2,7 @@ import { NextRequest } from 'next/server'
 import { z } from 'zod'
 import { apiSuccess, apiError } from '@/lib/api/response'
 import { requireModuleAccess, readJson } from '@/lib/api/admin-route'
+import { auditStaffMutation } from '@/lib/api/audit'
 import { createInvoice, listInvoices } from '@/lib/usecases/invoices'
 import {
   prismaInvoiceReader,
@@ -55,6 +56,11 @@ export async function POST(req: NextRequest) {
       body.data,
       { actorEmail: auth.user.email, now: new Date() },
     )
+    await auditStaffMutation(auth.user, {
+      action: 'create',
+      module: 'invoices',
+      targetId: invoice.id,
+    })
     return apiSuccess(invoice, 201)
   } catch (err) {
     if (err instanceof InvoiceConflictError) {
