@@ -39,6 +39,40 @@ describe('appointmentRequestSchema', () => {
     expect(res.success).toBe(false);
   });
 
+  it('caps patientName at 120 characters (public endpoint, storage-DoS bound)', () => {
+    const res = appointmentRequestSchema.safeParse({ ...VALID, patientName: 'س'.repeat(121) });
+    expect(res.success).toBe(false);
+    expect(appointmentRequestSchema.safeParse({ ...VALID, patientName: 'س'.repeat(120) }).success).toBe(true);
+  });
+
+  it('caps phone at 20 characters', () => {
+    const res = appointmentRequestSchema.safeParse({ ...VALID, phone: '0'.repeat(21) });
+    expect(res.success).toBe(false);
+  });
+
+  it('caps intakeData keys and values (bounded record of scalars)', () => {
+    const res = appointmentRequestSchema.safeParse({
+      ...VALID,
+      intakeData: { field: 'x'.repeat(501) },
+    });
+    expect(res.success).toBe(false);
+    const res2 = appointmentRequestSchema.safeParse({
+      ...VALID,
+      intakeData: { [ 'k'.repeat(61) ]: 'ok' },
+    });
+    expect(res2.success).toBe(false);
+    const nested = appointmentRequestSchema.safeParse({
+      ...VALID,
+      intakeData: { field: { deep: 'object' } },
+    });
+    expect(nested.success).toBe(false);
+    const ok = appointmentRequestSchema.safeParse({
+      ...VALID,
+      intakeData: { surgicalEye: 'right', yearsWearingGlasses: 12 },
+    });
+    expect(ok.success).toBe(true);
+  });
+
   it('ignores unknown keys instead of failing the whole payload', () => {
     const res = appointmentRequestSchema.safeParse({ ...VALID, injectedField: '<script>' });
     expect(res.success).toBe(true);

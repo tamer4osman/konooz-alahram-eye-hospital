@@ -3,6 +3,7 @@ import Link from 'next/link';
 import type { Metadata } from 'next';
 import { blogArticles } from '@/data/blog-articles';
 import { tenantConfig } from '@/config/tenant';
+import { safeJsonLd } from '@/lib/security/jsonld';
 
 export async function generateMetadata({
   params,
@@ -73,7 +74,7 @@ export default async function BlogPage({
     <div className="min-h-screen bg-bone-50">
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(blogListSchema) }}
+        dangerouslySetInnerHTML={{ __html: safeJsonLd(blogListSchema) }}
       />
 
       <div className="max-w-4xl mx-auto px-4 sm:px-6 py-12 sm:py-20">

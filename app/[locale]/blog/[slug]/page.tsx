@@ -4,6 +4,7 @@ import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
 import { blogArticles, getBlogArticleBySlug } from '@/data/blog-articles';
 import { tenantConfig } from '@/config/tenant';
+import { safeJsonLd } from '@/lib/security/jsonld';
 
 export async function generateStaticParams() {
   return blogArticles.map((article) => ({ slug: article.slug }));
@@ -122,11 +123,11 @@ export default async function BlogArticlePage({
     <div className="min-h-screen bg-bone-50">
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(articleSchema) }}
+        dangerouslySetInnerHTML={{ __html: safeJsonLd(articleSchema) }}
       />
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
+        dangerouslySetInnerHTML={{ __html: safeJsonLd(breadcrumbSchema) }}
       />
 
       <article className="max-w-3xl mx-auto px-4 sm:px-6 py-12 sm:py-20">

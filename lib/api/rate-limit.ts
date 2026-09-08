@@ -48,11 +48,17 @@ export function createRateLimiter(
   }
 }
 
+// Trust boundary: with a single trusted reverse-proxy hop (Caddy), only the
+// LAST x-forwarded-for entry is appended by our own infrastructure — every
+// earlier entry is client-supplied and spoofable. Reading the first entry let
+// attackers rotate fake IPs to bypass every rate limiter (confirmed by audit
+// 2026-09-08); reading the last entry closes that bypass.
 export function getClientIp(request: Request): string {
   const forwarded = request.headers.get('x-forwarded-for')
   if (forwarded) {
-    const first = forwarded.split(',')[0]?.trim()
-    if (first) return first
+    const entries = forwarded.split(',').map((s) => s.trim()).filter(Boolean)
+    const last = entries[entries.length - 1]
+    if (last) return last
   }
   return request.headers.get('x-real-ip') ?? 'unknown'
 }

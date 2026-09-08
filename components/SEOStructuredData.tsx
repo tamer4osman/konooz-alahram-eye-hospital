@@ -3,6 +3,7 @@ import { tenantConfig } from '@/config/tenant';
 import { getFaqs } from '@/lib/content/faqs';
 import { getPublicDoctors } from '@/lib/doctors';
 import { getDepartments } from '@/lib/departments';
+import { safeJsonLd } from '@/lib/security/jsonld';
 
 export default async function SEOStructuredData({ locale = 'ar' }: { locale?: string }) {
   const [doctors, faqs, specialties] = await Promise.all([
@@ -170,19 +171,19 @@ export default async function SEOStructuredData({ locale = 'ar' }: { locale?: st
     <>
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(hospitalSchema) }}
+        dangerouslySetInnerHTML={{ __html: safeJsonLd(hospitalSchema) }}
       />
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
+        dangerouslySetInnerHTML={{ __html: safeJsonLd(faqSchema) }}
       />
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(doctorsSchema) }}
+        dangerouslySetInnerHTML={{ __html: safeJsonLd(doctorsSchema) }}
       />
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(medicalWebPageSchema) }}
+        dangerouslySetInnerHTML={{ __html: safeJsonLd(medicalWebPageSchema) }}
       />
     </>
   );

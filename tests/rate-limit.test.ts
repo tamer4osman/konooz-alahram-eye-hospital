@@ -92,12 +92,20 @@ describe('getClientIp', () => {
     return new Request('https://example.com/api', { headers })
   }
 
-  it('prefers the first entry of x-forwarded-for (proxy chain)', () => {
+  it('trusts only the LAST x-forwarded-for entry (proxy-appended, not spoofable)', () => {
+    // Client-supplied earlier entries must be ignored: behind Caddy the last
+    // entry is the only one our own proxy appended.
     expect(
       getClientIp(
         reqWithHeaders({ 'x-forwarded-for': '203.0.113.7, 10.0.0.1' })
       )
-    ).toBe('203.0.113.7')
+    ).toBe('10.0.0.1')
+  })
+
+  it('returns a sole spoofed-looking entry as-is (single-hop cannot be behind proxy)', () => {
+    expect(
+      getClientIp(reqWithHeaders({ 'x-forwarded-for': '10.9.9.9' }))
+    ).toBe('10.9.9.9')
   })
 
   it('falls back to x-real-ip then unknown', () => {
