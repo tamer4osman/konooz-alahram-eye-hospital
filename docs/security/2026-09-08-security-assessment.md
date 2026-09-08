@@ -104,9 +104,9 @@ The audit above covers the application. These gates cover what the application r
 ## 6. Open Items (recommended before/after delivery)
 
 1. **Prisma 8 (when stable):** remove the `deepmerge-ts` override from `package.json`, upgrade `prisma`/`@prisma/client` to 8.x stable, rerun this audit's R1–R13 suite afterwards.
-2. **Staff audit trail:** staff mutations currently leave no tamper-evident log. For a clinical system, an append-only audit table for staff writes is the single most valuable next security investment (supports repudiation/non-repudiation for billing and clinical records).
-3. **CSP nonce (hardening):** move `script-src` off `'unsafe-inline'` using Next.js middleware nonces; enables strict CSP.
-4. **Session hardening (F8):** staff sessions → 7-day sliding TTL.
+2. **Staff audit trail:** **DONE (`88d0bf8`)** — append-only `staff_audit_logs` table (actorId, actorEmail snapshot, action, module, targetId, createdAt); every staff mutation across all 19 staff routes / 23 handlers records one row after commit; no update/delete path exists in the application layer. Verified live (create + update on the production build produced correct rows). Residual honesty note: the append is written after the mutation commits — best-effort by design (a failed append logs loudly but never fails the response); true hash-chained tamper-evidence against a DBA-level actor remains out of scope.
+3. **CSP nonce (hardening):** move `script-src` off `'unsafe-inline'` using proxy nonces; enables strict CSP. Highest breakage risk of the remaining items — deliberate separate task.
+4. **Session hardening (F8):** **DONE (`e9a4d5d`)** — staff sessions rotate on a 7-day sliding window (active staff never logged out mid-shift); patient sessions keep 30 days.
 5. **Ops runbook:** document restore-from-backup drills for the PostgreSQL volume (backup/restore discipline is currently process-level, not tested).
 6. **Delivery gate G1–G6:** see §5 — VPS host hardening, restore drill, secrets path, TLS, upgrades, post-deploy smoke.
 
