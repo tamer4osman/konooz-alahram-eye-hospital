@@ -53,6 +53,7 @@ Severity ordering: CRITICAL > HIGH > MEDIUM > LOW > INFO.
 | F7 | **INFO** | In-memory rate limiting | Buckets live in process memory: reset on restart, not shared across replicas. | Acceptable for the planned single-container VPS; would silently weaken if horizontally scaled. | Open — document; revisit if multi-instance. |
 | F8 | **INFO** | 30-day session TTL, no rotation | Long-lived patient/staff sessions; tokens are hashed and revocable at logout. | Extends window of a stolen cookie. | Open — consider 7-day sliding renewal for staff. |
 | F9 | **INFO** | `AUTH_SECRET` defined but unused | Sessions use random-token+hash, not HMAC signing. The env var suggests a signing mechanism that does not exist. | Operator confusion; no runtime impact. | Open — remove from `.env.example` or comment as reserved. |
+| F10 | **LOW** | Rate-limiter bucket map grew unboundedly | Keys are client-influenced (IPv6 rotation, direct-connection spoofing in dev); the in-memory `Map` never evicted, so a distributed flood could grow process memory without limit. Found during the post-audit honesty pass, not by an attacker. | Memory-DoS of the Node process over long horizons; single-container deployment makes this the whole app. | **FIXED** — 10,000-key cap with oldest-first eviction (`RATE_LIMIT_MAX_TRACKED_KEYS`); 3 new unit tests prove the cap holds and per-key limits stay honest after eviction pressure. |
 
 ## 4. Red-Team Test Log (live, localhost production build)
 
@@ -82,8 +83,22 @@ Severity ordering: CRITICAL > HIGH > MEDIUM > LOW > INFO.
 | F2 bounded booking schema | `lib/validation/appointments.ts` | `tests/validation.test.ts` (+4 cases: name cap, phone cap, intakeData key/value/type caps) |
 | F3 `safeJsonLd` sink hardening | new `lib/security/jsonld.ts`; `components/SEOStructuredData.tsx`, `app/[locale]/blog/page.tsx`, `app/[locale]/blog/[slug]/page.tsx` (7 sinks) | new `tests/jsonld.test.ts` (5 cases) |
 | F5 SECURITY.md honesty rewrite | `SECURITY.md` | — |
+| F10 rate-limiter memory cap | `lib/api/rate-limit.ts` | `tests/rate-limit.test.ts` (+3 cases: cap enforcement, post-eviction per-key honesty, small-traffic integrity) |
 
-**Verification gate after fixes:** `npx eslint .` 0 errors/0 warnings · `npx tsc --noEmit` 0 errors · `npm test` 427/427 green · `fallow dead-code --changed-since main` 0 issues.
+**Verification gate after fixes:** `npx eslint .` 0 errors/0 warnings · `npx tsc --noEmit` 0 errors · `npm test` 430/430 green · `fallow dead-code --changed-since main` 0 issues.
+
+### Delivery gate — must pass before go-live (application layer is NOT the whole system)
+
+The audit above covers the application. These gates cover what the application runs *on*; none of them were verified in this assessment and all are cheap to check:
+
+| Gate | Check | Evidence to capture |
+|------|-------|--------------------|
+| G1 | VPS host: SSH key-only auth, password login disabled, ufw/firewall allows only 22/80/443, Docker daemon not exposed on TCP, PostgreSQL **not** reachable from the internet (5432 closed externally) | `ss -tlnp` output, ufw status |
+| G2 | Backup restore drill: take a fresh `pg_dump`, restore it into a scratch container, run a query against restored data, time the whole thing | Drill log + elapsed time; if restore has never been exercised, there is no backup, only hope |
+| G3 | Secrets path: DATABASE_URL and seed credentials reach the VPS via Docker secrets or a root-readable env file — never baked into the image, never in git | `docker exec env` spot-check; grep image layers for the string |
+| G4 | Caddy serving real TLS (A grade at ssllabs) and HSTS honored end-to-end | ssllabs report URL |
+| G5 | Dependency upgrades from F6 executed (prisma 8, next 16) and R1–R13 red-team suite re-run | `npm audit` clean-ish output + re-run notes |
+| G6 | Post-deploy smoke: `/api/health` 200, staff login works, booking 201, staff APIs 403 without cookie | curl transcript |
 
 ## 6. Open Items (recommended before/after delivery)
 

@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest'
 import {
   createRateLimiter,
   getClientIp,
+  RATE_LIMIT_MAX_TRACKED_KEYS,
   type RateLimiterOptions,
 } from '@/lib/api/rate-limit'
 
@@ -84,6 +85,41 @@ describe('createRateLimiter', () => {
     for (let i = 0; i < OPTIONS.limit; i += 1) limiter('ip-a')
     clock.advance(OPTIONS.windowMs - 1)
     expect(limiter('ip-a').allowed).toBe(false)
+  })
+
+  it('bounds memory: bucket count never exceeds the cap', () => {
+    const clock = makeClock()
+    const limiter = createRateLimiter(OPTIONS, clock.now)
+
+    for (let i = 0; i < RATE_LIMIT_MAX_TRACKED_KEYS + 50; i += 1) {
+      limiter(`flood-${i}`)
+    }
+    expect(limiter.bucketCount()).toBeLessThanOrEqual(RATE_LIMIT_MAX_TRACKED_KEYS)
+  })
+
+  it('still enforces per-key limits after eviction pressure', () => {
+    const clock = makeClock()
+    const limiter = createRateLimiter(OPTIONS, clock.now)
+
+    for (let i = 0; i < RATE_LIMIT_MAX_TRACKED_KEYS + 50; i += 1) {
+      limiter(`flood-${i}`)
+    }
+    // A fresh key after the flood gets a normal window, then hits the cap.
+    expect(limiter('after-flood').allowed).toBe(true)
+    expect(limiter('after-flood').allowed).toBe(true)
+    expect(limiter('after-flood').allowed).toBe(true)
+    expect(limiter('after-flood').allowed).toBe(false)
+  })
+
+  it('eviction keeps normal traffic honest: small usage is untouched', () => {
+    const clock = makeClock()
+    const limiter = createRateLimiter(OPTIONS, clock.now)
+
+    limiter('ip-a')
+    limiter('ip-a')
+    expect(limiter('ip-a').allowed).toBe(true)
+    expect(limiter('ip-a').allowed).toBe(false)
+    expect(limiter.bucketCount()).toBe(1)
   })
 })
 

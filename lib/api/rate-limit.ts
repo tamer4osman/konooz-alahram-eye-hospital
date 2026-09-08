@@ -11,9 +11,22 @@ export interface RateLimiterOptions {
   windowMs: number
 }
 
+// Memory bound for the per-process bucket maps. Keys are client-influenced
+// (rotated IPv6 / spoofed direct connections in dev), so the map must not
+// grow without limit. When a call pushes the map over the cap, the
+// oldest-inserted buckets are dropped (Map preserves insertion order).
+// Flood consequence is acceptable: an attacker spending MAX_TRACKED_KEYS
+// distinct IPs already gets a fresh window per IP anyway, so evicting aged
+// buckets never weakens per-IP honesty for normal traffic.
+export const RATE_LIMIT_MAX_TRACKED_KEYS = 10_000
+
 type RateBucket = { count: number; windowStart: number }
 
-export type RateLimiter = (key: string) => RateLimitResult
+// Extra method rides along for tests/ops introspection; call sites that only
+// invoke the function are unaffected by the wider type.
+export type RateLimiter = ((key: string) => RateLimitResult) & {
+  bucketCount(): number
+}
 
 export function createRateLimiter(
   options: RateLimiterOptions,
@@ -22,8 +35,26 @@ export function createRateLimiter(
   const { limit, windowMs } = options
   const buckets = new Map<string, RateBucket>()
 
-  return (key: string): RateLimitResult => {
+  function evictOldest(count: number): void {
+    let removed = 0
+    for (const key of buckets.keys()) {
+      buckets.delete(key)
+      removed += 1
+      if (removed >= count) break
+    }
+  }
+
+  function bucketCount(): number {
+    return buckets.size
+  }
+
+  const limiter = (key: string): RateLimitResult => {
     const current = now()
+
+    if (buckets.size >= RATE_LIMIT_MAX_TRACKED_KEYS) {
+      evictOldest(Math.ceil(RATE_LIMIT_MAX_TRACKED_KEYS / 10))
+    }
+
     const existing = buckets.get(key)
 
     if (!existing || current - existing.windowStart >= windowMs) {
@@ -46,6 +77,9 @@ export function createRateLimiter(
       retryAfterSeconds: 0,
     }
   }
+
+  limiter.bucketCount = bucketCount
+  return limiter
 }
 
 // Trust boundary: with a single trusted reverse-proxy hop (Caddy), only the
