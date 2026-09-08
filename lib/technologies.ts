@@ -1,4 +1,5 @@
 import { prisma } from '@/lib/prisma';
+import { withDbFallback } from '@/lib/db-fallback';
 import type { TechnologyItem } from '@/data/hospitalData';
 
 /**
@@ -6,6 +7,7 @@ import type { TechnologyItem } from '@/data/hospitalData';
  * Fetched server-side (ISR) and passed to TechnologySection as props.
  */
 export async function getTechnologies(): Promise<TechnologyItem[]> {
+  return withDbFallback('getTechnologies', [], async () => {
   const rows = await prisma.technology.findMany({
     where: { isActive: true },
     orderBy: { sortOrder: 'asc' },
@@ -24,4 +26,5 @@ export async function getTechnologies(): Promise<TechnologyItem[]> {
     imageSeed: row.imageSeed,
     image: row.image ?? undefined,
   }));
+  });
 }

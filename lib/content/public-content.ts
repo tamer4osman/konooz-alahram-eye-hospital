@@ -1,4 +1,5 @@
 import { prisma } from '@/lib/prisma'
+import { withDbFallback } from '@/lib/db-fallback'
 import type { Testimonial } from '@/data/hospitalData'
 
 // Shared server-side getters for public marketing content. Used both by the
@@ -6,6 +7,7 @@ import type { Testimonial } from '@/data/hospitalData'
 // per query, with honest DTO mapping (nullable DB columns get display defaults).
 
 export async function getPublicTestimonials(): Promise<Testimonial[]> {
+  return withDbFallback('getPublicTestimonials', [], async () => {
   const rows = await prisma.testimonial.findMany({
     where: { isActive: true },
     orderBy: { sortOrder: 'asc' },
@@ -26,6 +28,7 @@ export async function getPublicTestimonials(): Promise<Testimonial[]> {
     dateAr: r.dateAr,
     dateEn: r.dateEn ?? '',
   }))
+  })
 }
 
 export interface TrustStatDTO {
@@ -37,6 +40,7 @@ export interface TrustStatDTO {
 }
 
 export async function getTrustStats(): Promise<TrustStatDTO[]> {
+  return withDbFallback('getTrustStats', [], async () => {
   const rows = await prisma.trustStat.findMany({
     where: { isActive: true },
     orderBy: { sortOrder: 'asc' },
@@ -48,6 +52,7 @@ export async function getTrustStats(): Promise<TrustStatDTO[]> {
     labelEn: r.labelEn ?? '',
     icon: r.icon,
   }))
+  })
 }
 
 export interface NewsletterContent {

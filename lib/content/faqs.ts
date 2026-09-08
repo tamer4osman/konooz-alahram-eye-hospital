@@ -1,4 +1,5 @@
 import { prisma } from '@/lib/prisma'
+import { withDbFallback } from '@/lib/db-fallback'
 import type { Faq } from '@prisma/client'
 
 export interface FaqDTO {
@@ -20,9 +21,11 @@ function toFaqDTO(row: Faq): FaqDTO {
 }
 
 export async function getFaqs(): Promise<FaqDTO[]> {
+  return withDbFallback('getFaqs', [], async () => {
   const rows = await prisma.faq.findMany({
     where: { isActive: true },
     orderBy: { sortOrder: 'asc' },
   })
   return rows.map(toFaqDTO)
+  })
 }

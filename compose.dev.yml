@@ -4,7 +4,7 @@ services:
       context: .
       dockerfile: Dockerfile
       target: deps
-    command: "sleep infinity"
+    command: "npm run dev"
     volumes:
       - .:/app
       - /app/node_modules

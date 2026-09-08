@@ -1,4 +1,5 @@
 import { prisma } from '@/lib/prisma';
+import { withDbFallback } from '@/lib/db-fallback';
 import type { Specialty } from '@/data/hospitalData';
 
 /**
@@ -7,6 +8,7 @@ import type { Specialty } from '@/data/hospitalData';
  * LanguageProvider so client components read the same list.
  */
 export async function getDepartments(): Promise<Specialty[]> {
+  return withDbFallback('getDepartments', [], async () => {
   const rows = await prisma.department.findMany({
     where: { isActive: true },
     orderBy: { sortOrder: 'asc' },
@@ -35,4 +37,5 @@ export async function getDepartments(): Promise<Specialty[]> {
     suitableForEn: [...row.suitableForEn],
     intakeSchema: (row.intakeSchema as import('@/lib/types/intake-schema').IntakeSchema | null) ?? null,
   }));
+  });
 }

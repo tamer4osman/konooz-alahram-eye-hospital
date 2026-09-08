@@ -1,7 +1,9 @@
 import { prisma } from '@/lib/prisma';
+import { withDbFallback } from '@/lib/db-fallback';
 import type { Doctor } from '@/data/hospitalData';
 
 export async function getPublicDoctors(): Promise<Doctor[]> {
+  return withDbFallback('getPublicDoctors', [], async () => {
   const rows = await prisma.doctor.findMany({ orderBy: { createdAt: 'asc' } });
   return rows.map((row) => ({
     id: row.id,
@@ -31,4 +33,5 @@ export async function getPublicDoctors(): Promise<Doctor[]> {
     highlightsAr: [...row.highlightsAr],
     highlightsEn: [...row.highlightsEn],
   }));
+  });
 }

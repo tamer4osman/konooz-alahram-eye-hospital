@@ -15,6 +15,14 @@ export default function TechnologySection({ technologies }: { technologies: Tech
 
   const activeTech: TechnologyItem | undefined = technologies[activeTechIndex];
 
+  // Fail-soft empty state: prerender degrades to empty lists when the build
+  // DB is unreachable, so this section must render honestly rather than crash.
+  if (!activeTech) {
+    return (
+      <section id="technology" className="py-16 sm:py-24 bg-bone-50 relative overflow-hidden" />
+    );
+  }
+
   return (
     <section id="technology" className="py-16 sm:py-24 bg-bone-50 relative overflow-hidden">
       <div className="relative max-w-7xl mx-auto px-4 sm:px-6">

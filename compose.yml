@@ -4,6 +4,10 @@ services:
     ports:
       - "3000:3000"
     env_file: .env
+    environment:
+      # .env points DATABASE_URL at localhost (host workflow); inside the
+      # container the db service is reachable as "db".
+      DATABASE_URL: postgresql://konooz:konooz_password@db:5432/konooz?schema=public
     depends_on:
       db:
         condition: service_healthy
