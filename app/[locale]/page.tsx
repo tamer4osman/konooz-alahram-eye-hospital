@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { Suspense } from 'react';
 import { LanguageProvider } from '@/context/LanguageContext';
 import { PatientAuthProvider } from '@/context/PatientAuthContext';
 import HomePageClient from '@/components/HomePageClient';
@@ -10,6 +10,15 @@ import { getFaqs } from '@/lib/content/faqs';
 import { getPublicTestimonials, getTrustStats } from '@/lib/content/public-content';
 
 export const revalidate = 300;
+
+function SectionSkeleton({ minHeight }: { minHeight: string }) {
+  return (
+    <div
+      className={`w-full ${minHeight} bg-bone-100/60 animate-pulse`}
+      aria-hidden="true"
+    />
+  );
+}
 
 async function TechnologiesSection() {
   const technologies = await getTechnologies();
@@ -59,13 +68,19 @@ export default async function LocaleHome({
               <ServicesGrid locale={locale} specialties={specialties} />
           }
           technologiesSlot={
+            <Suspense fallback={<SectionSkeleton minHeight="min-h-[420px]" />}>
               <TechnologiesSection />
+            </Suspense>
           }
           testimonialsSlot={
+            <Suspense fallback={<SectionSkeleton minHeight="min-h-[380px]" />}>
               <TestimonialsSection />
+            </Suspense>
           }
           faqsSlot={
+            <Suspense fallback={<SectionSkeleton minHeight="min-h-[520px]" />}>
               <FaqsSection />
+            </Suspense>
           }
         />
       </PatientAuthProvider>

@@ -9,7 +9,9 @@ import Footer from '@/components/Footer';
 import type { ReactNode } from 'react';
 
 // Below-the-fold components: lazy-loaded to reduce initial bundle
-const Hero = dynamic(() => import('@/components/Hero'), { ssr: false, loading: () => <div className="min-h-[60vh] bg-bone-50" /> });
+// Hero is the LCP element: server-rendered (no `ssr: false`) so next/image's
+// `priority` preload link reaches the initial HTML. Still code-split for the client bundle.
+const Hero = dynamic(() => import('@/components/Hero'), { loading: () => <div className="min-h-[60vh] bg-bone-50" /> });
 const DoctorsSection = dynamic(() => import('@/components/DoctorsSection'), { ssr: false });
 const VisionTestInteractive = dynamic(() => import('@/components/VisionTestInteractive'), { ssr: false });
 const FloatingWidgets = dynamic(() => import('@/components/FloatingWidgets'), { ssr: false });
