@@ -96,7 +96,7 @@ export default async function SEOStructuredData({ locale = 'ar' }: { locale?: st
     ],
     priceRange: '$$',
     currenciesAccepted: 'LYD',
-    paymentAccepted: 'Cash, Bank Transfer, Certified Cheque, Spitar App, Tadawul',
+    paymentAccepted: 'Cash, Bank Transfer, Certified Cheque, Spitar App, Tadawul, Moamalat Cards, EDFali, Sadad (via DPAY)',
     medicalSpecialty: [
       'http://schema.org/Ophthalmologic',
       'Refractive Surgery',

@@ -16,7 +16,7 @@ const privacyContent = {
       },
       {
         heading: '2. البيانات التي نجمعها',
-        text: 'نجمع فقط المعلومات التي تقدمها طواعية عند إنشاء حسابك: الاسم الكامل، البريد الإلكتروني، رقم الهاتف، المدينة، الجنس، ومعلوماتك الطبية التي يسجلها طاقمنا أثناء زياراتك (الاستشارات، الوصفات، الفواتير المرتبطة بحسابك). لا نجمع بيانات الدفع أو بطاقات الائتمان.',
+        text: 'نجمع فقط المعلومات التي تقدمها طواعية عند إنشاء حسابك: الاسم الكامل، البريد الإلكتروني، رقم الهاتف، المدينة، الجنس، ومعلوماتك الطبية التي يسجلها طاقمنا أثناء زياراتك (الاستشارات، الوصفات، الفواتير المرتبطة بحسابك). عند اختيار السداد الإلكتروني، تتم معالجة الدفع عبر بوابة DPAY الليبية: بيانات البطاقات تُدخل في صفحة الدفع الآمنة الخاصة بالبوابة ولا تمر عبر خوادمنا إطلاقاً، وفي مدفوعات المحافظ الإلكترونية نُمرر رمز التحقق (OTP) الذي يصلك على هاتفك إلى البنك مرة واحدة دون تخزينه. نحفظ فقط إيصال العملية: المبلغ، الوسيلة، حالتها، ومرجعها البنكي.',
       },
       {
         heading: '3. كيف نستخدم بياناتك',
@@ -46,7 +46,7 @@ const privacyContent = {
       },
       {
         heading: '2. Data We Collect',
-        text: 'We only collect information you voluntarily provide when creating your account: full name, email, phone number, city, gender, and the medical information our staff record during your visits (consultations, prescriptions, and invoices linked to your account). We do not collect payment data or credit card information.',
+        text: 'We only collect information you voluntarily provide when creating your account: full name, email, phone number, city, gender, and the medical information our staff record during your visits (consultations, prescriptions, and invoices linked to your account). When you choose to pay electronically, payment is processed through the Libyan DPAY gateway: card details are entered on the gateway\'s own secure payment page and never pass through our servers, and for mobile-wallet payments we relay the one-time OTP sent to your phone to the bank once without storing it. We keep only the transaction receipt: amount, method, status, and bank reference.',
       },
       {
         heading: '3. How We Use Your Data',

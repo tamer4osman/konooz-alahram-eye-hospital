@@ -904,7 +904,61 @@ model HospitalBillingInvoice {
   @@index([patientId])
   @@index([issuedDate])
   @@index([status, issuedDate])
+  paymentTransactions PaymentTransaction[]
   @@map("hospital_billing_invoices")
+}
+
+enum PaymentTransactionStatus {
+  /// Session opened, awaiting OTP verification or hosted-page completion.
+  pending
+  /// Gateway confirmed the payment (webhook or verify response).
+  paid
+  failed
+  expired
+  refunded
+  voided
+  /// Staff abandoned the collection attempt before completion.
+  cancelled
+}
+
+/// One DPay payment attempt against an invoice. Multiple rows per invoice are
+/// valid (retries, partial payments across wallets). `paid` rows sum to the
+/// invoice's collected amount — refunds/voids are excluded, never mutated.
+model PaymentTransaction {
+  id            String   @id @default(cuid())
+  invoiceId     String
+  invoice       HospitalBillingInvoice @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+
+  /// DPay `session_id` — unique anchor for idempotency (`session_id + event`
+  /// is the webhook idempotency key per DPay docs).
+  dpaySessionId Int      @unique
+  payMethod     String
+  status        PaymentTransactionStatus @default(pending)
+
+  /// Requested amount in LYD (the amount DPay was asked to charge).
+  amount        Decimal  @db.Decimal(12, 2)
+  currency      String   @default("LYD")
+
+  /// DPay transaction reference on success (`sb_txn_...` prefix in sandbox).
+  txId          String?
+  receiptUrl    String?
+  /// Gateway-reported payer account/mask when returned — support/audit only.
+  payerAccount  String?
+  failureReason String?
+
+  /// Staff email when a human confirmed (assisted OTP flow) — audit trail.
+  confirmedBy   String?
+  /// Last webhook delivery seen for this session (event name + time).
+  lastWebhookEvent String?
+  lastWebhookAt    DateTime?
+  lastPollAt       DateTime?
+
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+
+  @@index([invoiceId])
+  @@index([status])
+  @@map("payment_transactions")
 }
 
 enum PacsOrderStatus {

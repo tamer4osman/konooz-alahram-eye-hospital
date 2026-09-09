@@ -1,10 +1,15 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import dynamic from 'next/dynamic';
 import { useLanguage } from '@/context/LanguageContext';
 import { InsuranceProviderInfo, HospitalBillingInvoice, DiagnosticPacsOrder } from '@/data/dashboardData';
-import { Receipt, ShieldCheck, CreditCard, Printer, Plus, CheckCircle2, Hourglass, TrendingUp, TrendingDown } from 'lucide-react';
+import { Receipt, ShieldCheck, CreditCard, Printer, Plus, CheckCircle2, Hourglass, TrendingUp, TrendingDown, Wallet } from 'lucide-react';
 import type { ArAgingReport, ArAgingTrendReport } from '@/lib/usecases/invoices';
+
+const PaymentCollectionModal = dynamic(() => import('./PaymentCollectionModal'));
+
+const COLLECTIBLE_STATUSES = new Set(['pending', 'partially_paid', 'pending_insurance', 'pre_auth_approved']);
 
 export default function BillingInsuranceTab() {
   const { lang, t, } = useLanguage();
@@ -18,6 +23,19 @@ export default function BillingInsuranceTab() {
   const [selectedInvoice, setSelectedInvoice] = useState<HospitalBillingInvoice | null>(null);
   const [isInvoicePrintSuccess, setIsInvoicePrintSuccess] = useState(false);
   const [isCreateInvoiceOpen, setIsCreateInvoiceOpen] = useState(false);
+  const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
+  const [collectInvoice, setCollectInvoice] = useState<HospitalBillingInvoice | null>(null);
+
+  const handlePaymentConfirmed = () => {
+    // Re-pull invoices so statuses that advanced to paid/partially_paid show up.
+    fetch('/api/staff/invoices')
+      .then(async (res) => {
+        if (!res.ok) return;
+        const json = await res.json();
+        if (Array.isArray(json?.data)) setInvoices(json.data as HospitalBillingInvoice[]);
+      })
+      .catch(() => {});
+  };
 
   useEffect(() => {
     let cancelled = false;
@@ -259,8 +277,8 @@ export default function BillingInsuranceTab() {
         )}
         <p className="text-[10px] text-ink-500 mt-3">
           {t(
-            'يُحسب المبلغ المستحق كامل قيمة الفاتورة — لا تُتابع الدفعات الجزئية في النظام حالياً. الفواتير المسددة والملغاة والمسودات غير مدرجة.',
-            'Outstanding amounts reflect the full invoice value — partial payments are not tracked yet. Paid, cancelled and draft invoices are excluded.',
+            'يُحسب المبلغ المستحق على أساس المُحصَّل فعلياً عبر DPAY (المدفوعات الجزئية مُتتبعة) — العمليات المُستردة والمملوكة تُستثنى. الفواتير المسددة والملغاة والمسودات غير مدرجة.',
+            'Outstanding amounts reflect what has actually been collected via DPAY (partial payments are tracked) — refunded and voided transactions are excluded. Paid, cancelled and draft invoices are excluded.',
           )}
           {agingTrend && (
             <>
@@ -320,6 +338,16 @@ export default function BillingInsuranceTab() {
 
             {invoices.map((inv) => {
               const isSelected = inv.id === selectedInvoice?.id;
+              const STATUS_LABELS: Record<string, { ar: string; en: string }> = {
+                pending: { ar: 'قائمة', en: 'Pending' },
+                paid: { ar: 'مسدد بالكامل', en: 'Paid' },
+                partially_paid: { ar: 'مسدد جزئياً', en: 'Partially paid' },
+                cancelled: { ar: 'ملغاة', en: 'Cancelled' },
+                pending_insurance: { ar: 'موافقة مسبقة', en: 'Pre-Auth Approved' },
+                pre_auth_approved: { ar: 'موافقة مسبقة', en: 'Pre-Auth Approved' },
+                draft: { ar: 'مسودة', en: 'Draft' },
+              };
+              const statusLabel = STATUS_LABELS[inv.status] ?? STATUS_LABELS.pending_insurance;
               return (
                 <button
                   type="button"
@@ -338,11 +366,15 @@ export default function BillingInsuranceTab() {
                     <span
                       className={`text-[9px] font-extrabold px-2 py-0.5 rounded-full ${
                         inv.status === 'paid'
-                          ? 'bg-pine-100 text-pine-800'
-                          : 'bg-pine-100 text-pine-800'
+                          ? 'bg-emerald-100 text-emerald-800'
+                          : inv.status === 'partially_paid'
+                            ? 'bg-brass-100 text-brass-800'
+                            : inv.status === 'cancelled' || inv.status === 'draft'
+                              ? 'bg-ink-100 text-ink-600'
+                              : 'bg-pine-100 text-pine-800'
                       }`}
                     >
-                      {inv.status === 'paid' ? t('مسدد بالكامل', 'Paid') : t('موافقة مسبقة', 'Pre-Auth Approved')}
+                      {lang === 'ar' ? statusLabel.ar : statusLabel.en}
                     </span>
                   </div>
 
@@ -384,13 +416,27 @@ export default function BillingInsuranceTab() {
                     </span>
                   </div>
 
-                  <button
-                    onClick={handlePrintReceipt}
-                    className="px-3.5 py-2 bg-bone-100 hover:bg-pine-200 text-ink-700 text-xs font-bold rounded-xl border border-ink-300 transition-colors flex items-center gap-1.5 cursor-pointer self-start sm:self-auto"
-                  >
-                    <Printer className="w-3.5 h-3.5 text-pine-800" />
-                    <span>{isInvoicePrintSuccess ? t('تم تجهيز السند ✓', 'Printed ✓') : t('طباعة السند الضريبي', 'Print Receipt')}</span>
-                  </button>
+                  <div className="flex items-center gap-2 self-start sm:self-auto">
+                    {COLLECTIBLE_STATUSES.has(selectedInvoice.status) && (
+                      <button
+                        onClick={() => {
+                          setCollectInvoice(selectedInvoice);
+                          setIsPaymentModalOpen(true);
+                        }}
+                        className="px-3.5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl shadow-sm transition-colors flex items-center gap-1.5 cursor-pointer"
+                      >
+                        <Wallet className="w-3.5 h-3.5" aria-hidden="true" />
+                        <span>{t('تحصيل إلكتروني', 'Collect online')}</span>
+                      </button>
+                    )}
+                    <button
+                      onClick={handlePrintReceipt}
+                      className="px-3.5 py-2 bg-bone-100 hover:bg-pine-200 text-ink-700 text-xs font-bold rounded-xl border border-ink-300 transition-colors flex items-center gap-1.5 cursor-pointer"
+                    >
+                      <Printer className="w-3.5 h-3.5 text-pine-800" aria-hidden="true" />
+                      <span>{isInvoicePrintSuccess ? t('تم تجهيز السند ✓', 'Printed ✓') : t('طباعة السند الضريبي', 'Print Receipt')}</span>
+                    </button>
+                  </div>
                 </div>
 
                 {/* Patient & Insurance Badge */}
@@ -535,6 +581,28 @@ export default function BillingInsuranceTab() {
             </div>
           ))}
         </div>
+      )}
+
+      {/* ========================================================================= */}
+      {/* MODAL: ONLINE PAYMENT COLLECTION (DPAY) — dynamic import keeps its JS */}
+      {/* out of the first dashboard load until a staff member collects. */}
+      {/* ========================================================================= */}
+      {isPaymentModalOpen && collectInvoice && (
+        <PaymentCollectionModal
+          isOpen={isPaymentModalOpen}
+          invoice={{
+            id: collectInvoice.id,
+            invoiceNumber: collectInvoice.invoiceNumber,
+            totalGrossLYD: collectInvoice.totalGrossLYD,
+            patientCoPayLYD: collectInvoice.patientCoPayLYD,
+            status: collectInvoice.status,
+          }}
+          onClose={() => {
+            setIsPaymentModalOpen(false);
+            setCollectInvoice(null);
+          }}
+          onPaymentConfirmed={handlePaymentConfirmed}
+        />
       )}
 
       {/* ========================================================================= */}

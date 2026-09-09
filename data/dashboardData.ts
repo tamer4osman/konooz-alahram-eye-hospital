@@ -302,7 +302,14 @@ export interface HospitalBillingInvoice {
   insuranceCoveredLYD: number;
   patientCoPayLYD: number;
   
-  status: 'paid' | 'pending_insurance' | 'pre_auth_approved' | 'draft';
+  status:
+    | 'pending'
+    | 'paid'
+    | 'partially_paid'
+    | 'cancelled'
+    | 'pending_insurance'
+    | 'pre_auth_approved'
+    | 'draft';
 }
 
 export interface DiagnosticPacsOrder {
