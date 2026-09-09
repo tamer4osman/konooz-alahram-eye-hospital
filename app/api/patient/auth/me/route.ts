@@ -12,8 +12,11 @@ export const dynamic = 'force-dynamic';
 
 export async function GET() {
   const account = await getPatientAccount();
+  // Silent-probe contract: a mount-time probe with no session answers 200
+  // user:null so anonymous visitors never see browser network-error logs.
+  // Protected DATA routes keep 401 semantics — this is probe-only.
   if (!account) {
-    return apiError(401, 'NOT_AUTHENTICATED', AUTH_MESSAGES.notAuthenticated.ar, AUTH_MESSAGES.notAuthenticated.en);
+    return apiSuccess({ user: null });
   }
 
   const profile = await prisma.patientProfile.findUnique({

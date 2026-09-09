@@ -1,14 +1,16 @@
 import { getStaffAccount } from '@/lib/api/patient-route';
 import { prisma } from '@/lib/prisma';
-import { apiSuccess, apiError } from '@/lib/api/response';
-import { AUTH_MESSAGES } from '@/data/authMessages';
+import { apiSuccess } from '@/lib/api/response';
 
 export const dynamic = 'force-dynamic';
 
 export async function GET() {
   const staff = await getStaffAccount();
+  // Silent-probe contract: a mount-time probe with no session answers 200
+  // user:null so anonymous /ops visitors never see browser network-error
+  // logs. Protected DATA routes keep 401 semantics — this is probe-only.
   if (!staff) {
-    return apiError(401, 'NOT_AUTHENTICATED', AUTH_MESSAGES.notAuthenticated.ar, AUTH_MESSAGES.notAuthenticated.en);
+    return apiSuccess({ user: null });
   }
 
   const user = await prisma.user.findUnique({

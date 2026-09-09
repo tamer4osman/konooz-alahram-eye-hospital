@@ -94,17 +94,17 @@ export function PatientAuthProvider({ children }: { children: React.ReactNode })
   const refreshProfile = useCallback(async () => {
     try {
       const res = await fetch('/api/patient/auth/me');
-      if (!res.ok) {
+      // 200 user:null is the silent-probe "not logged in" response (and the
+      // result of an expired session) — clear state, same as !res.ok.
+      const json = res.ok ? ((await res.json()) as PatientMeResponse) : null;
+      const user = json?.data?.user;
+      if (!user?.id || !user?.email) {
         setServerUser(null);
         setProfile(null);
         return;
       }
-      const json = (await res.json()) as PatientMeResponse;
-      const user = json?.data?.user;
-      if (user?.id && user?.email) {
-        setServerUser({ id: user.id, email: user.email });
-        setProfile(normalizeProfile(json?.data?.profile ?? null, user.email));
-      }
+      setServerUser({ id: user.id, email: user.email });
+      setProfile(normalizeProfile(json?.data?.profile ?? null, user.email));
     } catch {
       setServerUser(null);
       setProfile(null);
