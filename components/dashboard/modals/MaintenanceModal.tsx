@@ -1,10 +1,11 @@
 'use client';
 
 import React, { useState } from 'react';
-import { X, Wrench, CheckCircle2 } from 'lucide-react';
+import { X, Wrench, CheckCircle2, AlertTriangle } from 'lucide-react';
 import { useLanguage } from '@/context/LanguageContext';
 import { HospitalEquipment } from '@/data/dashboardData';
 import Modal from '@/components/ui/Modal';
+import { useApiSubmit } from '@/hooks/useApiSubmit';
 
 interface MaintenanceModalProps {
   device: HospitalEquipment | null;
@@ -18,8 +19,9 @@ export default function MaintenanceModal({ device, open, onClose, onCertified }:
   const { lang, t } = useLanguage();
   const [notes, setNotes] = useState('');
   const [nextDue, setNextDue] = useState('2026-11-15');
+  const { submitting, error, submit } = useApiSubmit<HospitalEquipment>();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!device) return;
 
@@ -33,13 +35,17 @@ export default function MaintenanceModal({ device, open, onClose, onCertified }:
       uptimePercentage: 99.9
     };
 
-    fetch(`/api/staff/equipment/${device.id}`, {
+    // The certification must only reach the operator's view once the
+    // hospital has actually recorded it.
+    const saved = await submit({
+      url: `/api/staff/equipment/${device.id}`,
       method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(updates)
-    }).catch(() => {});
-    onCertified(device.id, updates);
+      payload: updates,
+    });
 
+    if (!saved) return;
+
+    onCertified(device.id, updates);
     onClose();
     setNotes('');
   };
@@ -103,6 +109,13 @@ export default function MaintenanceModal({ device, open, onClose, onCertified }:
               />
             </div>
 
+            {error && (
+              <div role="alert" className="flex items-center gap-2 bg-rose-50 border border-rose-200 text-rose-800 rounded-xl px-3 py-2.5 text-xs font-bold">
+                <AlertTriangle className="w-4 h-4 flex-shrink-0" />
+                <span>{error}</span>
+              </div>
+            )}
+
             <div className="flex items-center justify-end gap-3 pt-3 border-t border-bone-100">
               <button
                 type="button"
@@ -113,9 +126,10 @@ export default function MaintenanceModal({ device, open, onClose, onCertified }:
               </button>
               <button
                 type="submit"
-                className="px-5 py-2.5 bg-pine-800 hover:bg-pine-800 text-white rounded-xl font-bold transition-all shadow-md flex items-center gap-2 cursor-pointer"
+                disabled={submitting}
+                className="px-5 py-2.5 bg-pine-900 hover:bg-pine-700 text-white rounded-xl font-bold transition-all shadow-md flex items-center gap-2 cursor-pointer disabled:opacity-50"
               >
-                <CheckCircle2 className="w-4 h-4 text-brass-300" />
+                <CheckCircle2 className="w-4 h-4 text-brass-400" />
                 <span>{t('اعتماد المعايرة وإعادة للخدمة', 'Certify & Set Operational')}</span>
               </button>
             </div>

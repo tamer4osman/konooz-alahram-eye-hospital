@@ -1,10 +1,12 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Cpu, X, Plus } from 'lucide-react';
+import { Cpu, Plus } from 'lucide-react';
 import { useLanguage } from '@/context/LanguageContext';
 import { HospitalEquipment, HospitalRoom } from '@/data/dashboardData';
-import Modal from '@/components/ui/Modal';
+import { useApiSubmit } from '@/hooks/useApiSubmit';
+import DashboardModalFrame from '@/components/ui/DashboardModalFrame';
+import ModalFormFooter from '@/components/ui/ModalFormFooter';
 
 interface AddEquipmentModalProps {
   open: boolean;
@@ -30,8 +32,9 @@ const EMPTY_FORM = {
 export default function AddEquipmentModal({ open, rooms, onClose, onCreated }: AddEquipmentModalProps) {
   const { lang, t } = useLanguage();
   const [form, setForm] = useState({ ...EMPTY_FORM });
+  const { submitting, error, submit } = useApiSubmit<HospitalEquipment>();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!form.nameAr && !form.nameEn) return;
 
@@ -49,41 +52,29 @@ export default function AddEquipmentModal({ open, rooms, onClose, onCreated }: A
       notesEn: undefined
     };
 
-    fetch('/api/staff/equipment', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload)
-    })
-      .then(async (res) => {
-        if (!res.ok) return;
-        const json = await res.json();
-        if (json?.data) onCreated(json.data as HospitalEquipment);
-      })
-      .catch(() => {});
+    const saved = await submit({
+      url: '/api/staff/equipment',
+      payload,
+      onSuccess: (created) => onCreated(created),
+    });
+
+    if (!saved) return;
 
     onClose();
     setForm({ ...EMPTY_FORM });
   };
 
   return (
-    <Modal isOpen={open} onClose={onClose} labelledById="add-equipment-title" panelClassName="max-w-xl w-full p-6">
-      <button
-        onClick={onClose}
-        className="absolute top-5 left-5 rtl:left-auto rtl:right-5 p-2 text-ink-400 hover:text-ink-700 rounded-full hover:bg-bone-100 transition-colors cursor-pointer"
-      >
-        <X className="w-5 h-5" />
-      </button>
-
-      <div className="mb-5">
-        <h3 id="add-equipment-title" className="text-base sm:text-lg font-extrabold text-pine-900 flex items-center gap-2">
-          <Cpu className="w-5 h-5 text-pine-700" />
-          <span>{t('إضافة جهاز طبي ونظام ليزر جديد', 'Add Biomedical Equipment / Laser')}</span>
-        </h3>
-        <p className="text-xs text-ink-500 mt-0.5">
-          {t('تسجيل بيانات الجهاز الطبي، الرقم التسلسلي، موقع التشغيل، وتعيين مهندس الصيانة', 'Register serial number, operating suite, calibration interval, and lead bio-engineer')}
-        </p>
-      </div>
-
+    <DashboardModalFrame
+      isOpen={open}
+      onClose={onClose}
+      labelledById="add-equipment-title"
+      titleAr="إضافة جهاز طبي ونظام ليزر جديد"
+      titleEn="Add Biomedical Equipment / Laser"
+      subtitleAr="تسجيل بيانات الجهاز الطبي، الرقم التسلسلي، موقع التشغيل، وتعيين مهندس الصيانة"
+      subtitleEn="Register serial number, operating suite, calibration interval, and lead bio-engineer"
+      icon={Cpu}
+    >
       <form onSubmit={handleSubmit} className="space-y-4 text-xs">
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div>
@@ -183,23 +174,16 @@ export default function AddEquipmentModal({ open, rooms, onClose, onCreated }: A
           />
         </div>
 
-        <div className="flex items-center justify-end gap-3 pt-3 border-t border-bone-100">
-          <button
-            type="button"
-            onClick={onClose}
-            className="px-4 py-2 text-ink-500 hover:bg-bone-100 rounded-xl font-bold transition-colors cursor-pointer"
-          >
-            {t('إلغاء', 'Cancel')}
-          </button>
-          <button
-            type="submit"
-            className="px-5 py-2.5 bg-pine-700 hover:bg-pine-800 text-white rounded-xl font-extrabold transition-all shadow-md flex items-center gap-2 cursor-pointer"
-          >
-            <Plus className="w-4 h-4" />
-            <span>{t('إضافة الجهاز للأسطول', 'Register Equipment')}</span>
-          </button>
-        </div>
+        <ModalFormFooter
+          onClose={onClose}
+          submitLabelAr="إضافة الجهاز للأسطول"
+          submitLabelEn="Register Equipment"
+          submitIcon={Plus}
+          submitTone="mid"
+          submitting={submitting}
+          error={error}
+        />
       </form>
-    </Modal>
+    </DashboardModalFrame>
   );
 }

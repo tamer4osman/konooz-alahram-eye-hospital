@@ -1,10 +1,58 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Calendar, X, CheckCircle2 } from 'lucide-react';
+import { Calendar, CheckCircle2 } from 'lucide-react';
 import { useLanguage } from '@/context/LanguageContext';
 import { ScheduledSurgery } from '@/data/dashboardData';
-import Modal from '@/components/ui/Modal';
+import { useApiSubmit } from '@/hooks/useApiSubmit';
+import DashboardModalFrame from '@/components/ui/DashboardModalFrame';
+import ModalFormFooter from '@/components/ui/ModalFormFooter';
+
+/**
+ * Surgical procedure catalogue. `ar` is the value persisted in
+ * procedureAr (unchanged from the original stored data); `labelAr`/`labelEn`
+ * are what the operator reads; `en` is the value persisted in procedureEn so
+ * both languages stay in sync instead of the English name staying frozen on
+ * whichever procedure was the default.
+ */
+const PROCEDURE_OPTIONS: { ar: string; labelAr: string; labelEn: string; en: string }[] = [
+  {
+    ar: 'عملية إزالة المياه البيضاء بالموجات فوق الصوتية (الفاكو) وزراعة عدسة مطوية',
+    labelAr: 'إزالة المياه البيضاء (الفاكو) + عدسة مطوية',
+    labelEn: 'Phacoemulsification + Foldable IOL',
+    en: 'Phacoemulsification with Foldable Monofocal IOL Implantation',
+  },
+  {
+    ar: 'استئصال جسم زجاجي وإصلاح انفصال شبكية مع حقن غاز / زيت سيليكون',
+    labelAr: 'استئصال الجسم الزجاجي وإصلاح انفصال الشبكية (Vitrectomy)',
+    labelEn: 'Pars Plana Vitrectomy & Retinal Repair',
+    en: 'Pars Plana Vitrectomy & Retinal Repair',
+  },
+  {
+    ar: 'تصحيح قصر النظر والاستجماتيزم بالفيمتو ليزك المخصص Custom-Q',
+    labelAr: 'تصحيح الإبصار بالفيمتو ليزك (Femto-LASIK)',
+    labelEn: 'Wavefront Femto-LASIK',
+    en: 'Wavefront Femto-LASIK',
+  },
+  {
+    ar: 'تثبيت القرنية المخروطية بالأشعة فوق البنفسجية والريبوفلافين (Cross-Linking)',
+    labelAr: 'تثبيت القرنية المخروطية (Corneal Cross-Linking)',
+    labelEn: 'Corneal Cross-Linking (CXL)',
+    en: 'Corneal Cross-Linking (CXL)',
+  },
+  {
+    ar: 'جراحة تصحيح الحول الدقيقة للأطفال',
+    labelAr: 'جراحة تصحيح الحول للأطفال (Strabismus Surgery)',
+    labelEn: 'Pediatric Strabismus Surgery',
+    en: 'Pediatric Strabismus Surgery',
+  },
+  {
+    ar: 'عملية تعديل ارتخاء الجفون وشد عضلات الجفن (Blepharoplasty)',
+    labelAr: 'تجميل وشد الجفون (Blepharoplasty)',
+    labelEn: 'Blepharoplasty & Oculoplastics',
+    en: 'Blepharoplasty & Oculoplastics',
+  },
+];
 
 interface ScheduleSurgeryModalProps {
   open: boolean;
@@ -34,8 +82,9 @@ const EMPTY_FORM = {
 export default function ScheduleSurgeryModal({ open, onClose, onScheduled }: ScheduleSurgeryModalProps) {
   const { t } = useLanguage();
   const [form, setForm] = useState({ ...EMPTY_FORM });
+  const { submitting, error, submit } = useApiSubmit<ScheduledSurgery>();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!form.patientNameAr && !form.patientNameEn) return;
 
@@ -58,41 +107,29 @@ export default function ScheduleSurgeryModal({ open, onClose, onScheduled }: Sch
       anesthesiaTypeEn: form.anesthesiaTypeEn
     };
 
-    fetch('/api/staff/surgeries', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload)
-    })
-      .then(async (res) => {
-        if (!res.ok) return;
-        const json = await res.json();
-        if (json?.data) onScheduled(json.data as ScheduledSurgery);
-      })
-      .catch(() => {});
+    const saved = await submit({
+      url: '/api/staff/surgeries',
+      payload,
+      onSuccess: (created) => onScheduled(created),
+    });
+
+    if (!saved) return;
 
     onClose();
     setForm({ ...EMPTY_FORM });
   };
 
   return (
-    <Modal isOpen={open} onClose={onClose} labelledById="schedule-surgery-title" panelClassName="max-w-xl w-full p-6">
-      <button
-        onClick={onClose}
-        className="absolute top-5 left-5 rtl:left-auto rtl:right-5 p-2 text-ink-400 hover:text-ink-700 rounded-full hover:bg-bone-100 transition-colors"
-      >
-        <X className="w-5 h-5" />
-      </button>
-
-      <div className="mb-5">
-        <h3 id="schedule-surgery-title" className="text-base sm:text-lg font-extrabold text-pine-900 flex items-center gap-2">
-          <Calendar className="w-5 h-5 text-pine-700" />
-          <span>{t('حجز وتنسيق موعد جراحة عيون عاجلة / مجدولة', 'Schedule New Ophthalmic Surgery Case')}</span>
-        </h3>
-        <p className="text-xs text-ink-500 mt-0.5">
-          {t('ربط المريض بالجراح، الجناح المعقم، ونوع التخدير المطلوب', 'Connect patient to surgeon, theater suite, and anesthesia team')}
-        </p>
-      </div>
-
+    <DashboardModalFrame
+      isOpen={open}
+      onClose={onClose}
+      labelledById="schedule-surgery-title"
+      titleAr="حجز وتنسيق موعد جراحة عيون عاجلة / مجدولة"
+      titleEn="Schedule New Ophthalmic Surgery Case"
+      subtitleAr="ربط المريض بالجراح، الجناح المعقم، ونوع التخدير المطلوب"
+      subtitleEn="Connect patient to surgeon, theater suite, and anesthesia team"
+      icon={Calendar}
+    >
       <form onSubmit={handleSubmit} className="space-y-4 text-xs">
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div>
@@ -120,7 +157,7 @@ export default function ScheduleSurgeryModal({ open, onClose, onScheduled }: Sch
               <label className="font-bold text-ink-700 block mb-1">{t('الجنس', 'Gender')}</label>
               <select
                 value={form.gender}
-                onChange={(e) => setForm({ ...form, gender: e.target.value as any })}
+                onChange={(e) => setForm({ ...form, gender: e.target.value as ScheduledSurgery['gender'] })}
                 className="w-full p-2.5 bg-bone-50 border border-pine-200 rounded-xl focus:ring-2 focus:ring-pine-500 font-semibold"
               >
                 <option value="male">{t('ذكر', 'Male')}</option>
@@ -134,27 +171,21 @@ export default function ScheduleSurgeryModal({ open, onClose, onScheduled }: Sch
           <label className="font-bold text-ink-700 block mb-1">{t('نوع الإجراء الجراحي *', 'Surgical Procedure *')}</label>
           <select
             value={form.procedureAr}
-            onChange={(e) => setForm({ ...form, procedureAr: e.target.value })}
+            onChange={(e) => {
+              const chosen = PROCEDURE_OPTIONS.find((opt) => opt.ar === e.target.value);
+              setForm({
+                ...form,
+                procedureAr: e.target.value,
+                procedureEn: chosen?.en ?? form.procedureEn,
+              });
+            }}
             className="w-full p-2.5 bg-bone-50 border border-pine-200 rounded-xl focus:ring-2 focus:ring-pine-500 font-semibold"
           >
-            <option value="عملية إزالة المياه البيضاء بالموجات فوق الصوتية (الفاكو) وزراعة عدسة مطوية">
-              {t('إزالة المياه البيضاء (الفاكو) + عدسة مطوية', 'Phacoemulsification + Foldable IOL')}
-            </option>
-            <option value="استئصال جسم زجاجي وإصلاح انفصال شبكية مع حقن غاز / زيت سيليكون">
-              {t('استئصال الجسم الزجاجي وإصلاح انفصال الشبكية (Vitrectomy)', 'Pars Plana Vitrectomy & Retinal Repair')}
-            </option>
-            <option value="تصحيح قصر النظر والاستجماتيزم بالفيمتو ليزك المخصص Custom-Q">
-              {t('تصحيح الإبصار بالفيمتو ليزك (Femto-LASIK)', 'Wavefront Femto-LASIK')}
-            </option>
-            <option value="تثبيت القرنية المخروطية بالأشعة فوق البنفسجية والريبوفلافين (Cross-Linking)">
-              {t('تثبيت القرنية المخروطية (Corneal Cross-Linking)', 'Corneal Cross-Linking (CXL)')}
-            </option>
-            <option value="جراحة تصحيح الحول الدقيقة للأطفال">
-              {t('جراحة تصحيح الحول للأطفال (Strabismus Surgery)', 'Pediatric Strabismus Surgery')}
-            </option>
-            <option value="عملية تعديل ارتخاء الجفون وشد عضلات الجفن (Blepharoplasty)">
-              {t('تجميل وشد الجفون (Blepharoplasty)', 'Blepharoplasty & Oculoplastics')}
-            </option>
+            {PROCEDURE_OPTIONS.map((opt) => (
+              <option key={opt.ar} value={opt.ar}>
+                {t(opt.labelAr, opt.labelEn)}
+              </option>
+            ))}
           </select>
         </div>
 
@@ -211,7 +242,7 @@ export default function ScheduleSurgeryModal({ open, onClose, onScheduled }: Sch
             <label className="font-bold text-ink-700 block mb-1">{t('مستوى الأولوية', 'Priority Level')}</label>
             <select
               value={form.priority}
-              onChange={(e) => setForm({ ...form, priority: e.target.value as any })}
+              onChange={(e) => setForm({ ...form, priority: e.target.value as ScheduledSurgery['priority'] })}
               className="w-full p-2.5 bg-bone-50 border border-pine-200 rounded-xl focus:ring-2 focus:ring-pine-500 font-semibold"
             >
               <option value="elective">{t('عادية مجدولة', 'Elective / Standard')}</option>
@@ -221,23 +252,16 @@ export default function ScheduleSurgeryModal({ open, onClose, onScheduled }: Sch
           </div>
         </div>
 
-        <div className="flex items-center justify-end gap-3 pt-3 border-t border-bone-100">
-          <button
-            type="button"
-            onClick={onClose}
-            className="px-4 py-2 text-ink-500 hover:bg-bone-100 rounded-xl font-bold transition-colors cursor-pointer"
-          >
-            {t('إلغاء', 'Cancel')}
-          </button>
-          <button
-            type="submit"
-            className="px-5 py-2.5 bg-pine-900 hover:bg-pine-700 text-white rounded-xl font-bold transition-all shadow-md flex items-center gap-2 cursor-pointer"
-          >
-            <CheckCircle2 className="w-4 h-4 text-brass-400" />
-            <span>{t('تثبيت وإدراج الحالة في الجدول', 'Schedule Surgery Case')}</span>
-          </button>
-        </div>
+        <ModalFormFooter
+          onClose={onClose}
+          submitLabelAr="تثبيت وإدراج الحالة في الجدول"
+          submitLabelEn="Schedule Surgery Case"
+          submitIcon={CheckCircle2}
+          submitTone="dark"
+          submitting={submitting}
+          error={error}
+        />
       </form>
-    </Modal>
+    </DashboardModalFrame>
   );
 }
