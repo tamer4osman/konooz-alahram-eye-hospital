@@ -23,3 +23,6 @@ src/
 # Playwright
 .playwright-mcp/
 test-results/
+
+# sentinel result cache (local tool state)
+.sentinel/
