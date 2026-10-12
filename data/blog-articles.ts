@@ -80,7 +80,3 @@ export const blogArticles: BlogArticle[] = [
 export function getBlogArticleBySlug(slug: string): BlogArticle | undefined {
   return blogArticles.find((a) => a.slug === slug);
 }
-
-export function getBlogSlugs(): string[] {
-  return blogArticles.map((a) => a.slug);
-}
