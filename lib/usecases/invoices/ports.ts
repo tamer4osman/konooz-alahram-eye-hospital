@@ -1,6 +1,6 @@
 import type {
-  InvoiceStatusPatch,
   ResolvedInvoiceCreate,
+  ResolvedStatusPatch,
 } from './types';
 import type { AgingSnapshotInvoiceInput } from './rules';
 import type { HospitalBillingInvoice as InvoiceDTO } from '@/data/dashboardData';
@@ -23,12 +23,6 @@ export interface InvoiceWriter {
 
 export interface InvoiceStatusUpdater {
   updateStatus(id: string, patch: ResolvedStatusPatch): Promise<InvoiceDTO>;
-}
-
-/** Status patch the adapter must persist (paidDate pre-resolved to Date). */
-export interface ResolvedStatusPatch {
-  status?: InvoiceStatusPatch['status'];
-  paidDate?: Date | null;
 }
 
 /**

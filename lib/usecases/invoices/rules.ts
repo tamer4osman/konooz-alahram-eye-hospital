@@ -4,8 +4,8 @@ import type {
   InvoiceStatusPatch,
   InvoiceStatus,
   ResolvedInvoiceCreate,
+  ResolvedStatusPatch,
 } from './types';
-import type { ResolvedStatusPatch } from './ports';
 
 // Pure business rules. No framework, no I/O — fully unit-testable.
 

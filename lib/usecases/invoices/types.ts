@@ -66,3 +66,9 @@ export interface ResolvedInvoiceCreate {
   issuedDate: Date;
   createdBy: string;
 }
+
+/** Fully-resolved status patch the adapter persists verbatim. */
+export interface ResolvedStatusPatch {
+  status?: InvoiceStatusPatch['status'];
+  paidDate?: Date | null;
+}
