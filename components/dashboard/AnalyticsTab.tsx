@@ -239,7 +239,7 @@ export default function AnalyticsTab({
             ].map((tf) => (
               <button
                 key={tf.key}
-                onClick={() => onChangeTimeframe(tf.key as any)}
+                onClick={() => onChangeTimeframe(tf.key as 'day' | 'week' | 'month' | 'year')}
                 className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
                   timeframe === tf.key
                     ? 'bg-[#0B3D33] text-white shadow-xs'
@@ -271,7 +271,7 @@ export default function AnalyticsTab({
           return (
             <button
               key={tab.key}
-              onClick={() => setActiveAnalyticsSubTab(tab.key as any)}
+              onClick={() => setActiveAnalyticsSubTab(tab.key as 'kpis' | 'resources' | 'flow' | 'stock' | 'outcomes')}
               className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-extrabold whitespace-nowrap transition-all cursor-pointer ${
                 isActive
                   ? 'bg-[#0B3D33] text-white shadow-xs'

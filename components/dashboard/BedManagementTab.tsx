@@ -582,7 +582,7 @@ export default function BedManagementTab() {
                 <label className="font-bold text-ink-700 block mb-1">{t('نوع الجناح الطبي', 'Ward Category')}</label>
                 <select
                   value={newBedForm.wardType}
-                  onChange={(e) => setNewBedForm({ ...newBedForm, wardType: e.target.value as any })}
+                  onChange={(e) => setNewBedForm({ ...newBedForm, wardType: e.target.value as WardType })}
                   className="w-full p-2.5 rounded-xl border border-pine-200 bg-white"
                 >
                   <option value="pacu_recovery">{t('وحدة الإفاقة المتقدمة (PACU)', 'PACU Recovery Ward')}</option>

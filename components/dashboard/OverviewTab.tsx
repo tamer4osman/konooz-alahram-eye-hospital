@@ -20,8 +20,15 @@ interface OverviewTabProps {
   equipmentList: HospitalEquipment[];
   surgeriesList: ScheduledSurgery[];
   onSelectTab: (tabId: string) => void;
-  onUpdateSurgeryStatus: (id: string, status: any) => void;
-  onUpdateRoomStatus: (id: string, status: any) => void; }
+  onUpdateSurgeryStatus: (id: string, status: ScheduledSurgery['status']) => void;
+  onUpdateRoomStatus: (id: string, status: HospitalRoom['status']) => void; }
+
+/** Shape produced by the departmentWorkload projection below. */
+interface DepartmentDatum {
+  name: string;
+  value: number;
+  color: string;
+}
 
 export default function OverviewTab({
   timeframe, staffList, roomsList, equipmentList, surgeriesList, onSelectTab
@@ -350,7 +357,7 @@ export default function OverviewTab({
                     paddingAngle={3}
                     dataKey="value"
                   >
-                    {departmentData.map((entry: any, index: number) => (
+                    {departmentData.map((entry: DepartmentDatum, index: number) => (
                       <Cell key={`cell-${index}`} fill={entry.color} />
                     ))}
                   </Pie>
@@ -373,7 +380,7 @@ export default function OverviewTab({
           </div>
 
           <div className="space-y-1.5 mt-2 pt-2 border-t border-bone-100 max-h-36 overflow-y-auto pr-1">
-            {departmentData.map((dep: any, idx: number) => (
+            {departmentData.map((dep: DepartmentDatum, idx: number) => (
               <div key={idx} className="flex items-center justify-between text-xs">
                 <span className="flex items-center gap-2 text-ink-700 truncate">
                   <span className="w-2.5 h-2.5 rounded-full flex-shrink-0" style={{ backgroundColor: dep.color }} />

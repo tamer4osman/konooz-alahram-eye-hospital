@@ -158,7 +158,7 @@ export default function DashboardHeader({
               ].map((tf) => (
                 <button
                   key={tf.key }
-                  onClick={() => onChangeTimeframe(tf.key as any)}
+                  onClick={() => onChangeTimeframe(tf.key as 'day' | 'week' | 'month' | 'year')}
                   className={`px-3 py-1 rounded-lg text-xs font-bold transition-all cursor-pointer ${
                     timeframe === tf.key
                       ? 'bg-pine-700 text-white shadow-sm'
