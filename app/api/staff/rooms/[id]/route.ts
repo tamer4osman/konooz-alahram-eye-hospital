@@ -1,8 +1,7 @@
 import { NextRequest } from 'next/server'
 import { z } from 'zod'
-import { apiSuccess, apiError } from '@/lib/api/response'
-import { requireAdmin, readJson } from '@/lib/api/admin-route'
-import { auditStaffMutation } from '@/lib/api/audit'
+import { apiSuccess } from '@/lib/api/response'
+import { requireAdmin, readJson, auditedAdminWrite } from '@/lib/api/admin-route'
 import { deleteRoom, updateRoom, RoomConflictError, RoomNotFoundError } from '@/lib/usecases/rooms'
 import { prismaRoomWriter } from '@/lib/adapters/prisma/room-adapter'
 
@@ -27,6 +26,20 @@ const patchSchema = z.object({
   mainDeviceAssignedEn: z.string().nullable().optional(),
 })
 
+const ROOM_NOT_FOUND = {
+  code: 'ROOM_NOT_FOUND',
+  ar: 'الغرفة غير موجودة',
+  en: 'Room not found',
+  is: (err: unknown) => err instanceof RoomNotFoundError,
+}
+
+const ROOM_DELETE_CONFLICT = {
+  code: 'ROOM_DELETE_CONFLICT',
+  ar: 'تعذر حذف الغرفة (قد تكون مرتبطة بمواعيد أو عمليات)',
+  en: 'Failed to delete room (may have linked appointments or surgeries)',
+  is: (err: unknown) => err instanceof RoomConflictError,
+}
+
 // Thin handler: auth gate -> validate -> use case -> respond.
 
 export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
@@ -38,20 +51,16 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
   const body = await readJson(req, patchSchema, 'قيم التحديث غير صالحة', 'Invalid update values')
   if (!body.ok) return body.response
 
-  try {
-    const room = await updateRoom(prismaRoomWriter, id, body.data)
-    await auditStaffMutation(auth.user, {
-      action: 'update',
-      module: 'rooms',
-      targetId: id,
-    })
-    return apiSuccess(room)
-  } catch (err) {
-    if (err instanceof RoomNotFoundError) {
-      return apiError(404, 'ROOM_NOT_FOUND', 'الغرفة غير موجودة', 'Room not found')
-    }
-    throw err
-  }
+  const result = await auditedAdminWrite({
+    user: auth.user,
+    action: 'update',
+    module: 'rooms',
+    targetId: id,
+    run: () => updateRoom(prismaRoomWriter, id, body.data),
+    notFound: ROOM_NOT_FOUND,
+  })
+  if (!result.ok) return result.response
+  return apiSuccess(result.data)
 }
 
 export async function DELETE(_req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
@@ -59,27 +68,16 @@ export async function DELETE(_req: NextRequest, { params }: { params: Promise<{ 
   if (!auth.ok) return auth.response
 
   const { id } = await params
-  try {
-    await deleteRoom(prismaRoomWriter, id)
-    await auditStaffMutation(auth.user, {
-      action: 'delete',
-      module: 'rooms',
-      targetId: id,
-    })
-    return apiSuccess({ ok: true })
-  } catch (err) {
-    if (err instanceof RoomNotFoundError) {
-      return apiError(404, 'ROOM_NOT_FOUND', 'الغرفة غير موجودة', 'Room not found')
-    }
-    if (err instanceof RoomConflictError) {
-      // FK constraint: room still referenced by appointments/surgeries
-      return apiError(
-        409,
-        'ROOM_DELETE_CONFLICT',
-        'تعذر حذف الغرفة (قد تكون مرتبطة بمواعيد أو عمليات)',
-        'Failed to delete room (may have linked appointments or surgeries)',
-      )
-    }
-    throw err
-  }
+
+  const result = await auditedAdminWrite({
+    user: auth.user,
+    action: 'delete',
+    module: 'rooms',
+    targetId: id,
+    run: () => deleteRoom(prismaRoomWriter, id),
+    notFound: ROOM_NOT_FOUND,
+    conflict: ROOM_DELETE_CONFLICT,
+  })
+  if (!result.ok) return result.response
+  return apiSuccess({ ok: true })
 }

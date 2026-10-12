@@ -1,8 +1,7 @@
 import { NextRequest } from 'next/server'
 import { z } from 'zod'
-import { apiSuccess, apiError } from '@/lib/api/response'
-import { requireAdmin, readJson } from '@/lib/api/admin-route'
-import { auditStaffMutation } from '@/lib/api/audit'
+import { apiSuccess } from '@/lib/api/response'
+import { requireAdmin, readJson, auditedAdminWrite } from '@/lib/api/admin-route'
 import { deleteEquipment, updateEquipment, EquipmentNotFoundError } from '@/lib/usecases/equipment'
 import { prismaEquipmentWriter } from '@/lib/adapters/prisma/equipment-adapter'
 
@@ -22,6 +21,13 @@ const patchSchema = z.object({
   notesEn: z.string().nullable().optional(),
 })
 
+const EQUIPMENT_NOT_FOUND = {
+  code: 'EQUIPMENT_NOT_FOUND',
+  ar: 'الجهاز غير موجود',
+  en: 'Equipment not found',
+  is: (err: unknown) => err instanceof EquipmentNotFoundError,
+}
+
 // Thin handler: auth gate -> validate -> use case -> respond.
 
 export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
@@ -33,20 +39,16 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
   const body = await readJson(req, patchSchema, 'قيم التحديث غير صالحة', 'Invalid update values')
   if (!body.ok) return body.response
 
-  try {
-    const device = await updateEquipment(prismaEquipmentWriter, id, body.data)
-    await auditStaffMutation(auth.user, {
-      action: 'update',
-      module: 'equipment',
-      targetId: id,
-    })
-    return apiSuccess(device)
-  } catch (err) {
-    if (err instanceof EquipmentNotFoundError) {
-      return apiError(404, 'EQUIPMENT_NOT_FOUND', 'الجهاز غير موجود', 'Equipment not found')
-    }
-    throw err
-  }
+  const result = await auditedAdminWrite({
+    user: auth.user,
+    action: 'update',
+    module: 'equipment',
+    targetId: id,
+    run: () => updateEquipment(prismaEquipmentWriter, id, body.data),
+    notFound: EQUIPMENT_NOT_FOUND,
+  })
+  if (!result.ok) return result.response
+  return apiSuccess(result.data)
 }
 
 export async function DELETE(_req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
@@ -54,18 +56,15 @@ export async function DELETE(_req: NextRequest, { params }: { params: Promise<{ 
   if (!auth.ok) return auth.response
 
   const { id } = await params
-  try {
-    await deleteEquipment(prismaEquipmentWriter, id)
-    await auditStaffMutation(auth.user, {
-      action: 'delete',
-      module: 'equipment',
-      targetId: id,
-    })
-    return apiSuccess({ ok: true })
-  } catch (err) {
-    if (err instanceof EquipmentNotFoundError) {
-      return apiError(404, 'EQUIPMENT_NOT_FOUND', 'الجهاز غير موجود', 'Equipment not found')
-    }
-    throw err
-  }
+
+  const result = await auditedAdminWrite({
+    user: auth.user,
+    action: 'delete',
+    module: 'equipment',
+    targetId: id,
+    run: () => deleteEquipment(prismaEquipmentWriter, id),
+    notFound: EQUIPMENT_NOT_FOUND,
+  })
+  if (!result.ok) return result.response
+  return apiSuccess({ ok: true })
 }

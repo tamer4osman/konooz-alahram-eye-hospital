@@ -1,8 +1,7 @@
 import { NextRequest } from 'next/server'
 import { z } from 'zod'
-import { apiSuccess, apiError } from '@/lib/api/response'
-import { requireAdmin, readJson } from '@/lib/api/admin-route'
-import { auditStaffMutation } from '@/lib/api/audit'
+import { apiSuccess } from '@/lib/api/response'
+import { requireAdmin, readJson, auditedAdminWrite } from '@/lib/api/admin-route'
 import { deleteSurgery, updateSurgery, SurgeryNotFoundError } from '@/lib/usecases/surgeries'
 import { prismaSurgeryWriter } from '@/lib/adapters/prisma/surgery-adapter'
 
@@ -18,6 +17,13 @@ const patchSchema = z.object({
   notesEn: z.string().nullable().optional(),
 })
 
+const SURGERY_NOT_FOUND = {
+  code: 'SURGERY_NOT_FOUND',
+  ar: 'العملية غير موجودة',
+  en: 'Surgery not found',
+  is: (err: unknown) => err instanceof SurgeryNotFoundError,
+}
+
 // Thin handler: auth gate -> validate -> use case -> respond.
 
 export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
@@ -29,20 +35,16 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
   const body = await readJson(req, patchSchema, 'قيم التحديث غير صالحة', 'Invalid update values')
   if (!body.ok) return body.response
 
-  try {
-    const surgery = await updateSurgery(prismaSurgeryWriter, id, body.data)
-    await auditStaffMutation(auth.user, {
-      action: 'update',
-      module: 'surgeries',
-      targetId: id,
-    })
-    return apiSuccess(surgery)
-  } catch (err) {
-    if (err instanceof SurgeryNotFoundError) {
-      return apiError(404, 'SURGERY_NOT_FOUND', 'العملية غير موجودة', 'Surgery not found')
-    }
-    throw err
-  }
+  const result = await auditedAdminWrite({
+    user: auth.user,
+    action: 'update',
+    module: 'surgeries',
+    targetId: id,
+    run: () => updateSurgery(prismaSurgeryWriter, id, body.data),
+    notFound: SURGERY_NOT_FOUND,
+  })
+  if (!result.ok) return result.response
+  return apiSuccess(result.data)
 }
 
 export async function DELETE(_req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
@@ -50,18 +52,15 @@ export async function DELETE(_req: NextRequest, { params }: { params: Promise<{ 
   if (!auth.ok) return auth.response
 
   const { id } = await params
-  try {
-    await deleteSurgery(prismaSurgeryWriter, id)
-    await auditStaffMutation(auth.user, {
-      action: 'delete',
-      module: 'surgeries',
-      targetId: id,
-    })
-    return apiSuccess({ ok: true })
-  } catch (err) {
-    if (err instanceof SurgeryNotFoundError) {
-      return apiError(404, 'SURGERY_NOT_FOUND', 'العملية غير موجودة', 'Surgery not found')
-    }
-    throw err
-  }
+
+  const result = await auditedAdminWrite({
+    user: auth.user,
+    action: 'delete',
+    module: 'surgeries',
+    targetId: id,
+    run: () => deleteSurgery(prismaSurgeryWriter, id),
+    notFound: SURGERY_NOT_FOUND,
+  })
+  if (!result.ok) return result.response
+  return apiSuccess({ ok: true })
 }
