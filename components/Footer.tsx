@@ -131,7 +131,7 @@ export default function Footer() {
                 rel="noopener noreferrer"
                 className="px-3 py-1.5 rounded-lg bg-white/5 hover:bg-white/15 text-pine-100 ring-1 ring-white/15 transition-colors flex items-center gap-1.5 font-bold"
               >
-                <span>فيسبوك @hospitalpyramid</span>
+                <span>{t('فيسبوك @hospitalpyramid', 'Facebook @hospitalpyramid')}</span>
                 <ExternalLink className="w-3 h-3" />
               </a>
 
@@ -141,7 +141,7 @@ export default function Footer() {
                 rel="noopener noreferrer"
                 className="px-3 py-1.5 rounded-lg bg-white/5 hover:bg-white/15 text-pine-100 ring-1 ring-white/15 transition-colors flex items-center gap-1.5 font-bold"
               >
-                <span>تطبيق سبيتار</span>
+                <span>{t('تطبيق سبيتار', 'Spitar App')}</span>
                 <ExternalLink className="w-3 h-3" />
               </a>
             </div>
